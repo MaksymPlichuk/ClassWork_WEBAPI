@@ -7533,7 +7533,111 @@ app.UseCors(corsPolicy)	--	підключаємо
 
 
 ----------------------------------------------
-02_
+02_SeederRepositories
+
+//Many to many
+	#Неявне EF сам сворить таблицю
+			Seeder - runtime
+
+public class Post {
+	public int Id { get; set; )
+	public List<Tag> Tags {get; } = [];
+}
+public class Tag {
+	public int Id { get; set; }
+	public List<Post> Posts (get; } = [];
+}
+
+/AppDbContext
+
+builder. Entity<BookEntity>()
+	.HasMany(b => b.Genres)
+	.WithMany(g => g.Books)
+	.UsingEntity("B")	-- вкаже назву проміжної таблиці
+	
+//у пропертях створ List кожної property і AppDbContext налаштовуємо
+	
+
+.DAL
+using Microsoft.AspNetCore. Builder;
+	
+	public static async Task SeedAsync(this IApplicationBuilder app)
+{
+	using var scope =  app.ApplicationServices. CreateScope();
+using var context = scope.ServiceProvider.GetRequired Service<AppDbContext>();
+
+	await context.Database.MigrateAsync();
+	
+	
+if(!context.Genres.Any())
+{
+	var genres = new List<GenreEntity>()
+	{
+		new GenreEntity { Name = "Фентезі" },
+	}
+	
+  await context.Genres.AddRangeAsync(genres);
+  await context.SaveChangesAsync();
+}
+	
+	
+new AuthorEntity {
+	BirthDate = new DateTime(1980, 5, 14).ToUniversalTime(),	
+						//фіксить час для міграцій
+
+
+repository -- класи як дають методи для роботи з бд
+
+
+public interface IBaseEntity  -- стор для generic
+{
+	int Id { get; set; }
+	DateTime CreateDate { get; set; }
+}
+
+public class BaseEntity: IBaseEntity -- для generic repository
+{
+	public int Id { get; set; }
+	public DateTime CreateDate { get; set; } = DateTime.UtcNow;
+}
+
+public class GenericRepository<TEntity>
+	where TEntity : class IBaseEntity -- гарантує що IBaseEntity буде імплементований | може прийти тільки класс типу BaseEntity
+			вподальшому дозволить використовувати propety BaseEntity (Id)	
+{
+
+	public async Task<bool> CreateAsync(TEntity entity)
+	{
+		await context.Set<TEntity>().AddAsync(entity);
+						
+					перевіряє к-сть змінених рядків
+		return (await_context.SaveChanges Async()) != 0
+	}
+}
+
+
+
+public class AuthorRepository: GenericRepository<AuthorEntity>
+{
+	private readonly AppDbContext_context;
+
+	public AuthorRepository (AppDbContext context)
+	: base(context)	-- імплементація тепмлейту
+	{
+		_context context;
+	}
+
+public async Task<List<BookEntity>> GetBooksAsync(AuthorEntity entity)
+{
+	await_context.Entry(entity)
+	.Collection(e => e.Books)
+	.LoadAsync();		-- явне загруження данних
+	
+	return entity.Books;
+}
+
+----------------------------------------------
+03_
 
 
 

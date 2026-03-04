@@ -1,0 +1,10 @@
+Написати BookRepository, GenreRepository
+
+Для GenreRepository додати метод
+	GetByName
+
+Для BookRepository додати методи
+	GetByYear
+	GetByRating
+	GetByGenre
+	GetByAuthor
