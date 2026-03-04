@@ -1,0 +1,7 @@
+﻿https://github.com/potapchukdmytro/PD411_ASP_Books_API
+
+
+Додати таблицю Genres
+Зробити зв'язок Many to Many із книгами
+
+Написати seeder

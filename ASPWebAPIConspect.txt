@@ -1,0 +1,7540 @@
+  /$$$$$$  /$$$$$$$   /$$$$$$     /$$   /$$ /$$$$$$$$ /$$$$$$$$
+ /$$__  $$| $$__  $$ /$$__  $$   | $$$ | $$| $$_____/|__  $$__/
+| $$  \ $$| $$  \ $$| $$  \ $$   | $$$$| $$| $$         | $$   
+| $$$$$$$$| $$  | $$| $$  | $$   | $$ $$ $$| $$$$$      | $$   
+| $$__  $$| $$  | $$| $$  | $$   | $$  $$$$| $$__/      | $$   
+| $$  | $$| $$  | $$| $$  | $$   | $$\  $$$| $$         | $$   
+| $$  | $$| $$$$$$$/|  $$$$$$//$$| $$ \  $$| $$$$$$$$   | $$   
+|__/  |__/|_______/  \______/|__/|__/  \__/|________/   |__/   
+                                                               
+ADO.Net Conspect
+
+
+----------------------------------------------
+01_IntroADO.NETConnectedMode
+
+Батьківський класс = Базовий класс
+
+
+	Базовий класс			Клас наслідник
+
+	DbConnection
+								SqlConnection
+								OleDbConnection
+								OdbcConnection
+								OracleConnection
+	DbCommand
+								SqlCommand
+								OleDbCommand
+								OdbcCommand
+								OracleCommand
+	DbDataReader							
+								SqlDataReader
+								OleDbDataReader
+								OdbcDataReader
+								OracleDataReader
+	DbDataAdapter							
+								SqlDataAdapter
+								OleDbDataAdapter
+								OdbcDataAdapter
+								OracleDataAdapter
+								
+
+
+
+
+ //connectionString:  Property=value;Property2=value2;
+							
+								//Назва Серверу
+    string connectionString = @"Data Source = DESKTOP-1LCG8OH\SQLEXPRESS; 
+	
+			//Назва БД
+			Initial Catalog = SportShop;
+								
+			//Windows користувач чи ні
+		Integrated Security = true; 		
+		
+		
+			TrustServerCertificate=True;	";
+
+
+	SqlConnection sqlConnection = new SqlConnection(connectionString);
+
+sqlConnection.Open();
+           Console.WriteLine("Connected success!");
+		   
+sqlConnection.Close();
+		   
+		   
+
+
+ExecuteNonQuery() - Скільки рядків задіяно (insert,update,delete)
+
+ExecuteReader() - Поверт таблицю (select)
+
+ExecuteScalar() - коли поверт 1 значення
+
+
+ int id = 2;
+string name = "Pукавиці";
+
+--Execute Reader--
+						`	//показ id
+	string cmdText = $@"select * from Products
+					where Id = {id}";
+	
+							//показ назву
+	string cmdText2 = $@"select * from Products
+					where Name = '{name}'";
+	
+SqlCommand command = new SqlCommand(cmdText, sqlConnection);
+
+
+SqlDataReader reader = command.ExecuteReader();
+
+						//кількість полів
+ for (int i = 0; i < reader.FieldCount; i++) 
+            {						//назва колонки
+                Console.Write($" {reader.GetName(i),14}");
+            }
+			
+            Console.WriteLine("\n------------------");
+
+            while (reader.Read())
+            {
+              
+                for (int i = 0; i < reader.FieldCount; i++)
+                {						//назва рядка
+                    Console.Write($" {reader[i],14} ");
+                }
+                Console.WriteLine();
+            }
+
+ reader.Close();
+
+
+------------------
+02_CRUDInterface
+
+
+
+`
+
+
+ADO.Net Conspect
+
+
+------------------------------------------------------------------------------------------
+01_IntroADO.NETConnectedMode
+
+Батьківський класс = Базовий класс
+
+
+	Базовий класс			Клас наслідник
+
+	DbConnection
+								SqlConnection
+								OleDbConnection
+								OdbcConnection
+								OracleConnection
+	DbCommand
+								SqlCommand
+								OleDbCommand
+								OdbcCommand
+								OracleCommand
+	DbDataReader							
+								SqlDataReader
+								OleDbDataReader
+								OdbcDataReader
+								OracleDataReader
+	DbDataAdapter							
+								SqlDataAdapter
+								OleDbDataAdapter
+								OdbcDataAdapter
+								OracleDataAdapter
+								
+
+
+
+
+ //connectionString:  Property=value;Property2=value2;
+							
+								//Назва Серверу
+    string connectionString = @"Data Source = DESKTOP-1LCG8OH\SQLEXPRESS; 
+	
+			//Назва БД
+			Initial Catalog = SportShop;
+								
+			//Windows користувач чи ні
+		Integrated Security = true; 		
+		
+		
+			TrustServerCertificate=True;	";
+
+
+	SqlConnection sqlConnection = new SqlConnection(connectionString);
+
+sqlConnection.Open();
+           Console.WriteLine("Connected success!");
+		   
+sqlConnection.Close();
+		   
+		   
+
+
+ExecuteNonQuery() - Скільки рядків задіяно (insert,update,delete)
+
+ExecuteReader() - Поверт таблицю (select)
+
+ExecuteScalar() - коли поверт 1 значення
+
+
+ int id = 2;
+string name = "Pукавиці";
+
+--Execute Reader--
+						`	//показ id
+	string cmdText = $@"select * from Products
+					where Id = {id}";
+	
+							//показ назву
+	string cmdText2 = $@"select * from Products
+					where Name = '{name}'";
+	
+SqlCommand command = new SqlCommand(cmdText, sqlConnection);
+
+
+SqlDataReader reader = command.ExecuteReader();
+
+						//кількість полів
+ for (int i = 0; i < reader.FieldCount; i++) 
+            {						//назва колонки
+                Console.Write($" {reader.GetName(i),14}");
+            }
+			
+            Console.WriteLine("\n------------------");
+
+            while (reader.Read())
+            {
+              
+                for (int i = 0; i < reader.FieldCount; i++)
+                {						//назва рядка
+                    Console.Write($" {reader[i],14} ");
+                }
+                Console.WriteLine();
+            }
+
+ reader.Close();
+
+
+------------------------------------------------------------------------------------------
+02_CRUDInterface
+
+
+connection string - змінна інформація
+
+суть підєднаного режиму роботи з бд полягає в тому що ми на початку створ об'єкт 
+	SportShopDb передаємо connectionString і підключаємося до серверу
+
+далі виконуємо CRUD операції з бд коли бд не потрібна ми закриваємо sqlConnection
+
+суть відєднаного режиму роботи полягає в тому що 
+	ми на початку підключаємося до бд дію виконали і відключаємося від бд
+
+
+Щоб реалізувати sqlConnection в main використовуємо using а до класу 
+	підключаємо IDisposeable
+
+
+суть CRUD інтерфейсу працювати з існуючими данними
+
+
+ class SportShopDb: IDisposable
+    {
+        private SqlConnection sqlConnection;
+      
+        public SportShopDb(string connectionString)
+        {
+            sqlConnection = new SqlConnection(connectionString);
+            sqlConnection.Open();
+        }
+
+
+	 public void Create_As_Insert(Product product) 
+        {
+            string cmdText = $@"INSERT INTO Products
+                              VALUES ('{product.Name}', 
+                                      '{product.Type}',
+                                       {product.Quantity}, 
+                                       {product.Cost}, 
+                                      '{product.Producer}', 
+                                       {product.Price})";
+
+            SqlCommand command = new SqlCommand(cmdText, sqlConnection);
+            command.CommandTimeout = 5; // default - 30sec
+           
+            int rows = command.ExecuteNonQuery();
+            Console.WriteLine(rows + " rows affected!");
+        }
+
+	
+	public List<Product> Read_Get_All() 
+        {
+            string cmdText = $@"select * from Products";
+
+            SqlCommand command = new SqlCommand(cmdText, sqlConnection);
+             SqlDataReader reader = command.ExecuteReader();
+            Console.OutputEncoding = Encoding.UTF8;
+
+            List<Product> products = new List<Product>();   
+         
+            while (reader.Read())
+            {
+                products.Add(
+                    new Product()
+                    {
+                        Id = (int)reader[0],
+                        Name = (string)reader[1],
+                        Type = (string)reader[2],
+                        Quantity = (int)reader[3],
+                        Cost = (int)reader[4],
+                        Producer = (string)reader[5],
+                        Price = (int)reader[6]
+                    });
+            }
+            reader.Close();
+            return products;    
+        }
+
+
+
+	public void Delete(int id) 
+        {
+            string cmdText = $@"delete Products where Id = {id}";
+
+            SqlCommand command = new SqlCommand(cmdText, sqlConnection);       
+            int rows = command.ExecuteNonQuery();
+			
+			Console.WriteLine(rows + " rows Affected")
+        }
+
+        public void Dispose()
+        {
+            sqlConnection.Close();  
+        }
+	}
+
+------------------------------------------------------------------------------------------
+03_SQLInjection. Data Access Layer
+
+
+Чистий ADO.NET -> використ sql команди напряму
+
+
+
+'{Name}' - уразливий до SQL injection
+
+
+Тільки command може заборонити sql інєкції
+
+
+public List<Product> Get_By_Name(string _user_name)
+{
+	string cmdText = $@"select * from Products where Name = @name";
+	
+	SqlCommand command = new SqlCommand(cmdText, sqlConnection);
+	command.Parameters.Add("name", System.Data.SqlDbType.NVarChar).Value = _user_name;
+	
+						назва змінної	тип данних					кому присвоїти
+	
+	
+	SqlDataReader reader = command.ExecuteReader();
+	return GetProductsByQuery(reader);
+}
+						
+
+	command.Parameters.AddWithValue("name", product.Name);
+								псевдонім		назва об'єкта
+
+
+			-самий простий-
+			
+string cmdText = $@"INSERT INTO Products
+VALUES (@name, @type, @quantity, @cost,@producer, @price)";
+
+SqlCommand command = new SqlCommand(cmdText, sqlConnection);
+
+command.Parameters.AddWithValue("name", product.Name);
+command.Parameters.AddWithValue("type", product. Type);
+command.Parameters.AddWithValue("quantity", product.quantity);
+command.Parameters.AddWithValue("product", product.producer);
+
+
+
+---
+
+ private void ShowFunction(string cmdText,params SqlParameter[] parameters)
+        {
+            SqlCommand command = new SqlCommand(cmdText, sqlConnection);
+
+            if (parameters!=null)
+            {
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    command.Parameters.Add(parameters[i]);
+                }
+            }
+
+
+  SqlParameter param1 = new SqlParameter
+            {
+                ParameterName = "formatedDate",
+                SqlDbType = System.Data.SqlDbType.Date,
+                Value = formatedDate
+            };
+
+---
+
+
+
+--WPF
+
+Бібліотека призначена щоб дати класи 
+
+Solution -> Create new Project -> Class Library
+
+
+Class Library - не запускається/його призначення зберігати класи які ми будемо використовувати
+
+
+виносимо class SportShopDb і Products.cs через ЛКМ у 03_ClassLibrary
+
+
+
+Solution -> Manage NuGet Packages
+Dependencies->Add Project References -> 03_ClassLibrary
+
+
+у 03_ClassLibrary Міняємо класи на public
+
+
+
+dll - dynamic link library
+
+набір класів який можне використовувати в консольних і віконних додатках
+
+
+
+Models -> містить всі класи
+
+SportShopDb -> міст який зв'язує проект і бд
+
+03_CRUDInterface -> просто main
+
+
+
+ <DockPanel>
+        <ToolBar DockPanel.Dock="Top">
+            <Button Click="Button_Click">Load Products</Button>
+        </ToolBar>
+        <DataGrid Name="dataGrid"></DataGrid>	//таблиця
+ </DockPanel>
+
+
+dataGrid.ItemsSource = db.Read_Get_All();
+
+------------------------------------------------------------------------------------------
+04_LINQ To SQL
+
+internal - класс видно тільки в проекті
+
+Назва класу який звязаний з бд і має CRUD інтерфейс МАЄ бути приставка DB
+			|  міст між C# і БД
+
+
+
+connected mode - затратний		  |  Більше навантаження на сервер / Швидші зміни
+
+disconected mode - менш затратний |
+
+
+ Add new item -> LINQ to SQL Classes
+ 
+ View - > SQL Server Object Explorer -> Add SQL Server
+ 
+ ->  далі вибираємо у БД наші таблиці і тягнемо у меню -> потім жмемо ctrl+c (Таблиця стор з SQL у C#)
+ 
+ 
+System.Data.Linq.Table<Employee>   -  перетвор таблицю з дб у таблицю в C#
+
+
+
+
+
+
+Top(5) = Take(5)
+
+
+	//предикат | функція завданняс якої є взяти по черзі кожен Product і сказати true або false
+
+static bool FilteredPredicate(Product p)	//або (p => p.CostPrice > 1000)
+        {
+            return p.CostPrice > 1000;
+        }
+
+
+			якщо true, то буде додаватися в цю колекцію
+
+var mostValue = db.Products.Where(p => p.CostPrice > 1000)		//синтаксис методу
+                .OrderByDescending(p => p.CostPrice).Take(5);
+
+
+
+
+var mostValue = (from p in db.Products
+                         where p.CostPrice > 1000
+                         orderby p.Price descending			//синтаксис запиту
+                         select p).Take(5);
+
+
+
+ foreach (var p in mostValue)
+            {
+                Console.WriteLine($"Product: {p.Id,5}. {p.Name,-15} . {p.CostPrice}$ ");
+            }
+
+
+
+
+db.Products.InsertOnSubmit(product);	//вставляє об'єкт в колекцію але не в БД
+db.SubmitChanges();		//вставляє зміни у БД
+
+
+
+
+											//бо повертається 1 елем а Функція IQueryable
+  Product pr = db.Products.Where(p => p.Id == 3).FirstOrDefault();
+  
+            Console.WriteLine($"Product with id {pr.Id}. {pr.Name}. Price = {pr.CostPrice}");
+			
+            pr.CostPrice -= 16000;
+			
+            db.SubmitChanges();		//щоб зміни перенеслись у бд
+			
+	
+	
+			
+pr.CostPrice -= 16000;	// приходить на зміну чистому ADO.NET де все відбув через
+
+cmdText = "update Table Products where id='5'"  ТА		
+								SqlCommand commad = new SqlCommand(cmdText, connectionString)  // і ТД.....
+								
+								
+щоб створити Linq to Entities треба
+
+
+VS installer -> Modify Visual Studio 2022 -> Individual Components -> sql -> 
+
+ ✅ SQL Server Data Tools		//на базі VS studio створиться Local Server					
+ ✅ SQL Server Express 2019 LocalDB
+
+	Code Tools
+ 
+ ✅ LINQ to SQL tools		//Файл який дозволив по діаграмі(ctrl+c) створити БД				
+								
+								
+					
+					
+=====================================================								
+=====================================================								
+=====================================================								
+=====================================================								
+ /$$$$$$$$             /$$     /$$   /$$                     /$$$$$$$$                                                                           /$$      
+| $$_____/            | $$    |__/  | $$                    | $$_____/                                                                          | $$      
+| $$       /$$$$$$$  /$$$$$$   /$$ /$$$$$$   /$$   /$$      | $$     /$$$$$$  /$$$$$$  /$$$$$$/$$$$   /$$$$$$  /$$  /$$  /$$  /$$$$$$   /$$$$$$ | $$   /$$
+| $$$$$   | $$__  $$|_  $$_/  | $$|_  $$_/  | $$  | $$      | $$$$$ /$$__  $$|____  $$| $$_  $$_  $$ /$$__  $$| $$ | $$ | $$ /$$__  $$ /$$__  $$| $$  /$$/
+| $$__/   | $$  \ $$  | $$    | $$  | $$    | $$  | $$      | $$__/| $$  \__/ /$$$$$$$| $$ \ $$ \ $$| $$$$$$$$| $$ | $$ | $$| $$  \ $$| $$  \__/| $$$$$$/ 
+| $$      | $$  | $$  | $$ /$$| $$  | $$ /$$| $$  | $$      | $$   | $$      /$$__  $$| $$ | $$ | $$| $$_____/| $$ | $$ | $$| $$  | $$| $$      | $$_  $$ 
+| $$$$$$$$| $$  | $$  |  $$$$/| $$  |  $$$$/|  $$$$$$$      | $$   | $$     |  $$$$$$$| $$ | $$ | $$|  $$$$$$$|  $$$$$/$$$$/|  $$$$$$/| $$      | $$ \  $$
+|________/|__/  |__/   \___/  |__/   \___/   \____  $$      |__/   |__/      \_______/|__/ |__/ |__/ \_______/ \_____/\___/  \______/ |__/      |__/  \__/
+                                             /$$  | $$                                                                                                    
+                                            |  $$$$$$/                                                                                                    
+                                             \______/                                                                                                     							
+=====================================================								
+=====================================================								
+=====================================================								
+=====================================================								
+
+
+
+Entity Framework Conspect
+
+
+----------------------------------------------
+01_IntroToEntityFramework
+
+Entity Framework - підхід що дасть насписати код по якому згенерує БД
+
+
+ORM - Object Relational Mapping
+
+	Mapping (Переконвертовує данні з БД у класс)
+
+
+			model-workflow	
+			
+	*Database First(по ДБ класи)
+ 
+Existing Database	---->	Generated Data Model (.edmx)
+
+
+	*Model First(По схемі БД)
+	
+Data Model (.edmx)	---->	Generated Database
+
+
+	*Code First(По коду БД)
+	
+Data Model (classes) ---->	Generated Database
+or
+Existing Database	---->	Generated Data Model (classes)
+
+
+ Назва класу який звязаний з бд і має CRUD інтерфейс МАЄ бути приставка DB,DBContex
+			|  міст між C# і БД
+			
+			
+			
+			==Code First==
+			
+			
+ class Airplane
+}
+	
+	public int Id { get; set; }
+	
+	private string Model { get; set; }
+	
+	private int MaxPassangers { get; set; }
+	
+	
+	/////Relational Type: Flight ---Airplane (1....*)
+	
+	public ICollection<Flight> Flights { get; set; }
+}
+
+ class Flight
+{
+	
+	public int Id { get; set; }
+	
+	private string ArrivalCity { get; set; }
+	
+	private string DepartureCity { get; set; }
+	
+	private DateTime DepartureTime { get; set; }
+	
+	private DateTime ArrivalTime { get; set; }
+	
+	
+	/////Relational Type: Flight ---Airplane (1....*)
+	
+	public Airplane Airplane { get; set; }
+	public int AirplaneId { get; set; }
+}
+
+
+
+ Щоб зробити зв'язок one to many
+ 
+у Flight створ вказівник на літак	( public Airplane Airplane { get; set; } ) 
+
+а у Airplane колекцію Flight	( public ICollection<Flight> Flights { get; set; } )
+
+ *Крім цього створ додаткове поле у Flight для зручності :	public int AirplaneId { get; set; }
+ 
+
+
+	Щоб зробити зв'язок many to many
+	
+у Client створ вказівник на літак	( public ICollection<Flight> Flights { get; set; } ) 
+
+а у Flight колекцію Flight	( public ICollection<Client> Clients { get; set; } )	
+	
+	
+		==== C# to SQL ====
+		
+		✅	Microsoft.EntityFrameworkCore
+
+		
+public DbSet<Client> Clients { get; set; }	- проперті який 
+			у момент mapping перетвор дані на таблицю	
+	
+	  DbSet<>	- клас який у C# зберігає колекцію а у БД таблицю	
+	
+	
+public DbSet<Flight> Flights { get; set; }
+
+public DbSet<Airplane> Airplanes { get; set; }	
+	
+	
+	
+internal class AirportDbContext: DBContext{....		- клас зв'язується з БД | дає класу методи для роботи з БД
+...
+}
+
+
+потім в main створ екземпляр від якого є методи
+
+
+context.Client.Add(new Client(){
+	Name = ...
+});
+context.SaveChanges();	// те саме що і db.SubmitChanges();	
+
+
+		====CONNECTION====
+			
+	✅	Microsoft.EntityFrameworkCore.SqlServer
+
+
+ protected OVERRIDE void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+            optionsBuilder.UseSqlServer(@"Data Source=DESKTOP-1LCG8OH\SQLEXPRESS;
+                                        Initial Catalog = PD_411_Airport;
+                                        Integrated Security=True;
+                                        Connect Timeout=5;
+                                        Encrypt=False;Trust Server Certificate=False;
+                                        Application Intent=ReadWrite;Multi Subnet Failover=False");
+        }
+
+
+
+
+public AirportDbContext()
+        {
+           this.Database.EnsureDeleted();	//Delete БД
+
+           this.Database.EnsureCreated();	//Create БД
+        }
+		
+		
+		==== C# to SQL ====
+		
+		
+Якщо назва проперті має Id/id/ID NameId то при DbSet<> ці поля будуть Primary Key
+
+Якщо назва проперті має Name+Id то при DbSet<> ці поля будуть Foreign Key
+
+
+Value - not null	Reference - nullable
+
+
+ public DateTime? Birthdate { get; set; }	[ ? ] not null --> null 
+ 
+Щоб вносити змінити як у SQL використ DataAnnotations:
+	
+	[Required] 				//not null
+	[MaxLength(Number)]		//nvarhcar(Number)
+	[Key]  					//Primary Key
+	[Column("FirstName")]  	//as 'FirstName'
+	
+	
+	
+автоматично створ	
+
+		create table ClientFlight			//проміжна таблиця
+(
+	ClientId int not null references Teachers (Id), -- 1 1 1 2 7 2 5	1..20
+	FlightsNumber int not null references Groups (Id),	 -- 4 3 5 4 4 3 4 	1...20
+	
+	-- складений первинний ключ
+	primary key (ClientId, FlightsNumber)	//перевіряє комбінації на дублікат
+)
+
+
+OnModelCreating - insert дані у таблицю при створенні БД
+	Вказ тільки основні поля
+
+        protected OVERRIDE void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Airplane>().HasData(new Airplane[]
+          {
+                new Airplane()
+                {
+                     Id = 1,
+                     Model = "Boeing747",
+                     MaxPassangers = 200
+                },
+                 new Airplane()
+                {
+                     Id = 2,
+                     Model = "Boeing748",
+                     MaxPassangers = 200
+                }
+
+          });
+            modelBuilder.Entity<Flight>().HasData(new Flight[]
+            {
+                new Flight()
+                {
+                     Number = 1,
+                     ArrivalCity = "Lviv",
+                     DepartureCity = "Kyiv",
+                     ArrivalTime = new DateTime(2025,9,21),
+                     DepartureTime = new DateTime(2025,9,21),
+                     AirplaneId = 1                    
+                },
+                 new Flight()
+                {
+                     Number = 2,
+                     ArrivalCity = "Lviv",
+                     DepartureCity = "Odessa",
+                     ArrivalTime = new DateTime(2025,9,22),
+                     DepartureTime = new DateTime(2025,9,22),
+                     AirplaneId = 2
+                }
+
+            });
+        }
+		
+		
+		
+Client cl = context.Clients.Find(1);
+ 
+            Console.WriteLine($"{cl.Name}  {cl.Email} {cl.Birthdate.ToString("yyyy-MM-dd")} ");
+
+            if(cl != null)
+            {
+                context.Clients.Remove(cl);
+                context.SaveChanges();  
+            }
+			
+			
+----------------------------------------------
+02_EF_Migrations
+
+
+при many to many EF автоматично створить проміжну таблицю
+
+ можна для зручності створити її самому Щоб зробити вивід без join
+ 
+ 
+entities -  класи які зв'язуються з БД
+
+
+		треба поставити
+	
+	✅	Microsoft.EntityFramework Core.Tools
+
+migration - можливість по коду стоврити БД при змінах вона записує їх і
+		порівнює SQL з C#
+
+
+
+потім у консолі в tools -> NuGet Package Manager -> Package Manager Console
+
+	пишемо комнду:	 add-migration MigrationName
+
+	update-database 	--> 	застосувати зміни
+	
+	Remove-Migration 	-->		видалити міграцію
+	
+	
+migration - можливість гуманним методом оновити/створити БД БЕЗ ВИДАЛЕННЯ існуючої інформації
+
+
+			Більше не потрібні
+			
+		this.Database.EnsureDeleted();	
+		this.Database.EnsureCreated();
+		
+		
+проміжна таблиця допомагає вже заповнити данні		
+		
+----------------------------------------------
+03_EF_ Fluent API
+
+Fluent API - можливості винести Data anottations в одне місце
+	дає можливість налаштувати зв'язки (як яка проперті прив'язана)
+	
+
+
+
+modelBuilder. Entity<Airplane>(). HasKey(a => a.Id); 	//primary key (робить поле первинним ключем)
+modelBuilder. Entity<Airplane>().ToTable("Plane");		//Table Name (дає назву таблиці)
+														Table("Plane")
+
+
+
+		=бере літака у якого проперті Model=
+ 1	modelBuilder. Entity<Airplane>().Property(a => a.Model)		//найкращий
+ 2	modelBuilder. Entity<Airplane>().Property("Model")
+ 3	modelBuilder. Entity<Airplane>().Property(nameof(Airplane.Model))		
+
+
+    до проперті c.Name замість
+ [Required,MaxLength(150),Column("Plane")]
+
+
+ modelBuilder.Entity<Airplane>()
+ .Property(a => a. Model)
+ .HasMaxLength(100)		// MaxLength(100)
+ .IsRequired();			// Required
+
+
+ modelBuilder. Entity<Client>()
+ .Property(c=>c.Name)
+ .IsRequired()
+ .HasMaxLength(150)
+ .HasColumnName("FirstName");	//Column("Plane")
+
+
+
+ .HasKey(a => a.Id);   				[Key]
+ .ToTable("Plane");					[Table("Plane")]	
+ 
+  .HasMaxLength(100)				[MaxLength(100)]
+  .IsRequired();					[Required]
+  .HasColumnName("FirstName");		[Column("Plane")]
+
+
+
+
+
+					Relationship navigations
+
+	==прив'язує Clients до Flights many to many==
+				конкретизує до якої властивості прив'язати
+		
+--пишеться щоб правильніше побудувалась таблиця і взяла ті проперті
+		У класах колекції елем на елем залишаємо
+		
+		
+		//many to many	*...........*
+		
+modelBuilder. Entity<Flight>()
+ .HasMany(f => f.Clients)
+ .WithMany (c => c.Flights);
+
+
+		//one to many 	1..................*
+			//літак має * польотів а політ 1 літак
+		
+modelBuilder. Entity<Flight>()
+ .HasOne(f => f. Airplane)
+ .WithMany (a=>a.Flights)
+ .HasForeignKey(f=> f. AirplaneId);
+
+
+
+
+
+
+					Seeder
+
+для зручності виносимо в інший клас DbInitializer
+	і створ папку Helpers
+	
+
+	Seeder	-  той самий  OnModelCreating(ModelBuilder modelBuilder)
+
+
+Для кожної ініціалізації класу створ нову функцію 
+
+
+	додаємо THIS і STATIC шоб зробити extension 
+			і у DbContext викликати modelBuilder.SeedFlights();
+				
+
+	static class DbInitializer {
+
+
+ public static void SeedAiplanes(this ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Airplane>().HasData(new Airplane[]
+            {
+			new Airplane(){ ......}
+			}
+		}
+		
+		
+   public  static void SeedFlights(this ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Flight>().HasData(new Flight[]
+           {
+                new Flight() {.....}		
+		   }
+		}
+
+}
+
+----------------------------------------------
+04_EF_Loading Data
+
+
+ Visual Studio Installer - > ✅ Class Designer	//щоб на основі БД була діаграма
+
+
+
+Типи підгрузок
+	1 явний Join - Проміжна таблиця
+	2 явна підгрузка до 1 параметра
+
+
+	Console.WriteLine($"{cl?.Name}  {cl?.Email} - якщо об'єкт буде null то воно його виведе без помилки
+
+
+JOIN - load data Include(relation data)		//(relation data) - тип данних який підтягуємо
+
+
+var flight = context.Flights
+	.Include(f => f. Airplane)				//JOIN
+	.Where(f => f. ArrivalCity == "Lviv")
+	.OrderBy(f=> f. DepartureTime);
+
+
+foreach (var f in flight)
+ {
+ 	Console.WriteLine($"Arrival city {f.ArrivalCity}
+ 		$"Departure city: {f.DepartureCity}\n" +
+ 		$"Departure time: {f.Departure Time. ToShortDateString()}\n" +
+ 		$"Airplane: {f.AirplaneId} {f.Airplane.Model}");
+ }														при Include буде працювати
+							без виводитиме Null object not set
+
+
+
+
+ .Include(f => f. Airplane)	//Підгрузка 
+					абсолютно всіх данних з таблиці Airplane до всіх Flight
+						
+
+
+
+	//Явна підгрузка | підгрузка до конеретного об'єкта
+	
+ --Explicit loading data : Context.Entry(entity).Collection/References.Load()
+												
+								Collection - для ICollection<>
+								References - для Посилання на 1 об'єкт
+
+
+
+Client cl = context.Clients.Find(3);
+
+
+ context.Entry(cl).Collection(cl => cl.Flights).Load();	
+	
+	Entry(cl) - Вказ для якого об'єкта конкретно підгружаються данні
+	
+	
+DataAccess 	
+	або
+data library - клас не запускає консоль краще для користувача
+
+  повинен мати все що стоується роботи з БД (Entities,Helpers,Migrations)
+
+----------------------------------------------
+05_EF_OneToOne
+
+one to one - самий складний і неприродній зв'язок для БД
+
+при цьому зв'язку визначаємо яка таблиця буде головною а яка залежною
+
+
+	//залежна
+public class Credential	{
+...
+public Client Client { get; set; }	//null
+public int ClientId { get; set; }	//null
+	}
+
+	//основна бо ( int? )
+public class Client	{
+...
+public Credential Credential { get; set; }	//null
+public int? CredentialId { get; set; }	//not null
+	}
+
+
+=====================================================								
+=====================================================								
+=====================================================								
+=====================================================								
+  /$$$$$$                        /$$                                                                          
+ /$$__  $$                      | $$                                                                          
+| $$  \__/ /$$   /$$  /$$$$$$$ /$$$$$$    /$$$$$$  /$$$$$$/$$$$                                               
+|  $$$$$$ | $$  | $$ /$$_____/|_  $$_/   /$$__  $$| $$_  $$_  $$                                              
+ \____  $$| $$  | $$|  $$$$$$   | $$    | $$$$$$$$| $$ \ $$ \ $$                                              
+ /$$  \ $$| $$  | $$ \____  $$  | $$ /$$| $$_____/| $$ | $$ | $$                                              
+|  $$$$$$/|  $$$$$$$ /$$$$$$$/  |  $$$$/|  $$$$$$$| $$ | $$ | $$                                              
+ \______/  \____  $$|_______/    \___/   \_______/|__/ |__/ |__/                                              
+           /$$  | $$                                                                                          
+          |  $$$$$$/                                                                                          
+           \______/                                                                                           
+ /$$$$$$$                                                                              /$$                    
+| $$__  $$                                                                            |__/                    
+| $$  \ $$ /$$$$$$   /$$$$$$   /$$$$$$   /$$$$$$  /$$$$$$  /$$$$$$/$$$$  /$$$$$$/$$$$  /$$ /$$$$$$$   /$$$$$$ 
+| $$$$$$$//$$__  $$ /$$__  $$ /$$__  $$ /$$__  $$|____  $$| $$_  $$_  $$| $$_  $$_  $$| $$| $$__  $$ /$$__  $$
+| $$____/| $$  \__/| $$  \ $$| $$  \ $$| $$  \__/ /$$$$$$$| $$ \ $$ \ $$| $$ \ $$ \ $$| $$| $$  \ $$| $$  \ $$
+| $$     | $$      | $$  | $$| $$  | $$| $$      /$$__  $$| $$ | $$ | $$| $$ | $$ | $$| $$| $$  | $$| $$  | $$
+| $$     | $$      |  $$$$$$/|  $$$$$$$| $$     |  $$$$$$$| $$ | $$ | $$| $$ | $$ | $$| $$| $$  | $$|  $$$$$$$
+|__/     |__/       \______/  \____  $$|__/      \_______/|__/ |__/ |__/|__/ |__/ |__/|__/|__/  |__/ \____  $$
+                              /$$  \ $$                                                              /$$  \ $$
+                             |  $$$$$$/                                                             |  $$$$$$/
+                              \______/                                                               \______/                                                                                                      							
+=====================================================								
+=====================================================								
+=====================================================								
+=====================================================	
+
+
+---------------------------------------------------------------
+01_SP - Intro to System Programming. Processes
+
+async - await //Головна мета
+
+процес - програма яка запускається
+
+
+base priority - визначає кому більше дати процесорного часу
+
+псевдо паралельність - виконання багатьох процесів частково
+
+
+using System.Diagnostics; // for working with processes
+
+
+ Process.Start("Chrome.exe", "stackoverflow.com google.com");
+	
+
+	close - proceses = null
+	closeMainWindow - гуманно закриває alt+f4
+	kill - як через task manager
+
+
+grid.ItemSource = Process.GetProcesses();	//викликає функцію GetProcesses
+
+grid.SelectedItem as Process	// Бере виділений елемент як процес
+
+---------------------------------------------------------------
+02_SP - Threads
+
+
+---
+WPF
+
+InitializeComponent - Створ Main Window
+
+---
+
+
+using System.Threading;		//for threads
+
+
+
+Thread - потік додатковий класи який дає C#
+
+
+										void Функція									
+ThreadStart threadstart = new ThreadStart(Method);
+
+Thread thread = new Thread(threadstart);
+thread.Priority ThreadPriority.Normal;
+
+
+	або зразу 
+
+Thread thread = new Thread(Method);
+
+
+thread.Start()	- Буде виконуватись ця ф-ція і main
+
+
+ThreadStart - нічого не передаємо
+ParameterizedThreadStart - приймає obj
+
+
+ static void ThreadFunc(object? a)
+         {
+ 
+             string ID = (string)a;
+             for (int i = 0; i < 100; i++)
+             {
+                 Console.WriteLine(ID + " " + i);
+                 //Console.ReadKey();
+                 Thread.Sleep(100);
+             }
+         }
+
+Thread thread1 = new Thread(ThreadFunc);
+            thread1.Start((object)"One");	//потік з параметром
+
+
+	t.IsBackground = true
+	
+ другорядний потік закривається коли закривається Основний
+
+	
+	t.Abort(); //перервати потік
+
+
+
+ParameterizedThreadStart ts = new ParameterizedThreadStart(Method);
+
+	Thread t1 new Thread(ts);
+	Thread t2 = new Thread(ts);
+
+t1. Priority=ThreadPriority.Lowest;
+t2. Priority=ThreadPriority.Highest;
+
+  t1.Start((object)"t1: Lowrst")
+
+
+	t.Join	//чекає поки потік не закінчиться і потім продовжує Main
+
+
+			-Thread in wfp-
+
+private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            thread = new Thread(HardWork);	
+            thread.Start();		//стовр новий потік щоб вікно не фрізилось
+        }
+
+   private void HardWork()
+   {
+       bool isContinue = false;
+      Application.Current.Dispatcher.Invoke(new Action(() =>	//з потоку програми переключ на вікно
+        {
+			if (progress.Value > 0)
+				progress.Value = progress.Minimum;
+			isContinue = progress.Value < progress.Maximum;
+        }));
+	   
+       while (isContinue)
+       {
+            Application.Current.Dispatcher.Invoke(new Action(() =>		//так само доступаємось до потоку
+           {
+				progress.Value++;
+				isContinue = progress.Value < progress.Maximum;
+           }));
+           Thread.Sleep(110);
+		   
+		} 
+		   
+		   
+Tuple<int, int> tuple = new Tuple<int, int>(5, 6);	--пара для передачи 2 аргументів у функцію
+
+---------------------------------------------------------------
+03_SP - Thread Synchronization
+
+
+threads[i].Join() - чекає коли закінчаться потоки і потім об'єднує їх 
+
+
+	 static void Function()
+        {
+            for (int j = 1; j <= 1_000_000; ++j)
+            { ++Counter.count; Thread.Sleep(500); }
+        }
+        static void Main(string[] args)
+        {
+
+           
+            Thread[] threads = new Thread[5];
+				for (int i = 0; i < threads.Length; ++i)
+				{
+					threads[i] = new Thread(() => {				//як new Thread(Function)
+						for (int j = 1; j <= 1_000_000; ++j)
+						{ Counter.count++; }
+					});
+					threads[i].Start();
+				}
+            for (int i = 0; i < threads.Length; ++i)
+                threads[i].Join();
+
+            Console.WriteLine("counter = {0}", Counter.count);	///малоб бути 5_000_000
+
+
+Аде потоки перебивають один одного 	-- вихід Inter locker
+									ставить замок поки потік використ змінну
+
+
+	Thread[] threads = new Thread[5];
+            for (int i = 0; i < threads.Length; ++i)
+            {
+                threads[i] = new Thread(delegate ()
+                {
+                    for (int j = 1; j <= 1_000_000; ++j)
+                    {
+
+                        Interlocked.Increment(ref Counter.count);
+                    }
+                });
+                threads[i].Start();
+            }
+
+	
+		
+		Види Interlocked:
+		
+ public static Int32 Increment(ref Int32 location); – увеличивает значение на 1;
+	public static int Decrement(ref int location); – уменьшает значение на 1;
+	
+public static int Add(ref int location, int value); – увеличивает/уменьшает значение на value;
+	public static int Exchange(ref int locationi, int value); – обменивает параметры значениями;
+	
+	public static int CompareExchange(ref int location, int value, int comparand) – сравнивает location и comparand и присваивает location value в случае успеха.
+
+
+
+
+
+interlocked - ставить замок на змінну коли потік її використовує
+
+Interlocked.Increment (ref Counter.count); - для 1 змінної
+
+
+lock(this) - ставить замок на всі змінні классу
+
+	
+	for (int i = 0; i < 1_000_000; ++i)
+                {
+                    // this - pointer вказівник на змінні классу
+                    lock (this)
+                    {
+                        
+														//Interlocked.Increment(ref number);//Interlocked не підійде бо працює з 1 змінною
+                        ++number;
+                        if (number % 2 == 0)//---------------------------
+																				//Interlocked.Increment(ref evenNumbers);
+                            ++evenNumbers;=
+                    }
+                }
+
+
+
+					-lock для статичного классу-
+					
+static немає this тому
+
+	
+lock (typeof(StaticLockCounter))	//StaticLockCounter - назва классу
+{
+	++fieldl;
+	if (field1 % 2 0)
+	++field2;
+}|
+
+
+
+---------------------------------------------------------------
+04_SP - Tasks
+
+	using System.Threading.Tasks;
+
+
+TPL - Task Parallel Library	//default using
+
+
+CancellationToken - дозволяє перервати task
+delegate void()	-- те саме що ()
+
+Action - делегат	void()
+
+
+ Task task4 = new Task( ()=> {
+ 	Console.WriteLine("Початок роботи метода Display");
+ 	Console.WriteLine("Завершення роботи метода Display");
+ });
+task4.Start();
+
+	-або-
+	
+ Task task4 = new Task(Display);
+task4.Start();
+	
+
+	//start automatically
+	
+Task task2 Task.Factory.StartNew(() =>
+	Console.WriteLine($"Task 2 is executed in Thread: " +
+	$"{Thread.CurrentThread. Managed ThreadId}"
+));
+
+		
+
+
+		
+		Самий поширений(static об'єкт класу не потрібен)
+
+ Task task3 = Task.Run(() =>
+}
+	Console.WriteLine($"Task 3 is executed in Thread: {Thread.Cur
+});
+
+
+
+
+
+task.Wait(); // waiting (freeze)
+	як Thread.Join()
+
+
+	tasks - масив task
+
+Task.WaitAll(tasks)	//чекаємо поки закінчатьтся всі task
+
+Task.WaitAny(tasks)	//чекаємо поки закінчатся 1 task
+
+
+
+
+Thread	- вузький функціонал	Нічого не повертає
+Task - більший функціонал		Повертає
+
+
+
+
+ Task task1 = new Task(() => {
+	Console.WriteLine($"Task Id: {Task.CurrentId}");
+	Thread.Sleep(1000);
+ });
+ 
+Task task2 = task1.ContinueWith(Display)
+	.ContinueWith(Display2);	- створ послідовність методів
+
+	task1.Start()	//запустить ланцюг ф-цій
+
+
+
+
+
+	--типізована task яке повертає і приймає int
+Task<int> t = new Task<int>(() => Factorial(5));	
+
+			() => Factorial(5)		//void лямбда вираз який нічого не приймає і не повертає
+								всередені алгоритму якого лежить метод Factorial
+
+
+t.Start()
+
+	//t.Wait()	-- необов'язково бо task1.Result == taskl.Wait();
+
+t.Result()	// проперті яка покаже знач з ф-ції
+
+
+
+--ContinueWith(Summ); - приймає PREVIOUS taks
+
+	static int Summ(Task<int> prevTask)
+{
+	int summ = prevTask.Result * 2;
+	Console.WriteLine(summ);
+	return summ;
+}
+
+Task<int> t = task1.ContinueWith(Summ);
+
+Console.WriteLine(t.Result);
+
+
+
+			--Outer 	Inner-
+			
+
+var outer Task. Factory. StartNew(()	// outer task
+ {
+	Console.WriteLine("Outer task starting...");
+		var inner = Task. Factory. StartNew(() => // inner task
+		{
+			Console.WriteLine("Inner task starting...");
+			Thread.Sleep(2000);
+			Console.WriteLine("Inner task finished.");
+			
+		}, TaskCreationOptions.Attached To Parent);		//спочатку виконається outer потім inner
+														// без неї рандомно
+	
+	/), TaskCreationOptions. Attached To Parent);		
+	//inner.Wait();//freez
+		
+	Console.WriteLine("Outer task ending...");
+	
+ });
+outer.Wait(); 						// waiting outer task
+Console.WriteLine("End of Main");
+Console.ReadLine();
+
+
+inner треба outer -- тільки щоб він його створив
+
+
+---------------------------------------------------------------
+05_SP - Async/Await
+
+
+ItemSource - для незмінної колекції
+
+ListBox - клас для виведення данних
+list.Items.Add(value);
+
+
+<ProgressBar DockPanel. Dock="Bottom" Value="20" Height="15" 
+IsIndeterminate="True"	- прогрес бар рухаєтсья
+	>	</ProgressBar>
+
+
+
+		//розбив функціїї на потоки
+
+private void Button_Click(object sender, RoutedEventArgs e)
+{
+	Task<int> task Task. Run(GenerateNumber);
+	//int value = task.Result;	-- заморожує програму
+	//list.Items.Add(value);
+}		
+
+
+	/прапорець на метод щоб компілювався по особливому
+Async	-  дозволено await | метод розділяється на 2 частини до await(зразу) і після(чекати)
+(послідовне без заморозки)
+
+
+
+
+
+
+	await	-	чекає task без freeze
+
+
+int value = await task;	 --не заморожує додаток коли чекає результат
+		//повертає task.Result
+
+
+
+СУТЬ ASYNC METHODS - ПОВЕРТАЮТЬ TASK
+	всі async повертають Task<T>
+
+
+			Async - у ф-ції створ task
+Task<int> GenerateNumberAsync()
+{
+	return Task.Run(()=>
+	{
+		Thread.Sleep(random.Next(5000));
+		return random. Next(1000);
+	});
+}
+
+
+
+	list.Items.Add(await Generate NumberAsync());
+
+---------------------------------------------------------------
+06_SP - Open File Dialog
+ 
+ асинхронно - послідовно без freeze
+ 
+ <TextBox IsReadOnly = "True" 		--не дає писати
+		><TextBox/>
+ 
+ 
+ <Window.Resources>		-- тег у якому можна задати стилізацію
+ 
+        <Style TargetType="{x:Type Button }">	--стилізація для кнопок
+            <Setter Property="Margin" Value="5"></Setter>
+            <Setter Property="Padding" Value="10"></Setter>
+            <Setter Property="Background" Value="LightBlue"></Setter>            
+        </Style>
+		
+        <Style TargetType="{x:Type TextBox }">	--стилізація для полів вводу
+            <Setter Property="Margin" Value="5"></Setter>
+            <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+        </Style>
+    </Window.Resources>
+ 
+ 
+ 
+ 
+ 
+	//тільки з файлами(старий варіант)
+OpenFileDialog fileDialog = new OpenFileDialog();
+
+ if (fileDialog.ShowDialog() == true) 
+            {
+                MessageBox.Show(fileDialog.FileName);
+				
+                model.Source = sourceTb.Text = fileDialog.FileName;
+  }
+ 
+ 
+ 
+		для кращої версії(файли+папки)
+ 
+ 
+	✅	Microsoft-WindowsAPICodePack-Shell
+ 
+ using MicrosoftWindowsAPICodePack.Dialogs;
+ 
+ 
+CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+ dialog. IsFolderPicker = true;		--для роботи з папками(але не файл)
+
+
+ 
+ 
+ 
+return Task - треба для await	наприклад:
+ 
+await CopyAsync(from.Text, to. Text);
+MessageBox.Show("Копіювання завершено!");
+ 
+ 
+без return Task у CopyAsync MessageBox не вивведеться
+ 
+ 
+
+	[AddINotifyPropertyChangedInterface]	- повідомляє вікно про те що код помінявся
+class ViewModel
+    {
+        public string Source { get; set; }
+        public string Destination { get; set; }
+        public float Progress { get; set; }
+        public bool IsWaiting => Progress == 0;
+    }
+ 
+ 
+ViewModel model = new ViewModel();	-- class який прив'язує вікно з кодом(вікно бачитиме усі проперті)
+ 
+ 
+у конструкторі MainWindow:
+this.DataContext = model;	//прив'язали вікно з кодом
+ 
+ 
+Value="{Binding Progress}"	--прив'язали value з проперті
+ 
+ 
+View model 	- класс який зв'язує вікно з кодом
+ 
+
+щоб при зміні value у коді змінювалася і UI	
+	
+	
+	✅PropertyChanged.Fody
+
+using PropertyChanged;
+
+
+			//асинхронне копіювання + збільшення progressbar
+
+	private Task CopyFileAsync(string src, string dest)
+        {
+            return Task.Run(() =>
+            {
+               
+                using FileStream srcStream = new FileStream(src, FileMode.Open, FileAccess.Read);
+                using FileStream desStream = new FileStream(dest, FileMode.Create, FileAccess.Write);
+                byte[] buffer = new byte[1024 * 8];//8Kb
+                int bytes = 0;
+                do
+                {
+                    bytes = srcStream.Read(buffer, 0, buffer.Length);
+                    desStream.Write(buffer, 0, bytes);
+
+                    float percentage = desStream.Length / (srcStream.Length / 100);   
+                    model.Progress = percentage;    
+
+
+                } while (bytes > 0);
+          
+  
+            });
+            
+        }
+
+	
+	
+==	
+
+Stackpanel - дозвол створювати об'єкти всередині його і всі вони будуть на 100% ширини Stackpanel
+як сітка тільки об'єкти не розташовуються 1 під одним а вертикально (зверху вниз)
+
+Border - тег створює білу панель посередині вікна — «картку», на якій усе розташовано.
+==	
+---------------------------------------------------------------
+07_SP - Copy File Manager
+
+
+<DockPanel
+LastChildFill="True">	- останній елем займе все місце що залишилось
+
+<ListBox>
+<ListBoxItem>	-	може мітсити тільки один об'єкт
+
+
+якщо потрібно щось динамічно додавати/показувати треба зробити в коді колекцію а потім її забіндити
+
+==
+ щоб напряму працювати з Listbox створ list, list<CopyProcessecInfo>  proceses = new List<CopyProcessecInfo>
+	де CopyProcessecInfo клас зі змінними для ListBox (filename,percentage)
+
+[AddINotifyPropertyChangedInterface]	-	повідомляє вікно про зміни	
+    class CopyProcessecInfo
+    {
+        public string Filename { get; set; }
+        public float Percentage { get; set; }
+    }
+
+
+але цей ліст приватний тому робимо  проперті IEnumerable і присвоюємо їй list
+
+	 public IEnumerable<CopyProcessecInfo> Processes => processes;	//get - readonly
+	
+	та ініціалізуємо в конструкторі
+		public ViewModel()
+	{
+		processes = [];
+	}
+	
+	
+і біндимо ListBox	<ListBox ItemsSource="{Binding Processes}" .....	
+	
+
+додаємо зміни у CopyBtn і CopyFileAsync
+
+
+	 private async  void CopyBtn(object sender, RoutedEventArgs e)
+        {
+           ....
+            string filename = Path.GetFileName(model.Source);
+           
+							//add to list item
+							
+            CopyProcessecInfo info = new CopyProcessecInfo()
+            {
+                Filename = filename,
+                Percentage = 0
+            };
+   model.AddProcess(info);	-- додає Item у Listbox
+														//додаємо
+            await CopyFileAsync(model.Source, destFilename, info);
+           }
+
+
+														//додаємо
+ private Task CopyFileAsync(string src, string dest, CopyProcessecInfo info)
+        {
+            return Task.Run(() =>
+            {
+             ...
+                 info.Percentage = percentage;   
+				...}
+		}
+
+у класі ViewModel додаємо функція яка додає Item у List
+
+	public void AddProcess(CopyProcessecInfo info)
+			{
+				processes.Add(info);	- додає елем у list<CopyProcessecInfo>
+			}
+		
+*Але ListBox не обновляється для нових об'єктів тому заміняємо 	list<CopyProcessecInfo> на ObservableCollection<CopyProcessecInfo>
+	
+		
+ObservableCollection	-	колекція яка динамічно повідомляє вікно про зміни	
+
+
+<ListBox.ItemTemplate> - прописуємо як виглядатиме 1 елемент
+
+
+
+
+<ListBox.ItemTemplate>	-	як ToString() | допомог вивести інформацію 
+	<DataTemplate>
+		<ListBoxItem>
+		
+		<Grid>	- для кращового виводу
+		
+             <Grid.ColumnDefinitions>
+                 <ColumnDefinition Width="Auto" MaxWidth="100"></ColumnDefinition>
+                 <ColumnDefinition Width="Auto" MaxWidth="100"></ColumnDefinition>
+                 <ColumnDefinition Width="*"></ColumnDefinition>
+             </Grid.ColumnDefinitions>
+												//назва прив'яз до фалу
+             <TextBlock Grid.Column="0" Text="{Binding Filename}"
+                        Margin="5" TextTrimming="WordEllipsis"></TextBlock>		-- TextTrimming="WordEllipsis" обрізає текст
+						
+             <TextBlock Grid.Column="1"  Margin="5" > 		-- як  Console.WriteLine("asd" + "b")
+                <Run Text="{Binding Percentage}"></Run>	% 		виведе сам процент і допише %
+             </TextBlock>
+         
+             
+             <ProgressBar Grid.Column="2" Value="{Binding Percentage}"></ProgressBar>
+         </Grid>
+		 
+		</ListBoxItem>
+	</DataTemplate>
+</ListBox.ItemTemplate>
+
+
+=
+
+
+<TextBlock Grid.Column="1" Margin="5" >
+<Run Text="{Binding Percentage)"></Run>%	-	виводить проценти+%
+</TextBlock> 	
+
+TextTrimming="WordEllipsis"	- обрізає текст
+
+
+ObservableCollection - list який дивиться чи змінився код і повідомляє вікно
+
+---------------------------------------------------------------
+08_SP - Parallel
+
+Parallel.For(1, 20, Factorial) - замість циклу з потоками
+			але	Factorial(int a) -- обов'язкова має мати аргумент
+			
+
+	for (int i = 1 i++) i <= 20
+	{
+		Task.Run(()=> Factorial(i));
+	{
+
+
+			//list - IEnumerable collection
+Parallel.ForEach(list, Factorial);
+
+
+Parallel.ForEach - як парарельний foreach
+
+
+DateTime start = DateTime.Now;
+ParallelLoopResult result = Parallel.ForEach(authors, AverageRating);
+ if (result. IsCompleted)
+ {
+ 	Console.WriteLine("Duration: "+ (DateTime.Now start). TotalSeconds);
+ 	Console.WriteLine("All Tasks had completed!");
+ }
+
+
+CancellationToken - зупиняє Task
+
+							//розділяє на потоки LINQ
+var factorials from n in numbers.AsParallel()
+	where n > 0
+	orderby n
+	select Factorial(n);
+
+foreach (var n in factorials)
+	Console.WriteLine("\t\t" + n);
+
+
+.AsParallel() - паралельний LINQ
+
+
+
+
+
+=====================================================								
+=====================================================								
+=====================================================								
+=====================================================								
+ /$$   /$$             /$$                                       /$$                                          
+| $$$ | $$            | $$                                      | $$                                          
+| $$$$| $$  /$$$$$$  /$$$$$$   /$$  /$$  /$$  /$$$$$$   /$$$$$$ | $$   /$$                                    
+| $$ $$ $$ /$$__  $$|_  $$_/  | $$ | $$ | $$ /$$__  $$ /$$__  $$| $$  /$$/                                    
+| $$  $$$$| $$$$$$$$  | $$    | $$ | $$ | $$| $$  \ $$| $$  \__/| $$$$$$/                                     
+| $$\  $$$| $$_____/  | $$ /$$| $$ | $$ | $$| $$  | $$| $$      | $$_  $$                                     
+| $$ \  $$|  $$$$$$$  |  $$$$/|  $$$$$/$$$$/|  $$$$$$/| $$      | $$ \  $$                                    
+|__/  \__/ \_______/   \___/   \_____/\___/  \______/ |__/      |__/  \__/                                    
+                                                                                                              
+                                                                                                              
+                                                                                                              
+ /$$$$$$$                                                                              /$$                    
+| $$__  $$                                                                            |__/                    
+| $$  \ $$ /$$$$$$   /$$$$$$   /$$$$$$   /$$$$$$  /$$$$$$  /$$$$$$/$$$$  /$$$$$$/$$$$  /$$ /$$$$$$$   /$$$$$$ 
+| $$$$$$$//$$__  $$ /$$__  $$ /$$__  $$ /$$__  $$|____  $$| $$_  $$_  $$| $$_  $$_  $$| $$| $$__  $$ /$$__  $$
+| $$____/| $$  \__/| $$  \ $$| $$  \ $$| $$  \__/ /$$$$$$$| $$ \ $$ \ $$| $$ \ $$ \ $$| $$| $$  \ $$| $$  \ $$
+| $$     | $$      | $$  | $$| $$  | $$| $$      /$$__  $$| $$ | $$ | $$| $$ | $$ | $$| $$| $$  | $$| $$  | $$
+| $$     | $$      |  $$$$$$/|  $$$$$$$| $$     |  $$$$$$$| $$ | $$ | $$| $$ | $$ | $$| $$| $$  | $$|  $$$$$$$
+|__/     |__/       \______/  \____  $$|__/      \_______/|__/ |__/ |__/|__/ |__/ |__/|__/|__/  |__/ \____  $$
+                              /$$  \ $$                                                              /$$  \ $$
+                             |  $$$$$$/                                                             |  $$$$$$/
+                              \______/                                                               \______/                                                                                                    							
+=====================================================								
+=====================================================								
+=====================================================								
+=====================================================
+
+
+---------------------------------------------------------------
+01_NP - Parallel
+
+Application - програма
+
+Presentation - Https/шифрування
+
+Session -  пошук IP
+
+Transport - визначає через який протокл передається данні TCP/UDP
+
+ протоколи для передачі пакетів
+
+TCP - перевіряє доставку
+UDP - не перевіряє доставку пакета
+
+
+
+UdpClient client = new UdpClient();	-- протокол для передачі пакету по мережі
+
+	message = Console.ReadLine()!;
+		byte[] data = Encoding.Unicode.GetBytes(message);
+
+
+				розмір байтів  куди передати
+client.Send(data, data.Length, ipPoint);	-- відправляє пакет
+
+ 
+ static string address = "127.0.0.1"; // адрес сервера	--локальна адреса будь-якого додатку
+   static int port = 8080;      // порт сервера 1000....60 000
+
+
+port - вказівка який додаток має відкрити повідомлення
+
+ IPEndPoint ipPoint = new IPEndPoint(IPAddress.Parse(address), port);
+   IPEndPoint remoteIpPoint = new IPEndPoint(IPAddress.Any, 0);	-- щоб сервер знав за ким слідкувати
+		
+  client:
+ class Program
+    {
+// адрес и порт сервера, к которому будем подключаться
+
+        static string address = "127.0.0.1"
+        static int port = 8080;            
+        static void Main(string[] args){
+		
+            try{
+                IPEndPoint ipPoint = new IPEndPoint(IPAddress.Parse(address), port);
+                IPEndPoint remoteIpPoint = new IPEndPoint(IPAddress.Any, 0);
+
+                UdpClient client = new UdpClient();
+                string message = "";
+                while (message != "end")
+                {
+
+                    Console.Write("Enter a message: ");
+                    message = Console.ReadLine()!;
+                    byte[] data = Encoding.Unicode.GetBytes(message);	//UDP відправляє тільки у байтах тому конвертуємо
+                  
+
+
+                    client.Send(data, data.Length, ipPoint);
+						//при використанні UDP протоколу, Connect() лише встановлює дані для відправки
+
+								//запам'ятовує хто відповів
+                    data = client.Receive(ref remoteIpPoint);
+                    string response = Encoding.Unicode.GetString(data);
+
+                    Console.WriteLine("server response: " + response + " remote : " + remoteIpPoint);
+                }
+                client.Close();
+
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+    }
+
+  server:
+ class Program
+    {
+        static string address = "127.0.0.1"; // поточний адрес
+        static int port = 8080;              // порт для приема входящих запросов
+
+        static void Main(string[] args)
+        {
+           
+            IPEndPoint ipPoint = new IPEndPoint(IPAddress.Parse(address), port);
+            IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+
+            UdpClient listener = new UdpClient(ipPoint);
+            try
+            {
+             Console.WriteLine("Server started! Waiting for connection...");
+                while (true)
+                {
+										//запам'ятовує хто відправив
+                    byte[] data = listener.Receive(ref remoteEndPoint);	--прослуховє на msg
+                    string msg = Encoding.Unicode.GetString(data);
+					
+                    Console.WriteLine($"{DateTime.Now.ToShortTimeString()}: {msg} from {remoteEndPoint}");
+
+						// отправляем ответ
+                    string message = "Message was send!";
+                    data = Encoding.Unicode.GetBytes(message);
+
+                    listener.Send(data, data.Length, remoteEndPoint);
+                }
+            }
+            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            listener.Close();
+        }
+    }
+	
+---------------------------------------------------------------
+02_NP - Sockets. TCP & UDP
+
+Socket - основний клас який лежить у UDP TCP
+
+using System.Net.Sockets; - треба для  UdpClient client;
+
+IPEndPoint serverEndPoint; - змінна для того щоб доступитися до сервера і робити йому відправку інформації
+
+
+для
+client.SendAsync(data, data.Length, serverEndPoint);	-	обов'язково треба масив байтів
+
+ byte[] data = Encoding.UTF8.GetBytes(msg);
+
+	//сервер
+ip - поставить таке саме
+port - обов'язково треба вказувати
+
+
+ в момент отримання message при Receive сервер запам'ятовує IP відправника
+
+тому:
+	IPEndPoint clientEndPoint = null;	- стор змінну яка потім буде мінятись
+	byte[] data = udpClient.Receive(ref clientEndPoint);	- запише хто написав у clientEndPoint
+
+
+Щоб при відправці msg у 1 клієнта був той самий порт переносимо створення udpClient і IPEndPoint в конструктор:
+
+	 serverEndPoint = new IPEndPoint(IPAddress.Parse(address),port);
+     client = new UdpClient();
+
+
+повідомлення яке буде відправляись на сервер від клієнта при join: string msg = "$<join>";
+
+
+  private async Task Listen()
+        {
+            while (true)
+            {
+
+                var res = await client.ReceiveAsync();
+                string message = Encoding.UTF8.GetString(res.Buffer);	//res.Buffer достає message з Task
+                messages.Add(new MessageInfo(message, DateTime.Now));
+              
+            }
+        }
+
+
+---------------------------------------------------------------
+03_NP - TCP Protocol
+
+create app.xaml
+
+<appSettings>
+	<add key="Server Address" value="127.0.0.1"/>
+	<add key="ServerPort" value="4040"/>
+</appSettings>
+
+ InitializeComponent();
+string address ConfigurationManager. AppSettings["ServerAddress"]!;
+int port = int.Parse( ConfigurationManager. AppSettings["ServerPort"]!);
+serverEndPoint = new IPEndPoint (IPAddress. Parse(address), port);
+client = new TcpClient();
+
+TCP - підключились відпавили відключились (1 на 1)
+
+Flush() - виштовхе з буфера
+
+
+---------------------------------------------------------------
+04_NP - SMTP Protocol
+
+
+ TCP												UDP
+ Безпечний											Небезпечний
+ 
+ Орієнтований на з’єднання							Без з’єднання
+ 
+ Повільний											Швидкий
+ 
+ Гарантована передача								Без гарантії
+ 
+ Використовується у 								Використовується у застосунках
+ критичних застосунках	 							реального часу
+				
+ Механізм упорядкування пакетів						Немає механізму упорядкування
+ Керування потоком									Немає керування потоком
+ 
+ Розширена перевірка помилок						Базова перевірка помилок (контрольна сума)
+ 
+ Заголовок 20 байтів								Заголовок 8 байтів
+ 
+ Механізм підтвердження								Без підтвердження
+ Триетапне рукостискання (Three-Way Handshake)		Без рукостискання
+ DNS, HTTPS, FTP, SMTP тощо							DNS, DHCP, TFTP, SNMP тощо
+
+
+using System.Net;
+using System.Net.Mail;
+
+SMTP - для передачі пошти щоб прочитати треба IMAP
+
+message.IsBodyHtml = true; - 
+
+
+
+
+=====================================================								
+=====================================================								
+=====================================================								
+=====================================================								
+ /$$$$$$$$                                                     
+|__  $$__/                                                     
+   | $$  /$$$$$$   /$$$$$$  /$$$$$$/$$$$                       
+   | $$ /$$__  $$ |____  $$| $$_  $$_  $$                      
+   | $$| $$$$$$$$  /$$$$$$$| $$ \ $$ \ $$                      
+   | $$| $$_____/ /$$__  $$| $$ | $$ | $$                      
+   | $$|  $$$$$$$|  $$$$$$$| $$ | $$ | $$                      
+   |__/ \_______/ \_______/|__/ |__/ |__/                      
+                                                               
+                                                               
+                                                               
+ /$$$$$$$                                               /$$    
+| $$__  $$                                             | $$    
+| $$  \ $$ /$$$$$$   /$$$$$$  /$$  /$$$$$$   /$$$$$$$ /$$$$$$  
+| $$$$$$$//$$__  $$ /$$__  $$|__/ /$$__  $$ /$$_____/|_  $$_/  
+| $$____/| $$  \__/| $$  \ $$ /$$| $$$$$$$$| $$        | $$    
+| $$     | $$      | $$  | $$| $$| $$_____/| $$        | $$ /$$
+| $$     | $$      |  $$$$$$/| $$|  $$$$$$$|  $$$$$$$  |  $$$$/
+|__/     |__/       \______/ | $$ \_______/ \_______/   \___/  
+                        /$$  | $$                              
+                       |  $$$$$$/                              
+                        \______/                                                                                            \______/                                                                                                    							
+=====================================================								
+=====================================================								
+=====================================================								
+=====================================================
+
+
+---------------------------------------------------------------
+01_NP - Parallel
+
+
+Product backlog - розташ фічі по пріоритету
+
+
+Scrum - методологія на сонові agile яка передбачає розропки проекту спринти і артефакти
+артефакти - product backlog - вимоги замовника 
+			sprint backlog - пункти які прописали прогграмісти  ( список на 1 спринт )
+
+
+
+gitflow - стуктура гілок
+
+git fetch - покаже які файли змінились але не змінює їх (як changes)
+
+
+estimating task - визначення важкості 
+
+вагінація - перехід по сторінкам
+
+
+=====================================================								
+=====================================================								
+=====================================================								
+=====================================================								
+    /$$$$$                                                  
+   |__  $$                                                  
+      | $$  /$$$$$$  /$$    /$$ /$$$$$$                     
+      | $$ |____  $$|  $$  /$$/|____  $$                    
+ /$$  | $$  /$$$$$$$ \  $$/$$/  /$$$$$$$                    
+| $$  | $$ /$$__  $$  \  $$$/  /$$__  $$                    
+|  $$$$$$/|  $$$$$$$   \  $/  |  $$$$$$$                    
+ \______/  \_______/    \_/    \_______/                    
+                                                            
+                                                            
+                                                            
+  /$$$$$$                      /$$             /$$          
+ /$$__  $$                    |__/            | $$          
+| $$  \__/  /$$$$$$$  /$$$$$$  /$$  /$$$$$$  /$$$$$$        
+|  $$$$$$  /$$_____/ /$$__  $$| $$ /$$__  $$|_  $$_/        
+ \____  $$| $$      | $$  \__/| $$| $$  \ $$  | $$          
+ /$$  \ $$| $$      | $$      | $$| $$  | $$  | $$ /$$      
+|  $$$$$$/|  $$$$$$$| $$      | $$| $$$$$$$/  |  $$$$/      
+ \______/  \_______/|__/      |__/| $$____/    \___/        
+                                  | $$                      
+                                  | $$                      
+                                  |__/                                                                                                                 \______/                                                                                                    							
+=====================================================								
+=====================================================								
+=====================================================								
+=====================================================
+
+
+---------------------------------------------------------------
+01_IntroToJS
+
+	h1{CONTENT}	+ TAB	
+
+	p>lorem50 	+ TAB
+
+
+		+справа/-ліво 	-верх/+низ 	blur	color
+box-shadow: 5px 		10px 		10px 	black
+
+
+text-transform: uppercase;	-	всі букви caps
+
+							назва файлу стилізації
+<link rel="stylesheet" href="style.css">	- підключає стилізацію
+
+	link:css
+
+
+JS - запускає тільки у браузері
+
+
+	браузер знає: JS HTML CSS
+
+
+ код пишеться у HTML у <script>:
+
+		<script>
+            alert("Hello from JS")	- як MessageBox.Show("d")
+       </script>
+
+	console.log("Hello from JS")  -	 виведе текст у Console на F12
+
+
+<script src="./base.js"></script>	-	Підключаємо JS файл
+
+
+	-JS ДИНАМІЧНО ТИПІЗОВАНИЙ-
+	
+	можна змінити знач будь-якої змінної у будь-який момент
+	Не треба вказувати тип данних
+
+
+let - створ змінну
+
+let number = 10.33;  - автоматично створ типу(number) number
+
+
+всі числа -- тип данних number
+
+
+
+console.log(typeof(number)); - виведе тип данних змінної
+console.log(`${number}`) - для інтерполяції
+
+
+alt + shift + down arrow 	=	Cntrl + D
+
+
+	js - немає char -- це string
+
+
+
+undefined - змінної не існує
+null - пустий об'єкт
+
+let empty			--	value: undefined; type: undefined
+let nullObj = null	--	value: null; type: object
+
+
+
+let array = [1,2,3]	 -	тип данних object
+
+	масиви, класи, словники -- object
+
+
+
+let array = [1,2,3, true, false, "red", "green", [10,11,12]];
+			
+		//сам II масив	//другий елемент у масиві
+console.log(array[7][1])						-- виведе 11
+
+
+
+
+
+	--змінній можна присвоїти функцію--
+
+let summa = function(a,b){console.log(${a} + $(b) = $(a+b)')}	-- тип данних function
+
+
+console.log(summa)	-- виведе не саму функцію а [ function(a,b){console.log(${a} + $(b) = $(a+b)')} ]
+
+summa(a,b)	-- виведе a + b = c
+
+
+
+let array = [1,2,3, true, false, "red", "green", [10,11,12], summa];
+			
+		//виведе результат функціїї -- тобто 5+5=10	
+ console.log(array[8](5,5))
+
+
+
+
+		--цикли--
+
+
+const array = [1,5,2,5,40] -- створ незмінний масив
+
+
+	for		-	get all ements by index
+		
+		for (let i = 0; i < array.length; i++){
+			console.log(`[${i}] - ${array[i]}`);
+		}
+		
+	
+	
+	forof	-	те саме що й foreach (get all elements)
+	
+		for (const number of numbers){
+			console.log(number);
+		}
+	
+	
+	
+	forin	-	foreach(get all indexes)
+	
+		for (const key in numbers){
+			console.log(key);
+		}
+	
+	
+ можна додавати елемнт через індекс
+
+numbers[8] = 888	- останній індекс
+numbers[9] = 1550	- саме додало да масиву зробило+1
+numbers[19] = 1550	-  зробило комірки до 19 індексу і заповнило нові undefined
+
+
+console.log("Some Message)
+console.warn("Some warning"); -  виводяь у коснолі warning
+console.error("Some error");  - error
+
+
+
+		--conditions--
+
+	if    - такий самий як у C#
+
+	switch - такий самий як у C#
+
+
+let message = (3 > 2) ? "bigger":"less";
+console.log(message)
+
+
+
+		--function--
+
+
+ створити функцію:
+
+	function divide(a,b){
+		if(b==0){
+			console.log("Cant divide by 0");
+			return;
+		}
+		return a/b
+	}
+
+
+prompt("Enter your msg: ") -- input()
+
+let a = +prompt("Enter your number: ") -- ковенртить у int
+
+
+
+=========HOT KEYS============
+
+🎯 1. Мультивибір
+
+	✔ Alt + ↑ / ↓
+	
+	Змістити курсор та код
+	
+	✔ Alt + Shift + ↑ / ↓
+	
+	Дублювання рядка
+	
+	✔ Ctrl + Alt + ↑ / ↓
+	
+	Додати новий курсор у наступному рядку
+	(дуже схоже на VS)
+	
+	✔ Ctrl + D
+	
+	Виділити наступний такий самий фрагмент
+	→ кожне натискання додає нове виділення
+	(аналог → "Select Next Occurrence")
+
+🎯 2. Форматування (як у VS)
+
+	✔ Shift + Alt + F
+	
+	Форматувати документ
+	(VS: Ctrl + K, Ctrl + D)
+	
+	✔ Ctrl + K, Ctrl + F
+	
+	Форматувати виділену частину
+	(повністю як у Visual Studio)
+
+	✔ Ctrl + Shift + L
+	
+	Виділити всі входження (аналог Ctrl + Shift + L у VS Code)
+
+=========HOT KEYS============
+
+
+
+---------------------------------------------------------------
+02_Arrays
+
+
+			Data Types
+
+ Primitive Data Type		Non-Primitive Data Type
+
+number,string,undefined,	Object,Array,Function
+null(посилання на пустий 
+	об'єкт), boolean
+
+
+
+у Python і JS масив мітсить посилання на об'єкти
+
+	new - heap
+
+var arr = new Array(7,8,485,68)
+var arr = [7,8,485,68]
+
+
+arr.forEach((elem, index) => //інстукрція
+{									
+	console.log(`Element [${index}] ${elem}`)
+})
+
+
+console.log("Original arr: ",array) -- виодить всі елем у 1 рядок
+
+
+	arr.push(88)	-- додає елем в кінець
+	
+	arr.pop()		-- delete from end
+	
+	arr.shift() 	-- delet first elem
+	
+	arr.unshift(55) -- add 55 to start
+	
+	arr.IndexOf(55)	-- поверне індекс першого входження 55
+							Якщо не знайде поверне -1
+							
+	arr.lastIndexOf(55)	-- поверне індекс з кінця(зправа на ліво)
+								першого входження 55					
+							
+							
+delegate - адреса методу який має запуститись
+
+predicate - поверне true/false
+
+
+//------ return first found element by conditions
+console.log("Found: ", arr.find((el)=> el > 0));							
+							
+		
+arr.sort()	-- сортує як str (1 потім 2 буква)
+
+
+arr.sort((a,b) => a-b)	- sort descending
+
+
+arr.splice(2,5)	-- видаляє з 2 по 5 індекси
+
+---- delete from start index some amount elements
+	and insert new elements in their place
+	
+	array.splice(2,5,15,15,15,15,15,15)
+
+var copy = array.slice(2,array.length-1);	-- отримує копію масиву 
+									з позицій (з 2 по array.length-1)
+
+
+
+array = [4,6,7,8,1,-4,0,99];
+
+const filtered = array.filter((el) => el%2 == 0); --виводить парні елем
+
+
+	--strig--
+
+let str = "Help"
+
+str[3] - поерне 'p' -  бо під 3 індексом
+str.CharAt(3) - поерне 'p' -  бо під 3 індексом
+
+str.startsWith("?")	- поверне true/false
+str.endsWith("?")		- поверне true/false
+
+
+str.IndexOf("p")		-	шукає перше входження з ліва на право
+str.lastIndexOf("p")	-	шукає перше входження з права на ліво
+
+str.includes("p")	-	поверне true/false
+
+
+str.replace(" ", "-")	 - замінить перший пробіл на '-'
+
+str.repeat(3)	-	дублює себе 3 рази
+
+
+str.splice(3,8); - виріже з 3 по 8 індекс
+str.slice(3,8); - зробить підмасив з 3 по 8 індекс
+
+str.toUpperCase()	- повертають копыю
+str.toLowerCase()
+
+
+	let words = str.split(" ") - ділить string по пробілам
+
+
+
+trim - видаляє пробіли	
+							
+							
+var - дозволяє створювати об'єкти з однаковою назвою
+	можна використати змінну перед тим як вона створена
+	
+let	-	ні перевіряє і забороняє створ змінні з однаковою назвою
+	і використ змінну до її створення
+							
+---------------------------------------------------------------
+03_Objects
+
+
+callBackFunction	--	функція може повертати або не повертати
+					має безліч аргументіів і всередені виконує алгоритму
+
+predicate	--	приймає елемнт і повертає bool
+
+
+
+Object - складний тип данних який використовується для великих данних							
+			містить різний тип данних
+			
+var obj = new Object()	- створ об'єкт
+
+var obj = {}	-- словник			
+
+obj.name = "Name"	- створ властивість name
+obj.age = 56	-	створ властивість age
+obj.adress = "Soborna"	--	створ властивість adress
+
+	якщо такої власт немає то вона презапишеться
+	
+delete obj.adress	-	видалить property adress	
+
+
+	//ключ - значення 
+	
+	let product = { 
+		name :	"Samsung",
+		aplications : ["play market", "SAFARI"]
+		owner:{				-- ще один словник у об'єкті
+			name : "Vsads"
+			surname: "dssd"
+		}
+	}
+
+	-або-
+	
+let product = {};
+	
+product["name"] = "Ball";
+product["size"] = 30;
+
+product["size"] = 50;	//overwrite
+
+console.log("Type: " + product['type']);
+
+
+	ДВІ різні властивості
+	
+student['Average Mark'] = 7.8; 	// allows white-space characters
+student.averageMark = 8.8;
+
+console.log("Average Mark: " + student['Average Mark']);
+console.log("averageMark: " + student.averageMark);
+
+
+
+
+	//вивід данних по ключу
+for (var property_key in student) {
+    console.log(property_key + " - " + student[property_key]);
+}
+
+
+	var car = {
+    mark: "Nissan",
+    model: "Note",
+    year: 2000,
+    color: "Grey",
+		owner:
+		{
+			name: "Vitia",
+			surname: "Oliunuk"
+		}
+	}
+	
+	for (var property_key in car) {
+	
+		if (property_key == "owner") {		//вівід owner
+			for (var key in car[property_key]) {
+				console.log(key + " - " + car[property_key][key]);
+			} 
+		}
+		else
+		{
+			console.log(property_key + " - " + car[property_key]);
+	
+		}
+	}
+
+
+
+
+const player = {
+	login: "super_user123",
+	password: "Qwerty",
+	email: "bablafra@gmail.com",
+	score: 0,
+	
+//функція в об'єкті	
+
+	print : function(){		//обов'язково this щоб виводило проперті з класу
+         console.log(`User: ${this.login} with score: ${this.score}`);
+    },
+    increaseScore(value)
+    {
+        if(value > 0)     
+            this.score +=value;
+        else
+            console.error("Error value");
+    }
+}
+
+player.print();		-- викликати функцію					
+player.increaseScore(5);							
+							
+							
+---------------------------------------------------------------
+04_IntroToOOP
+
+
+class Car{
+	model;
+	year;
+	color;
+	
+	print()	{
+		console.log(this.model)
+	}
+	
+	constructor(model,year,color){
+		this.model = model
+	}
+	
+}
+
+const myCar = new Car();
+
+myCar.model = "NISSAN";		--	ініціалізація без конструктора
+myCar.print();						
+							
+							
+			==АБО==				
+class Car{
+	//model;
+	//year;
+	//color;	-- можна не створ змінні,
+				вони створяться у конструкторі
+	
+	
+	constructor(model,year,color){
+		this.model = model
+	}
+	
+	set Speed(value)	-- setter
+	{
+		if(value>=0)
+			this.speed = value;
+		else
+			this.speed = 0;
+	}		
+	get Mils(){		-- getter
+		return this.speed *0.621;
+	
+	}
+	
+}
+
+різниця між змінними і проперті	--	у перевірці данних
+
+
+		Extends == Inheritance
+
+
+class PoliceCar extends Car{
+
+	constructor(model,year,color,volume){
+			super(model,year,color)	--	наслідує батьквський конструктор
+			this.volume = volume;
+		}
+	print(){
+		super.print();	--	наслідує батьківський
+		console.log(thsi.volume)
+	}
+
+}
+
+
+---------------------------------------------------------------
+05_DOM
+
+DOM — Document Object Model	--	модель представлення HTML-документа у вигляді дерева об’єктів.
+
+	Модель представлення HTML у вигляді дерева об'єктів.
+	JS може:
+	
+	змінювати текст, стилі, атрибути
+	
+	створювати/видаляти елементи
+	
+	реагувати на події (click, input…)
+
+
+
+
+
+Bootstrap	-	заміняє класичний HTML
+
+	Bootstrap — це CSS/JS фреймворк для швидкої верстки сайтів.
+Головна мета — швидко створювати адаптивні, акуратні інтерфейси без написання CSS вручну.
+
+Bootstrap дає:
+
+	готову адаптивну сітку (grid)	
+	кнопки, картки, модальні вікна, меню	
+	відступи, кольори, flex-класи, дисплеї	
+	JavaScript компоненти (dropdown, modal…)
+	
+	Важливо: Bootstrap не заміняє HTML, він працює на HTML, додаючи стилі через класи.
+
+
+https://getbootstrap.com/docs/5.1/getting-started/introduction/
+
+			підключення
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>DOM</title>
+		<link rel="stylesheet" href="./CSS/bootstrap.css">  
+	</head>		
+
+
+bootstrap.min.css — мініфікований, 1 рядок (легше, швидше грузиться)
+bootstrap.css — повний формат з коментарями вся стилізація у класах (зручний для читання)
+
+
+
+Bootswatch — це набір безкоштовних тем для Bootstrap.
+
+Тобто:
+
+	той самий Bootstrap → але з іншим оформленням	
+	не треба переписувати класи, міняється лише CSS
+
+https://bootswatch.com/		
+
+✔️ міняє стиль сайту
+✔️ не змінюючи класи
+✔️ просто підміняється CSS
+
+
+
+
+div.container + tab	//додавє клас container | <div class="container">
+
+	для адаптивності додаємо елементи у клас container
+
+
+<div class="container">
+	...
+</div>
+container — центрує сайт і задає максимальну ширину + адаптивність.
+
+
+	--гріди--
+https://getbootstrap.com/docs/5.1/layout/grid/
+
+
+
+div class = "col-8"  - займе 8 з 12 в ширину
+
+
+	--Відступи, розміри, утиліти (Utilities)--
+
+Документація:
+https://getbootstrap.com/docs/5.1/utilities/spacing/#margin-and-padding
+
+Приклади:
+
+m-3 → margin
+p-4 → padding
+mt-5 → margin-top
+px-2 → padding-left + padding-right
+
+d-flex → flex-контейнер
+
+text-center → центрує текст
+
+bg-dark text-white → фон + колір тексту
+
+
+---------------------------------------------------------------
+05_DOM Part 2
+
+th 	-- шапка рядка
+td 	-- контент у рядка
+
+
+<tbody>
+	<tr class="table-info">
+		<th scope="row">Info</th>
+			<td>Column content</td>
+			<td>Column content</td>
+			<td>Column content</td>
+	</tr>
+</tbody>
+
+
+DOM  (Document Object Model) - зв'язок HTML з JS
+
+
+	[DOCUMENT]  - Root Node
+	|
+	v
+	[HTML] - Element Node
+	|
+	+-----------------------------+
+	|                             |
+	v                             v
+	[HEAD]                        [BODY]     - Element Nodes
+	|                             |
+	|                             +---------------------------+
+	v                             |                           |
+	[TITLE]                       [H1]                       [SCRIPT]
+	|                             |                           |
+	v                             v                           v
+	"My Title"                 "My Header"                 "alert();" 
+	(Text Node)                (Text Node)                 (Text Node)
+
+
+
+document	--	DOM дерево, зв'язує JS і HTML
+
+document.getElementById()	--	найкращий бо id не повторюються
+
+tbody	-	тег у якому буде мінятись контент
+
+	<tbody id='table-body'>
+		<tr ........>
+	</tbody>
+
+const tableBody = document.getElementById(table-body);
+
+
+						внутрішній HTML 
+tableBody.innerHTML +=
+		<tr class="table-info">
+			<th scope="row">1</td>
+			<td>IPhone</td>
+			<td>Some information</td>
+			<td>467</td>
+		</tr>';		--	до таблиці додається контент
+
+
+
+<button ... onclick()		--	обробник при натисненні
+	.... id = "add-btn"  >Success</button>
+
+
+const createBtn = document.getElementById('add-btn');
+
+щоб взяти елемент з HTML у JS треба дати елементу id
+
+
+			делегат
+createBtn.onclick = () =>{
+	console.log(....)
+}
+
+	<button	type="submit"	-- робить відправку на сервер 
+
+
+---------------------------------------------------------------
+06_Fetch
+
+
+запит google.com -> відправ на сервер -> формується пакет -> розпаковується пакет (пишеться HTML, JS)
+
+
+API	- ссилки на яких зберегіається тестова інформація
+
+
+	асинхронність
+fetch	-	робить запит на сервер по url чекає відповідь і ловить цю відповідь	
+
+const gitHubUsers = "https://api.github.com/users";
+	fetch(gitHubUsers)	--	повертає тип данних Promise
+
+Promise	- мітсить Response | робиться Task
+
+	асинхронний метод тому пишемо await	але ротрібен async				
+
+
+async function showGitHubUsers()
+	{
+		const response = await fetch(gitHubUsers);
+		
+		let json = await response.json(); -- розконвертує інфу що прийде
+		
+		console.log(json);	
+	}
+
+
+
+async function showGitHubUserAvatar(login) {
+    const response = await fetch(gitHubUsers + '/' + login);	-- отримує Promise
+    const result = await response.json();	-- розконвертовує цей Promise на json
+
+				//тег img з id=`avatar-img`
+    const avatarImg = document.getElementById('avatar-img');	
+	
+							//властивість об'єкта
+    avatarImg.src = result.avatar_url;
+
+}
+
+
+---------------------------------------------------------------
+07_Fetch	Part 2
+
+script	--	завжди підключ знизу 
+
+HTTPS S - secure данні шифруються
+
+
+UDP/TCP	--	real time connection
+
+
+HTTP --	 протокол передачі HTML
+React	-	працє тільки на запитах
+
+
+	стилі підключати
+			спочатку bootstrap
+			потім свої
+	
+	script підключати
+			свої
+			потім bootstrap
+	
+
+class = 'text-center mt-5'	-- центрує елемнт з відступом зверху
+
+
+	HTML:
+<div class="text-center mt-5">
+	<button onclick="fetchCat()" 	-- робиться обробник
+		class="btn btn-primary">Фото котика</butto I
+</div>
+
+	JS:
+const fetchCat2 = () => {
+	const url = "https://cataas.com/cat";
+	console.log(url);
+}
+
+JSON	- передача object через текст
+
+
+
+let respone = await fetch(url);
+
+	respone.
+			blob	-	файли/картинка/відео
+			json	- json
+			text	-	 для тектса
+	
+
+HTTP methods:
+
+	Get		--	отрмати данні
+	Post	-- передати серверу
+	Patch	
+	Trace
+
+
+DOMContentLoaded	--	подія яка спрацює коли HTML повністю загрузиться
+
+
+ //задає подію
+	document.addEventListener("DOMContentLoaded", () => {
+		const image = document.getElementById("image");
+		image.hidden = true;
+	});
+
+
+	async function fetchCharacters()
+	
+const url = "https://thronesapi.com/api/v2/Characters";
+
+	try {
+		const response = await fetch(url);
+		const data = await response.json();
+		console.log(data);
+	} 
+	catch (error) {
+		console.log(error);
+	}
+
+			//менше коду без async
+					мінуси data доступна лише в then
+			
+fetch(url)
+	.then(response => response.json())		-- розпаковує fetch
+	.then(data => { console.log(data)})		-- розпаковує data з response
+	.catch(error => console.log(error));
+	
+														lambda
+ then - той самий await	результат повернеться у .then(response => {} )
+	
+	
+class і object	--	object створена змінна а class ого описує
+
+
+Object.keys(person)	--	повертаэ масив ключів об'єкту person
+
+
+---------------------------------------------------------------
+08_Events
+
+розширення JSON formatter	-	для зручніших JSON
+
+forin	-	для об'єктів
+forof	-	для масивів
+
+	onfocus	--	виділення елемента табом
+	onblur	--	цей фокус втрачається
+	
+	onmouse enter	--	коли курсор на об'єкті
+	
+	onsumbit	--	при натисненні форми
+	
+	
+	Типи event:
+	
+ ✅HTML event		-- гірше для безпеки 	|можна скачати HTML і по назві js файлу прочитати весь код, тому всі важливі речі на сервері
+ 
+ ✅object event	-- можна лише 1 функцію задати
+
+    const btnObject = document.getElementById("btnObject");
+    btnObject.onclick = btnObjectClick;
+
+ 
+ ✅event listener	-- такий саий як 2 але можна додити багато функцій
+
+	const btnListener = document.getElementById("btnListener");
+										
+									//всі події без on
+		btnListener.addEventListener("click",
+			btnListener.addEventListener("click", () => {});
+
+
+
+const box event.target;
+box.style.backgroundColor = #444
+
+
+event - створ від HTML-документа, має у ВЛАСТИВОСТЯХ багато інфи
+
+
+
+	event.target	-- повертає елемнт по якому клыкнули | об'єкт html тега
+	
+	function boxClick(event) {
+		console.log(event.target);
+	}
+
+
+	if (activeBox != null)  -те саме що- if (activeBox)
+
+
+
+<div class="boxContainer">
+            <div onmouseenter="enterBox(event)" onmouseleave="leaveBox(event)" class="boxHover"></div>
+	.....
+
+	function enterBox (event) {	
+			//об'єкт	//стиль прозорість	
+		event.target.style.opacity = 0;
+	}
+
+
+
+document.addEventListener("keydown", randomColor);
+
+							//автоматично передаситься
+	function randomColor(event) {        
+		const box = document.getElementById("superBox");
+
+---
+
+inline-block	--	по ширині inline(content) по висоты block (content)	
+
+
+
+	1 == '1'
+==	- перетвор знаення до дого типу і порівнює
+
+	1 === 1
+===	- перевіряє щей тип данних
+
+---
+
+event.code	-- id кнопки / клавіша
+event.key	--  кнопка
+
+
+const r = Math.floor(Math.random() * 256); // 0 - 255
+
+
+const height = parseInt(circle.style.height.split("px")[0]);	
+			-- вирізаємо px для обрахунків
+
+
+---------------------------------------------------------------
+09_BOM DOM
+
+
+document.getElementsByClass	-- за класом
+document.getElementsByName	--	за тегом
+
+
+Bootstrap IntelliSense	-	bootstrap помічник
+
+	//div у яку будуть записуватись інші елементи
+const container = document.getElementById("container");
+
+function createBoxHandle() {
+
+			//створити div через JS
+	const box = document.createElement("div");
+	box.classList.add('className')		-- додаємо класс div
+	
+		//div записується у container
+	container.appendChild(box);
+}
+
+
+function removeBoxHandle(event){
+	const box = event.target;
+	
+	container.removeChild(box);	--	правильніше за box.remove(), хоча так теж мона
+	
+	container.removeChild	--	видаляє елемент у конкретному контейнері
+		якщо box буде багато то може видалитись box які у інших місцях
+	
+	}
+	
+function createBoxHandle() {
+	const box = document.createElement("div");
+	box.classList.add("box");
+	box.style.backgroundColor = randomRgb();
+	box.addEventListener("click", removeBoxHandle)
+	container.appendChild(box);
+
+}
+
+function mouse EnterHandler(event) {
+const box = event.target;
+	box.innerText = "X";
+
+}
+	
+	innerText	--	щоб JS прийняв як текст
+	innerHTML	--	JS прийняв як HTML код
+
+
+	--зміна кольору черещ dataset
+	
+	<div data-color = "#F5054"....
+
+function changeColorHandle(event) {
+	const button = event.target;
+	const text = document.getElementById("text");
+	text.style.color = button.dataset.color;
+}
+
+
+
+
+
+
+name -- якщо у radiobutton одинковий то вони взаємоисключаюшийся
+
+
+<input id="sqrt" type="radio" value="sqrt" name="Туре" ...	--	radiobutton
+
+<input type="color"	-- палітра
+
+
+
+
+const color = document.getElementById('boxColor').value;
+									//достає колір з палітри
+				
+
+
+	BOM	--	browser object model
+
+
+  function closeHandle() {
+  	  window.close();		-- закриває головне вікно
+  }
+  
+  
+  window.open("https://gogle.com");	-- відкривається нова вклада
+ window.moveTo(200, 200);
+
+
+
+
+ console.log(navigator.language);	-- показує мову браузера користувача
+ console.log(navigator.languages);
+
+
+
+
+function eventsPage() {
+
+		//перенапрявляє на сторінку
+	location.href = "http://127.0.0.1:5500/08_Events/index.html";
+}
+
+	
+	Geolocation
+// navigator.geolocation.getCurrentPosition((data) => {console.log(data)}, () => {console.log("Користувач відхилив запит")});
+
+
+
+history.back	//по вкладці вперед
+history.forward	//по вкладці назад
+
+history.go(n) //по вкладці на n
+
+ теж DOM:
+		alert
+		confirm
+		propmt
+
+window.scroll(0, 0)	--	скролить на верх
+
+
+---------------------------------------------------------------
+10_Forms
+
+		тегі для SEO
+	<footer
+	<header
+	<content
+	<side
+
+
+
+
+		блочний елемент дозволяє вичитувати значення які ввелись
+form	-	може оновлювати сторінку, відправляти запити (GET POST)
+		сама формує HTTP запит
+
+
+  кожен input маэ бути у form
+
+
+	 структура:
+	 
+	<form name="login" >...
+	 <input..
+		</form>
+
+	
+
+
+				як валідатор і дає браузеру пдставити данні
+<input type = " "	--	тип данних для вводу
+			
+		email	 -- перевіряє тільик наявність @
+		password -- скриває текст, гугл підставляє, атвогенерує 
+		
+		submit	 -- кнопка відправки
+		phone	 --
+		url		 --
+		search	 --
+
+
+	  <div>			//кнопка відправки
+	  	 <input type="submit">	-- кнопка краще
+		 
+		<button type="submit"	-- гірше
+	  </div>
+
+
+   КРАЩЕ самому робити валідацію інпутів бо їх 
+				легко обійти через зміну type у HTML
+
+
+
+
+
+
+index.html/08asd/? 	
+			
+			? -- url параметри можна передавати певні данні
+
+
+
+ <form..  action	--	адреса куди відправитиб якщо не вказана відправляє собі
+
+											заглушка
+  <form name="login" class="form-box" action="#" method="">
+
+
+
+		method =
+		
+		GET		--	отрматаємо щось данні   | не має body
+		POST	--  передаємо щось  серверу | для передачі конфіденційної інфи
+				має body тому їх важче перехопити
+								
+								
+HTTPS зашифровує -- body				
+				
+				
+	GET	--	данні у відкритому виді | можна побачити у URL
+	Post -- їх зашифрує
+
+
+								форма вичітує всі інпути через name
+	name	--	обов'язково давати, браузер вичітує по name
+													 що запропонувати (автозаповнення)
+										
+<input name="login"...
+
+
+
+
+ <form onsubmit = "loginFormHandle(event)"	-- функція при натисканні яка спрацює
+									коли буде натиснутий input з type "submit"
+
+
+
+FUNCTION loginFormHandle(event) {
+  	 event.preventDefault();	-- зупиняє виконання форми
+  	 
+  	 
+-- для заданої форми 
+
+	let form = event.target;
+	
+
+	let email = form["email"].value	-- вичітується input з 
+								name="email" і береється його знач
+												
+	const password = form["password"];
+	
+
+	
+--  УНІВЕРСАЛЬНИЙ
+	
+	let form = event.target;
+	 
+ const formData = new FormData(form); -- об'єкт описує данні форми
+ 
+		//запис данні з інпутів		
+ const values = Object.fromEntries(formData.entries());
+ 
+	console.log(values);	-- виведе данні з інпутів
+	
+ }
+--
+
+	HTML:
+ 
+<input type = "checkbox" name = "rules"....
+
+
+	JS:
+
+let checkbox = form["rules"]	-- дістаємо галочку
+console.log(checkbox.checked)	-- виводить true/false
+ 
+ 
+ 
+ 
+
+
+		//якщо спільний name то будуть взаємо виключаючими
+<div>
+		<input name="language" type="radio"/>
+		<label>C++</label>
+
+		<input name="language" type="radio" />
+
+				//для носолі					//вибирає по дефоту
+		<input value ="js" name="language" type="radio" checked/>
+		<label>JavaScript</label>
+<div/>
+
+	value - користувач не бачить використовується для JS
+
+
+<div>		//палітра					//по дефолту
+	<input type="color" name="color" value="#0000FF">
+</div>
+
+
+			<!-- тільки дата -->
+			
+	<input type="date" name="date" value="2026-01-01" />
+	
+	
+	
+			<!-- дата та час -->
+			
+	<input type="datetime-local" name="datetime" />
+	
+	
+	
+			<!-- тільки час -->
+			
+	<input type="time" name="time" />
+	
+	
+	
+			<!-- тиждень -->
+			
+	<input type="week" name="week" />
+	
+	
+	
+			<!-- місяць -->
+			
+	<input type="month" name="month" />
+	
+	
+	
+<input type="range" name="range" max="100" value="25" />
+
+
+	select
+	
+<select name="select" class="form-select">
+	<option value="ua">Україна</option>
+	<option value="uls">Америка</option>
+	<option value="sp">Іспанія</option>
+	<option selected value="it">Італія</option>
+</select>
+	
+	
+<input type="file"  name="picture"	accept = "image/*"	
+	
+	
+wapplyzer	
+	
+---------------------------------------------------------------
+11_Cookies
+
+
+кешування допомагаэ браузеру швидше загрузитись
+
+
+reload  - не впливає на кукі 
+
+cookie	- текстові данні файли які зберігають данні користувача
+
+	локальне сховище малим обсягом (4кб), вони тимчасові
+		використ для зручності роботи на сайті	можуть передаватись по HTTP запиту
+
+
+пароль зазвичай зберігажться на БД сервері
+
+	
+cookie -- можна побачити у F12 applicattion
+
+
+	--cookie JS--
+	
+document.cookie = "key=value;"
+						path -- домен куди будуть записані cookie
+						
+						path=/ --на всьому сайті
+						
+document.cookie = "username=dima; path=/; expires "	
+	
+	якщо не вписати expires -- то cookie закінчаться при сесії
+	
+	expires = HTTP date format	
+	
+			//витягує теперішній час
+expires=${new Date().toUTCString()}
+
+
+  const date = new Date();
+	date.setDate(date.getDate() + 1)
+
+	date.toUTCString()
+
+	 ОСНОВНІ ДІЇ:
+  створювати
+  читати
+  видаляти
+
+							//читати
+ function getCookie() {
+ 	 const cookie = document.cookie.split("; ");	-- розділяємо по `;`
+ 	 	console.log(cookie);
+ 	 	
+ 	 for (const item of cookie) {
+ 	 		const data = item.split("=");		-- розділяємо ключ=знач
+ 	 	if(data[0] === "login")
+ 	 		console.log(data[1]);
+ 	 break;
+ 	 }
+ }
+
+							// видалення
+	function deleteCookie(name) {
+		document.cookie = `${name}=;path=/;expires=Thu, 1 January 1970 00:00:00 GMT`
+	}
+
+							// запис
+	function setCookie(name, value, expires) {
+		document.cookie = `${name}=${value};path=/;expires=${expires}`;
+	}
+
+nic.ua	--	безкоштовний домен
+
+
+const arr = [1,2,3,4,5,6];
+ const json = JSON.stringify(arr); // перетворює Y JSON
+ const data = JSON.parse(json); /// перетворює із JSON у об'єкт
+
+
+
+let cookies = '[(1, 2, 3), (5, 2, 6)]';	
+const arr = JSON.parse(cookies);	-- перетворюється на JSON
+arr.push("(6, 46, 13)");	--	додається в кінець
+
+cookies = JSON.stringify(arr);	-- назад в cookies
+
+
+const cookie= getCookie("codes");		-- дфчтвє cookie
+	if(cookie) {
+		const arr = JSON.parse(cookie);	--перетвор у json
+		arr.push(code);					--додає код
+		setCookieByDays("codes", JSON.stringify(arr), 1);	-- перетвор у cookies
+	} else {
+setCookieByDays ("codes", JSON.stringify([code]), 1);
+
+
+	Алгоритм працювання з cookie
+
+ ✅ достати cookie
+ 
+ ✅ перетвор у json
+ 
+ ✅ додати код у json
+ 
+ ✅ перетвор назад у (str)cookies
+ 
+
+---------------------------------------------------------------
+12_LocalStorage_Json
+
+
+map js	== select C#
+дозволяє перетворити колекцію одного типу у колекцію іншого типу
+
+
+JSON	--	для передачі данних між різними мовами
+	текствоий тип данних дозволяє перетворювати obj у str
+
+
+JSON.stringify();	// Object -> JSON	запис у LocalStorage		arr --> str
+			
+JSON.parse(); 		// JSON -> Object	читаєм у LocalStorage		str --> arr
+		
+
+LocalStorage	--	key value,	розмір 5 мб
+
+	не кофіденцйні данні | не має терміну життя
+
+
+	--методи--
+
+ localStorage.setItem()		-- задає item
+ localStorage.getItem()		-- дістає item
+ localStorage.removeItem()	-- видаляє один item 
+ localStorage.clear()		-- видаляє всі 
+
+
+						//key        //value
+  localStorage.setItem("username", "mike")
+
+
+
+
+	//отримати данні якщо ключа не існує повернеться null
+const username = localStorage.getItem("username")
+
+	if(username)
+		console.log(user)
+
+
+localStorage.removeItem("pass")		--	якщо pass немає то нічого не станеться
+localStorage.clear()	--	видалить все
+
+
+
+F12 -> applicattion -> local storage
+
+RMB save as	--	скачує сайт
+
+
+input.value	--	саме значення
+
+	key value живе вічно більше розмір
+localStorage	-- коли данні не впливає на безпеку користувача (тема,кошик)
+
+cookie	--	дані мають бути захищеними
+
+
+---------------------------------------------------------------
+13_destructuring spread interval timeout
+
+
+<input value="red"	type="checkbox"..> -- виведе `red` замість `on`
+
+
+
+			--ДЕСТРУКТУРИЗАЦІЯ--
+
+ let arr1 = [12,5,48,7]
+ let arr2 = arr1		-- два покажчики на 1 ділянку пам'яті
+
+
+
+let arr1 = [12,5,48,7]
+let arr2 = [...arr1]	-- ... передає кожен елемент arr1 окремо
+
+
+arr1[0] = 999;	-- змінить і 
+
+
+const obj1 = { type: "default", value: 1 }
+const obj2 = { ...obj1 };	-- запише { type: "default", value: 1 }
+
+
+
+{ }	- тут не створення а розпаковка
+
+	має співпадати з назвою власт
+const { value } = obj;		-- те саме const value = obj1.value
+console.log(value);		-- якщо такої властивості не буде вийде undefined
+
+	const { value,type } = obj;		//використ для великих об'єктів
+	
+		те саме що
+		
+	obj1.value obj1.type
+
+
+cpnst inputName = document.getElementById("name")
+
+const {value,name} = inputName	-- створюються змінні name value 
+										які беруть значення з inputName
+	console.log(name)
+	console.log(value)
+
+
+
+const [first,second] = arr1;
+
+	first - буде записаний 1 елем масиву
+	second - буде записаний 2 елем масиву
+
+
+
+
+const state = [5, () => {}]
+const [number, setNumber] = [5, () => {}];
+
+state[0]   // = 5
+state[1]() // = setNumber()
+
+
+
+
+const tag = {....
+	}
+
+const { width, height } = tag;
+const area = width * height;
+
+	//const area = tag,width * tag.height;
+
+
+
+  --деструктаризуаіція  під час передачі об'єкта у функцію--
+
+ function boxArea ( {width, height} ) {		-- бере змінні при boxArea(tag) 
+ 	 return width * height;
+ }
+ 
+
+boxArea(tag)	--	передає змінні у функції, тобто 
+									{width, height} =  tag
+
+	NaN	-- not a number
+
+
+const myValue = {
+	id: 1,
+	value: 50,
+	type: "int"
+}
+				//копіює старий    додає новий елемент
+const newValue = {...myValue, date: new Date()};
+console.log(newValue);
+
+
+
+const user = {
+	firstName: "Mike",
+	lastName: "Thomson"
+};
+
+const cred = {
+	login: "mike",
+	password: "qwerty"
+};
+
+const mike = (...user, ...cred);
+console.log(mike);	-- об'єднання двох об'єктів
+
+
+
+			//можна написати буд що головне 3 краки
+function sum(...args){		-- C# params
+	.....
+}
+
+
+
+ let personalData = {
+ 	 email: "user@mail.com",
+ 	 firstName: "Mike",
+ 	 lastName: "Thomson",
+ 	 age: 50,
+ 	 address: "Soborna str"
+ }
+								//можна маштабуватися
+personalData = (...personalData, email: "newemail@mail.com");
+
+
+ об'єкти не можна редагувати, маємо перестворити об'єкт 
+								тобто деструктаризуаіція
+ 
+ 
+  personalData.email = "newemail@" -- нічого не змінить у REACT
+ 
+ 
+	---SET TIMEOUT---
+ 
+setTimeout(printTitle, 5000);	-- викликає функцію з затримкой 
+ 
+ let timeoutID = setTimeout(printTitle,5000)
+ 
+ clearTimeout(timeoutID)	--	прибираэ тайм аут
+ 
+ 
+ 
+ багатопотокове	-- для кожної задачі кожен потік	
+ 
+ асинхронне --	в одному потоці коли щось довго виконується то потік переключається
+ 
+ 
+				//async
+setInterval()	--	інтервал між двома функціями
+
+
+	setInterval(addItem, 2000)	-- безкінечно повторює addItem
+
+
+Handle	--	обробник, рефакторінг
+
+ 
+ 
+ height: 100vh	-- весь екран
+ 
+ 
+---------------------------------------------------------------
+14_API
+
+
+api key -- унікальний ключ користувача
+
+ без нього якщо кидати get запит буде помилка 401
+ 
+ 
+ Безкоштовно 100 новин і 5 сторінок
+ 
+	Під кожне api свій код: newsApi
+ 
+													//айпі ключ						//ключове слов it	//20 новин на сторінку //мова укр
+let newsApiUrl	=	"https://newsapi.org/v2/everything?apiKey=eef038525fa7401d8dfe7cf1a9006b10&q=it&pageSize=20&language=uk"
+
+? -- після нього параметри які данні отримати
+
+ & -- ще один параметр
+
+ q -- ключеве слово по якому шуати
+  
+ всі адресу будуть у -- lower case бо URL автоматично його перетворює
+  
+ 
+async function fetchNews() {
+	
+	let respone = await fetch(newsApiUrl)
+	let data = await respone.json()
+	
+	const { articles } = data	-- деструктаризація
+	
+ } 
+ 
+---------------------------------------------------------------
+15_API 
+по дкфолту елем займає всю ширину, d-flex justify.. вирінює
+https://newsapi.org 	-- 100 новин безкоштовно, до 5 сторінок
+
+// user location
+navigator.geolocation.getCurrentPosition(succesPosition, errorPosition); 
+
+call back function -- при закінченні викликає іншу функцію
+ 
+ 
+succesPosition()	--	викличеться якщо користувач надасть доступ
+ 
+errorPosition()	--	якщщо відмов
+https://ip-api.com/ 
+ 
+ 
+=====================================================								
+=====================================================								
+=====================================================								
+=====================================================	
+							
+ /$$$$$$$                                  /$$    
+| $$__  $$                                | $$    
+| $$  \ $$  /$$$$$$   /$$$$$$   /$$$$$$$ /$$$$$$  
+| $$$$$$$/ /$$__  $$ |____  $$ /$$_____/|_  $$_/  
+| $$__  $$| $$$$$$$$  /$$$$$$$| $$        | $$    
+| $$  \ $$| $$_____/ /$$__  $$| $$        | $$ /$$
+| $$  | $$|  $$$$$$$|  $$$$$$$|  $$$$$$$  |  $$$$/
+|__/  |__/ \_______/ \_______/ \_______/   \___/                                                                                                               							
+
+=====================================================								
+=====================================================								
+=====================================================								
+=====================================================
+ 
+ 
+---------------------------------------------------------------
+01_IntroToReact
+                                                  
+  
+React	--	frontend
+
+mpa	--	multipage (багато сторінок)		|	PHP чистий JS css
+			refresh скачується новий HTML сторінка
+
+spa 	--	single page (весь сайт в 1 документі)	+ не треба додатково завантажувати сторінки
+				 без reload		об'єкти намальовані через DOM
+
+
+	react	--	JS, малюється новий html через DOM	використвоує SPA
+			 змінює тільки те що треба змінити 
+			 
+	треба бекенд сервер	(API,web,server)	 
+
+ простий сайт	--	PHP, NBC
+
+
+
+  npm	--	node package manager
+
+	https://nodejs.org/en
+	
+ ✅Get Node.js®	--	v24.12.0 (LTS)	--> install .msi
+
+ ✅Powershell	(admin)--> Set-ExecutionPolicy RemoteSigned
+	
+cmd --> node -v (check version)
+
+
+		☑️--Створити проект--
+ 
+ 1. вибираємо папку де створимо проект і відкриваємо там CMD
+ 2. Заходимо на https://vite.dev/
+ 3. Вводимо 🔤 npm create vite@latest
+ 4. Terminal -> npm i					-- встановити всі залежності
+ 5. npm run dev						--	запустити проект  
+ 
+
+
+	 https://vite.dev/
+для REACT проекту треба builder	--	vite.dev
+                                           
+	
+  ctrl + c	-- зупинити прект	
+	
+	
+	
+  node_modules	--	системна папка react	(ігнорується .gitignore)
+  package.json	--	необхідні для запуску скрипти
+  
+  index.html	--	незмінються файл у який буде додаваться наш код
+  
+  src	--	робоча папка
+  
+  main.jsx	--	витягує з index.html root створує його і вимальовує його
+  app.jsx	--	робочий файл у якому пишемо код	| звичайний JS	
+  app.css	--	робочий файл у якому пишемо css	
+  	
+	
+одинарні теги вкінці мають /
+			<img/>
+			<input/>
+	
+onlclick = {() => console.log("click") }	
+	
+	 все йде тегами а не str  |	  все вже інтерпольоване
+	
+	
+//має обов'язкоов бути батківський елемент (<> </>)
+
+	тобто function App() {	-- має повернути 1 блок
+		return (
+		<>
+			<h1 style={{ backgroundColor: "black" }}>Title</h1>
+				або
+			<h1 className='red-text'>Title</h1>
+			
+			<p>React intro</p>
+			<div>
+			<img width={200} height="200px" src={imgUrl}/>
+			</div>
+		</>
+	}
+	
+	функція відповідає назві файлу	--	має бути 1 функція ( function App() )
+
+
+	{200}	-- допомагаэ вставити будь-які дані з js
+	200px
+
+
+
+return (
+ <>
+	<h1 style={{ backgroundColor: "black" }}>Title</h1>
+		або
+	<h1 className='red-text'>Title</h1>
+	
+	<p>React intro</p>
+	<div>
+	<img width={200} height="200px" src={imgUrl}/>
+	</div>
+ </>
+ }
+	
+	https://www.npmjs.com/	--	сайт для пакетів
+	
+	
+powershell in folder -->	
+	npm create	--> open proj folder
+		npm i -->	npm run dev
+	
+	
+----------------------------------------------
+02_Components
+
+	компоненти -- частини сайту (у MPA кожна сторінка)
+
+	
+ navbar footer	--	не змінюються
+ 
+ компоненти пишуться з великої букви
+		назва компоненту == назві файлу
+		
+		
+		
+main	--	не є компонентом
+	
+	
+ const Header = () => {			або function Header() {
+  
+  //тут можна писати логіку для компонента
+  
+	return (
+  <div>	
+	<div className="header">
+	<h3>React lesson 2</h3>
+  </div>	
+);
+
+export default Header;	--	без нього інший файл не буде бачити цей компонент		
+		
+		
+	 //можна писати будьщо 
+import Header from './components/Header.jsx';	--	 імпортуємо Header
+	тобто створ змінну Header | Header() -- викликаємо цю функцію
+
+ 
+	function App() {
+ return(
+ <>
+	<Header />	-- намалює хедер 
+ 
+ </>
+
+	===Старий метод===
+
+import { Component } from "react";
+
+class Header extends Component {
+	render() {
+		return (
+			<div className="header">
+			<h3>React lesson 2</h3>
+			</div>
+		)
+	}
+}
+
+компоненти -- функції
+
+../	--	айти в батківську папку
+
+
+export default	-- може бути тільки 1 експорт за заумовчуванням 
+
+import name from `./pages/MainPage`	--	створ змінну name з дефолтного експорту
+
+
+
+export const CircleButton () => {	-- зразу експортує
+	return (
+	<button>Circle</button>
+	)
+}
+
+																					///import customButtons from './../components/buttons';	--	об'єкт (customButtons) з всіма елементами
+	import { CircleButton, RectButton} from './../components/buttons';	-- 2 об'єкта
+		
+				<RectButton />	-- намалює об'єкт
+				
+		import * as customButtons from './../components/buttons';	-- об'єкт (customButtons) з всіма елементами		
+				customButtons.RectButton
+
+
+
+						можна передавати параметри
+export const CircleButton = (props) => {
+	return (
+		<button className="circle">
+			{props.text}				--у props немає таких властивостей вони створюються при визові
+			{props.color}		функції нижще
+		</button>							--<RectButton text="test" color="test/>
+	)						
+}
+
+	 ---Деструктуризація---
+
+export const CircleButton = (props) => {
+	const { text } = props;
+	return (
+		{text}....
+
+				--Або Зразу--
+
+	export const CircleButton = ({text, color, size}) => {
+		return (
+			<button className="circle">
+				{text}
+			</button>
+			)
+	}
+		//має співпадати з {text..
+<CircleButton text="Кругла кнопка" сolor="yellow" size="2em" />
+
+	
+----------------------------------------------
+03_UseState  Style 	
+	
+  для окремих компонентів своя папка щоб потім додавати стилі
+ React  в кінці всі css об'єднує в один	--	якщо одинакові називи то класи перепишуть
+											 одне одного тому треба щоб імена не повторювались
+  
+  
+  style	--	не приймає string а 
+				приймає тільки JS об'єкт style = {}
+	
+		  створ об'єки з стилями
+style = { {height: "80px"}  }	
+	вставка JS значення 		а внутрішні obj
+	
+	
+const navbarStyles = {
+	height: "80px",
+	backgroundColor: "grey",
+	display: "flex",
+};
+
+ <div style ={navbarStyles}	--	надає стилізацію
+	
+	
+	можна винести в JS файл і потім експортувати та імпортнути	
+				❌ не можна використовувати підкласи (:hover @keyframe)	| тому краще у css
+	
+	
+ export const navbarStyles = {
+	height: "80px",
+	backgroundColor: "grey",
+	display: "flex",
+	alignItems: "center"
+ };	
+	
+	
+ import { navbarStyles, navlinksStyles, authNavStyles from "./styles";
+	
+
+	
+<div style={{margin: 24px 0px">
+	<button onClick=(changeColorHandle}>Change color</button>
+</div>	
+	
+	
+	let color="green";	-- якщо змінна створюється тут то вона не буде рендериться
+	
+ const MainPage = () => {		-- основна функція
+		let color="green";
+		
+	const changeColorHandle = () => {
+		color = "yellow";				--getElementByID	на react неправильно	
+	}
+	
+  <div style={ {backgroundColor = color}}>
+  	  <button onClick=(changeColorHandle}>Change color</button>
+  </div>	
+	
+			
+ 🔹колір не перемалювався бо при першому заході на сторінку react рендерить компонент	
+	зміна змінної функції не впливає щоб react перемальовував об'єкт для цього є 🔹hook
+	
+	
+	
+  --Component rendering--
+  
+  зміна функції не впливає на рендер компонента (функція змінює колір але не перемальовує об'єкт)
+						щоб це зробити є hook
+						
+  hook	-- функція яка дає отримувати React функціонал	НЕ можна писати поза компонентом					
+	в назві слово use (useState, useEffect)	-- заміна document.getElem...
+	
+	
+	
+1. useState	-- хук який відповідає за стан компоненту	
+	
+	🟩 стан компоненту	--	сховище,змінна яка існує по за компонентом
+									в нього можна покласти нашу змінну color
+									
+  коли відбувається rerender він перемальовує все що знаходиться у компоненті
+			АЛЕ не скидає значення свого стану
+	
+ стан	-- існує поза рендером, рендер не впливає на стан
+	як тільки зміниться стан(state)	-- React відразу перемалює компонент
+				зміна стану викликає render компонента	
+
+					
+								color = purple	--> елмент стане фіолетовим
+	
+	
+render компонентів через зміну його станів	
+	
+ //імпортуємо useState	
+	import { useState } from "react"
+
+
+	useState()	-- завжди повертає 2 елемента
+					1 значення state | значення яке зараз у змінній color
+					2 функція почин з set, для зміни стану 	|	setColor("red")
+ 
+	деструктуризація масиву
+ const [color,getColor] = useState("green")
+	
+  ///
+	const arr = [1,2,3]
+	const [a,b] = arr	-- a=1 b=2
+  ///
+
+							//початкове значення
+ const [color,setColor] = useState("green")
+		змнна	для зміни
+		
+   const changeColorHandle = () => {
+		setColor("yellow");		--	передаємо нове значення для 
+										зміни	константи color
+  }
+
+!щоб прив'язати змінну до стану просто треба використати його
+							backgroundColor = { color }
+
+
+
+
+const [color,setColor] = useState("green")	-- відбув ререндер
+	існує по за малюванням компонента
+
+
+	const changeColor1Handle = () {
+		const randomColor = randomRgb();
+		setFirstColor(randomColor);	-- тут відбув рендер
+	}
+	
+	
+ БЕЗ форми для кожного інпута використ useState	
+
+	const [inputText, setInputText] = useState("");
+						
+						event при зміні
+ <input value={inputText} onChange={ changeTextHandle }/>
+
+
+  const changeTextHandle = (event) => {
+	const val = event.target.value;
+	setInputText(val)		-- змінює змінну через це показується значення у input бо ..value={inputText}.
+  }				записуємо значення у state а React перерендерить інпут
+
+
+
+								//значення при першому малюванні
+const [inputText, setInputText] = useState("ddd");
+	зберіг значення    функція яка змін значення state
+
+
+useState	-- hook(ф-ції які дозволяють доступ до react функціоналу) який дозволояє працювати 
+		із станом компонента | стан -- ніби глобальна змінна яка існує поза рендером компонента
+	єдиний інструмент для перемалювання візуальної частини
+
+
+----------------------------------------------
+04_Сollections
+
+component api	--	документація
+
+	mui.com/material-ui/getting started/installation/
+
+заходимо та виконуємо команди в терміналі
+		1. default instalation
+		2. roboto font
+		3. icons
+		
+ кольори знаходяться у вкладці palette
+
+
+						атрибут самого mui color з документації
+<AppBar position="static" color="error">
+
+
+	for forof if --	не доступні у розмітці | виокристовуємо ф-цію від масиву map
+
+const nums = [1,2,5,86,6]
+
+	map()	--	повертає нову колекцію з певною умовою
+					для будови html з об'єктів
+			як select у c#
+
+
+
+
+const BookListPage = () => {
+	const nums = [1,2,3,4,5,6,7,8,9,10,11];
+	const strs = nums.map(i => i.toString());	-- всі елемнти str
+	
+	
+	
+  const html = nums.map(i => (	-- перетворює елементи на <li>
+			<li>{i}</li>
+		));
+	
+			return(
+				<div>
+					{ html }
+				</div>
+			);
+
+
+
+const html = books.map((i) => (
+	<div>					-- треба 1 батьківський тег
+		<h3>{i.title}</h3>
+		<h4>{i.author}</h4>
+	</div>
+));
+
+
+
+key={b.id} треба для React у разі зміни елемента, автоматично 
+					створюється як проперті від map, без нього помилка 	бо при зміні елемента React перемальовуэ не все а тылький той елем який змынився			
+
+		return(
+				<div>	-- прямо у розмітці
+				
+				{ books.map((b) => (
+						<div key={b.id}> //унікальне для кожного елем	
+							<h3>{b.title}</h3>
+							<h4>{b.author}</h4>
+						</div>  
+					))}
+					
+				</div>
+			)
+
+
+ --для кожного html елем є альтернатива на mui--
+
+import { Box, Typography,Grid } from "@mui/material";
+
+	div		--	box
+	style	--	sx	(для всіх стилів)
+	Typography	--	всі теги (span,p,h)
+
+
+
+		//заміняє з span на h6
+ <Typography variant="h6>
+ 
+ <div style={}> </div>
+ 					==
+ <Box sx={}> </div>
+
+<Grid size={3}	>	4(12/3) елема на рядок
+	
+	sx={{mx: "50px"}}	-- дозволяє властивості як 
+						mx my  які недоступні через style
+
+<Box mx="100px"	--	можна писати зразу так для mx
+				але треба дивитися API документацію для елемнта
+				
+
+	<CardMedia
+		sx={ objectFit: "contain" }	-- дайє картинці повний сайзл			
+				
+				
+	  висоат div(Grid) задається найвищим,		
+		width 100% заповнює все пусти місце у div які не є найвищими
+		
+								//змінює значення на протилежне
+	onClick={() => setIsFavorite (!isFavorite)}	
+		
+			перетворює div на img 
+		<Box component="img" src=""/>
+		
+----------------------------------------------
+05_Forms
+
+mui templates 	--	взяти готовий компонент
+
+
+ <Box component ="form"	--	mui form
+ 
+ label,input	--	inline компоненти 
+ 
+  <FormControl	--	робить елемннти flex block | div для input і label
+
+<TextLable	==	lable
+<TextField	==	input
+	name=""	--	для того щоб доступитися до елемента
+
+
+autofocus	--	вибраний інпут при заході на сторінку	
+
+ tab -- змінити фокус 
+ shift+tab -- навпаки фокус вниз
+
+
+
+<Button type="submit"	--	onSumbit={handleSumbit}
+
+const handleSumbit() {			-- старий метод роботи з формами
+	const form = event.target
+	const title = form[`title`].value
+}
+
+
+
+  оптимізованіший варіант для інпутів
+					всі в 1 об'єкті
+  
+ const [values, setValues] = useState({
+	title: " "	-- дефолтне значення
+	..
+}); 
+
+
+					об'єкт копіююєттся і змін тільки title
+onChange={ event => setValues ( {...values, title: event.target.value} ) }
+ value={values.title}
+
+
+
+npm formik
+	yup
+	
+https://formik.org/docs/tutorial	--	бібліотека для роботи з формами	
+	
+	
+					// дефолтні значення
+ const initValues = {
+    title: "",	-- має обов'язково співпадати з name <TextField
+    author: "",
+    genre: "",
+    year: "",
+    cover: "",
+};
+	
+	
+	
+☑️ const formik = useFormik({	-- створюємо об'єкт який заміняє форми і валідацію
+
+	initialValues: initValues
+	
+	onSubmit: handleSubmit	-- функція при submit
+	
+	validationSchema: validationScheme,	-- об'єкт з валідацією
+ })
+	
+	
+		//отримає всі значення	від formik прописуємо логіку що робити далі з данними
+const handleSubmit = (values) => {
+	console.log(values);
+};
+
+	<Box onSubmit = {formik.handleSubmit}	--	formik вичитуэ значення і передає їх у вигляді obj
+											потім цей obj використовує наша функція handleSubmit
+											
+						formik	-- автоматично зробив preventDefault() вичитав всі данні і створив їх у obj
+								використано тільки 1 state
+				
+	
+ прив'язуємо input
+	value=[formik.values.title}
+	onChange={formik.handleChange}	--	Change який уже готовий від formik
+	
+
+
+ ==	yup	--	валідація без if ==
+			
+ if	--	тернарний оператор
+
+
+ import { object, string, number } from "yup";	-- імпортуємо для валідації
+
+
+
+					  виклик ф-цію object яку будемо валідувати
+const validationScheme = object({
+        title: string()
+				.required("Обов'язкове поле")	//повідомлення при помилці
+				.max(100, "Максимальна довжина 100 символів"),
+			
+		author: string().max(100, "Максимальна довжина 100 символів"),
+		...
+	)}			// можна використовувати regex через .matches()
+		
+
+
+			//додаємо onBlur
+ <TextField...
+			 value={formik.values.title}
+             onChange={formik.handleChange}
+             onBlur={formik.handleBlur}		-- буде перевіряти інпут коли переключились на інший
+		/>
+		
+	{	-- тернарний оператор щоб вивисте помилку
+	
+		на форму нажали		 чи є помилка у genre | перевір від yup
+   formik.touched.genre && formik.errors.genre ? (
+	
+			 <Typography						-- h7 буде виводити помилку
+					sx = { {mx: 1 color:"red"}}
+					variant = "h7"	>
+				{formik.errors.genre}			--виведе помилку у genre
+			</Typography>
+				
+		)	//якщо все добре	
+		 : null }
+		
+	}	//щоб оптимізувати код можна винести цю перевірку у функцію getError
+	
+			
+	
+const getError = (prop) =>
+{
+	// formik.errors[prop];	-- знайде якщо буде назва співпадати
+	// formik.errors.prop;	-- незпрацює бо немаэ проперті prop у initValues
+	
+	return formik.touched[prop] && formik.errors[prop] ? (
+            <Typography sx={{ mx: 1, color: "red" }} variant="h7">
+                {formik.errors[prop]}
+            </Typography>
+        ) : null;
+
+    };			
+			
+			
+<TextField...
+			 value={formik.values.title}
+             onChange={formik.handleChange}
+             onBlur={formik.handleBlur}
+		/>			
+			//назва власт
+	{ getError("title")}		
+	
+	
+🔀Алгоритм: копипастимо форму з mui	templates --> створ formik -> initValues,onSubmit
+					--> у <Box component ="form" onSubmit = {formik.handleSubmit}
+						--> <TextField name="title" щоб співпадав як у initValues
+	
+----------------------------------------------
+06_UseEffect LocalStorage
+
+React	--	не вміє змінювати статичні файли | для цього треба БД
+ JSON -- seeder у коді праюємо з LocalStorage
+
+				// [] щоб пройтись по масиву
+const [books, setBooks] = useState( [] );
+
+	--помилка вічний цикл тому запихуємо у функцію
+
+const fetchBooks = () => {
+	const localData = localStorage.getItem("books");	--дістаємо localStorage
+		if(localData) {
+		setBooks (JSON.parse(localData));		--якщо масив книг є то запис його у State переконверт localData з str у JSON
+	} else {
+		setBooks (booksJson);			//перетвор масив у str так як localStorage ключ--string
+		localStorage.setItem("books", JSON.stringify(booksJson));
+}
+
+ useEffect	--	hook для того щоб виконати 
+					код при першому заході на сайт інші rerender не впливатимуть на нього
+
+CallBack	--	ф-ція яка передаэться в іншу ф-цію і в ній викликається
+
+useEffect(fetchBooks, [])	-- старий варіант
+useEffect(()=>{....}, [])
+
+	
+useEffect(fetchBooks)	-- без [] хук буде використ у подальших рендерах і від нього не буде сенсу
+	тому передаємо [] щоб useEffect працювалось лише при 1 малюванні
+	
+		
+
+   [ count1,count2 ]	--	значення від яких залежить useEffect 
+	якщо вони знміняться то він спрацює щераз ПРИ змінні будь якого значення
+використовується у Pagination (змін page витягується нові данні через useEffect)
+
+	тому з []	-- спрацює при першом малюванні
+	
+		
+  <Button color="success" variant="contained"	-- mui стилізація зробить заливку для кнопки
+	
+	
+		====BookListPage====
+<Box..	
+	<Grid container spacing={2} mx="100px" my="50px">
+                {books.map((b) => (
+                    <Grid size={3} key={b.id}>
+                        <BookCard book={b} />
+                    </Grid>
+                ))}
+            </Grid>        
+					//у класи компонента як props предаємо функцію
+	<BookCreateForm createCallback={addNewBook}	
+				//createCallback	--	назва проперті можна будь як
+									пропс у якій лежить адреса функції  addNewBook
+</Box>						
+
+	
+		====BookCreateForm==
+const BookCreateForm = ({createCallback}) => {
+	const handleSubmit = (values) => {
+	 createCallback(values);		--	через покажчики викликає ф-цію у батьківському компоненті BookListPage
+			//викличе addNewBook
+	};
+
+
+	ліст		форма
+з батьківсько в дочірній	--	props
+з форми в ліст (навпаки)	--	callBack	| пеоедаємо адресу функціїї і її викликаємо
+
+--
+
+function bookList()
+	const list = [2, 3];
+	function addNew(value) {
+		list.push(value);
+	}
+	form();
+}	
+function form() {
+	const book = 1;	-- щоб передати її у bookList викор callBack
+}
+
+
+	function bookList()
+		const list = [2, 3];
+		function addNew(value) {
+			list.push(value);
+		}
+		form(addNew);	-- передаємо адресу addNew
+		
+	}
+				//будь яка назва, це ми передаємо addNew
+	function form(addCallBack) {
+		const book = 1;
+		addCallBack(book)	-- викличеться addNew у bookList
+	}
+
+--
+					//тут об'экт з values з форми
+const addNewBook = (newBook) => {
+	//setBooks([...books, newBook]);	-- переписуємо константу додавання нової книги для роботи з хуками і колеціями
+	//books.push(newBook)			-- змінюємо масив але не змінить state
+	
+	
+								//сума всіх книг			порівнюємо з 0
+	const id = books.reduce( (acc, books) => Math.max(acc, books.id),  0) + 1;
+        newBook.id = id;
+		
+		
+ //через те що у JSON назва cover_url а у формі cover	
+ 
+		newBook.cover_url = newBook.cover;	-- перепис значення
+        delete newBook.cover;				--видаляємо непотрібне проперті
+		
+		
+		
+	const newList = [...books, newBook];
+	setBooks (newList);						--	для рендера
+	localStorage.setItem("books",JSON.stringify(newList));
+}
+
+const deleteBook = (id) => {
+	const newList = books.filter(b=> b.id !== id);	--	
+}
+
+--Видалення
+
+<Card..
+ <IconButton onClick={deleteClickHandle}	-- у BookCard onclick на кошик
+
+
+ <BookCard book={b} deleteCallback={deleteBook} favoriteCallback={setFavorite} />
+
+   <Grid..
+	{books.map((b) => (
+                    <Grid size={3} key={b.id}>		передаємо ф-цію для видалення
+                        <BookCard book={b} deleteCallback={deleteBook} favoriteCallback={setFavorite} />
+					....
+
+					//розпаковуємо змінні
+const BookCard = ({ book, deleteCallback, favoriteCallback }) => {
+
+	const deleteClickHandle = () => {	-- book передається при створенні компонента
+			deleteCallback(book.id);	-- батьківська ф-ція deleteBook
+		}
+		
+		
+	filter -- повертає всі елем колеції що відповідають умові	
+		
+		
+const deleteBook = (id) => {		//повернуться всі id крім вибраного
+        const newList = books.filter(b => b.id !== id);
+		
+        setBooks(newList);		--оновлюється state і LocalStorage
+        localStorage.setItem("books", JSON.stringify(newList));
+    }		
+
+--isFavorite
+додаємо до JSON елементі проерті isFavorite
+
+const addNewBook = (newBook) => {   
+        .....
+        newBook.isFavorite = false;	-- додаємо дефолтний стан
+		
+		
+	const setFavorite = (id, favorite) => {
+        const newList = [...books];
+		
+        const index = newList.findIndex(b => b.id === id);
+        if(index !== -1) {							--	якщо id знайшлось
+		
+            newList[index].isFavorite = favorite;	--змінюємо проперті
+			
+            setBooks(newList);	--оновлюємо localStorage
+            localStorage.setItem("books", JSON.stringify(newList));
+			
+        }	
+	
+
+	
+додаємо ще один callBack favoriteCallback	--	найпростіший метод передавати елементи з дочірнього елема у батьківський
+
+const BookCard = ({ book, deleteCallback, favoriteCallback }) => {
+    const [isFavorite, setIsFavorite] = useState(book.isFavorite);
+
+    const setFavoriteHandle = () => {
+        const favoriteState = !isFavorite
+        setIsFavorite(favoriteState);
+		
+        favoriteCallback(book.id, favoriteState);
+    }		
+
+----------------------------------------------
+07_Routes
+
+ useEffect	-- зазвичай пишуть код який підтягуєж данні	
+
+
+React router --	перемикання між сторінками без reload
+npm i react-router
+
+ https://reactrouter.com/start/data/installation
+ https://reactrouter.com/start/declarative/installation	-- актуальніший спосіб
+
+
+
+ пишнмо навігацію у main.jsx
+ 
+ main.jsx	--	малює <App /> огортуємо його BrowserRouter щоб працював на весь сайт
+ 
+ import { BrowserRouter) from "react-router";
+ 
+
+<BrowserRouter>	-- дає можоивість робити навігацію на весь сайт
+	<App />
+</BrowserRouter>
+
+
+роутер -- підключаємо там де будуть мінятись елементи
+ <App /> -- тільки маршрути і навігація
+
+
+	app.jsx
+
+  import { Routes, Route) from "react-router";
+function App() {
+	return (
+	<>
+		<Navbar />	--	завжди малюється
+		
+		{/* Маршрути */}
+		<Routes>		-- описуються всі маршрути
+		
+			<Route path="/" element={<BookListPage />}   />	--BookListPage тепер домашня сторінка
+			<Route path="/authors" element={<AuthorLisPage />} />
+		</Routes>
+	</>
+	);	
+	
+		path	--	те що після доменного імені
+		path="/"	-- домашня сторінка
+
+	books	--	додати до батьківсько домену 	localhost/bookList/books
+	/books	--  повернутись до кореня 			localhost/books
+
+
+<Route path="/authorcreate" element={<AuthorsCreteForm />} />
+
+	/будьякий шлях
+<Route path="*" element={<h1>404 Not found</h1>} />
+
+
+
+
+  ==react-router є через JS і через html(компонент)==
+ 
+ html	--	якщо є можливість переправити черз html
+ JS	--	якщо є логіка
+ 
+import { Link } from "react-router"	-- обов'язково 
+
+ Link	-- в основі <a> без Reload
+
+<Link to="/authors" >	--	to=href навігація '/' по URL  домен/authors
+	<Button..
+
+ sx	--	тільки для mui компонентів
+
+React перевіряє маршрути по app.jsx де прописана навігація
+
+
+ Додати Іконку
+   <IconButton
+		<AddCircleButton sx={{fontSize:2em}}>
+   <IconButton />	
+
+
+	== useNavigate	хук навігація через JS
+
+import { useNavigate } from "react-router";
+
+const navigate = useNavigate()	--	щоб перекинуту користувача на сторіеку
+
+	function handleSubmit(formValues) {
+		createCallback(formValues);
+		
+		navigate("/books")	-- перенаправить на список книг
+		useNavigate()("/books")	-- те саме іншим способом
+	}
+	
+додавання книг без колбека
+
+чім більше сайт тим складніше реалізувати callBacks
+
+
+коли змінюється адреса малюється компонент тобто працює useEffect який у нас вичитує данні з LocalStorage
+	тому можна змінити LocalStorage і перепраити на BookListPage
+
+	
+  const BookCreateForm = () => {
+    const navigate = useNavigate();
+
+    function handleSubmit(newBook) {	--newBook об'єкт values які прихадять з форми
+        let books = [];
+        const localData = localStorage.getItem("books");
+        if (localData) {
+            books = JSON.parse(localData);
+        }
+
+        const id = books.reduce((acc, books) => Math.max(acc, books.id), 0) + 1;
+        newBook.id = id;
+        newBook.isFavorite = false;
+        newBook.cover_url = newBook.cover;
+        delete newBook.cover;
+        const newList = [...books, newBook];
+        localStorage.setItem("books", JSON.stringify(newList));
+
+        // перенаправити користувача на сторінку з книгами
+        navigate("/books");
+    }
+
+
+
+
+при navigate("/books")	-- буде малюватись useEffect
+
+	navigate(-1)	-- назад переміщення по історії
+	navigate("/books", {
+		replace: true	-- незаписувати в історію на яку попав користувач
+	});
+
+
+----------------------------------------------
+08_Routes2 Вкладені маршрути
+
+Layout	--	файл який відповідає за структуру сайту
+
+
+ <Conatiner	-- те саме що й	  div  або Box	 але з margin по краям
+
+
+import { Outlet } from "react-router";
+
+<Outlet	--	Динамічний компонент який підставляє іший 
+				компонент що відповідає посиланню
+
+ стає тим компонентом який ми вказали
+ 
+ 
+const DefaultLayout = () =>
+	return (
+	<Navbar />			контейнер займає 100vh щоб футер не прилипав
+		<Container sx = { {minHeight:"100vh"}}>
+			<Outlet />				--react-router подивитсья який URL і підставить компонент
+		</Container>
+	<Footer />
+	</>
+	);
+}; 
+
+
+у App.jsx
+
+ <Routes>		замінить OutLet
+	<Route	path=`/` element={DefaultLayout} -- батьківський визначає що помістити в Outlet через дочірні
+		<Route...	/>	дочірні компонети
+		
+	<Route path="/" element={<MainPage/>} />	-- адреса співпадає з батьківським
+	тому	заміняємо  ` path="/" ` на index
+
+	<Route path="books" element={<BookListPage/>} />
+			/books можна не писати бо додаєьбся до батьківського маршруту
+		доповнення до батьківського
+		
+		
+  ==щоб не повторювати path books bookcreate== (вони були на одному рівні а не продовження books)
+
+		<Route path="books />
+			<Route index element={<BookListPage/>} />	--	index має бути обов'язково
+			<Route path="create" element={<BookForm/>} /> -- вийде 'localhost/books/create'
+			
+			<Route path="/create" ... вийде 'localhost/create'
+		</Route >
+		
+							//будуємо layout
+		<Route path="books />
+			<Route index element={<AuthorListPage/>} />	--	index має бути обов'язково
+			<Route path="create" elemnt...
+		</Route >	
+		
+		
+ </Routes>
+
+
+без '/' додати до поточний адреси -- з '/' стри і напиши нову адресу
+
+
+<Link to="create">	-- до відкритой вкладки додається create "authors/create"
+	<IconButton color="secondary">
+		<AddCircleIcon sx={{ fontSize: "3em" }} />
+	</IconButton>
+</Link>
+
+
+update	--	той самий create тільки данні підтягуються
+
+
+
+	const [formValues, setFormValues] = useState({	-- default значення
+        title: "",
+        author: "",
+        genre: "",
+        year: 0,
+        cover_url: "",
+    });
+
+
+const [errors, setErrors] = useState({});
+
+
+	function onChangeHandle(event) {
+        const { name, value } = event.target;
+        setFormValues({ ...formValues, [name]: value });
+    }
+
+
+
+ ==Валідація без Formik==
+ 
+ 
+	 function validate() {
+        const validateErrors = {};	-- об'єкт з помилками
+        let result = true;			-- якщо помилок немає
+
+
+        if (formValues.title.length === 0) {
+            validateErrors.title = "Обов'язкове поле";	--у об'єкті з'явиться проперті title з текстом error 
+            result = false;
+        } 
+		else if (formValues.title.length > 100) {
+            validateErrors.title = "Максимальна довжина 100 символів";
+            result = false;
+        }
+
+
+        return { result: result, errors: validateErrors };
+    }
+ 
+ 
+	function handleSubmit(event) {
+        event.preventDefault();
+
+        const validateResult = validate();	-- запустить ф-цію вище
+
+        if (!validateResult.result) {			-- якщо result=false
+            setErrors(validateResult.errors);	-- у state errors запишуться помилки
+            return;
+        } else {
+            setErrors({});
+        }
+
+				//логіка збереження
+
+        const localData = localStorage.getItem("books");
+        if (localData) {
+            const books = JSON.parse(localData);
+            const index = books.findIndex(b => b.id == id);
+            books[index] = formValues;
+            localStorage.setItem("books", JSON.stringify(books));
+        }
+
+        // перенаправити користувача на сторінку з книгами
+        navigate("/books");
+    }
+
+    const getError = (prop) => {	-- у коді викликається getError(title)
+        return errors[prop] ? (
+            <Typography sx={{ mx: 1, color: "red" }} variant="h7">
+                {errors[prop]}
+            </Typography>
+        ) : null;
+    };
+ 
+ 
+ 
+ 
+==Url values ==
+
+
+	Через те що callBack буде довгим краще використаити urlValues
+
+
+	--App.jsx
+	
+	
+ <Route path="books">
+ 
+	<Route path="update/:id" element={<BookUpdateForm />} />
+	
+</Route>	 /:id	створ змінну у яку можна покласти значення	
+				тому /books/update перестає працювати і потріно значення тобто: /books/update/1
+
+
+	--BookCard.jsx
+	
+	
+				//передає id
+<Link to={ `update/${book.id}`}>
+
+	<IconButton color="success" aria-label="share">
+		<EditIcon />
+	</IconButton>
+	
+</Link>	
+	
+	
+	useParams	--	хук який витягує параметри з URL(все після:) тобто 'update/:id' витягне id
+
+ const {id} = useParams()	-- завжди string
+	
+	useEffect(() => {
+         const localData = localStorage.getItem("books");
+         if (localData) {
+             const books = JSON.parse(localData);
+             const book = books.find((b) => b.id == id);	-- шукає по масиву книг чи є книг id якої = id від useParams 
+             if (!book) {
+                 navigate("/books", { replace: true });		--не знайшов такого id перенаправляє на /books
+             }
+             setFormValues(book);		-- запис у state з інпутами значення книги яку знайшов
+         } else {
+             navigate("/books", { replace: true });
+         }
+     }, []);
+	
+	
+	
+	
+🟢 AddForm															🟡 EditForm
+
+Використовує Formik													Використовує useState
+
+initialValues задані наперед										Сам пишеш: formValues,onChangeHandle,errors
+onChange, onBlur, values, errors, touched — усе робить Formik
+
+Мінімум ручного коду												Усе контролюється вручну
+
+👉 Декларативний підхід												👉 Імперативний підхід
+	
+	
+Логіка:															Логіка:
+
+	читає authors										Використовує useParams() → id
+	рахує новий id							Через useEffect: знаходить автора	 підставляє в форму				
+	додає isFavorite					При submit:	знаходить індекс									
+	пушить у масив									перезаписує елемент			
+
+
+UX-дрібниці
+
+				AddForm				EditForm
+onBlur			✅ є				❌ нема
+touched			✅ є				❌ нема
+
+	
+----------------------------------------------
+09_useRef
+
+https://mui.com/material-ui/getting-started/templates/
+
+ коли пишемо компонент можна і .js але .jsx підкреслює що це саме компонент
+ 
+ './../'	--	'./' можна не писати показуэ для наглядності що виконуємо з поточної папки
+ 
+
+змінити іконку закладки у index.html		//тут
+	<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+				type="image/ico"	--	зробить тип картинки для ico
+
+
+
+form через state	--	✅	контрольований інпут ✅value ✅live validation 
+						❌забагато рендеру
+						
+ можна обійтись без State -- ✅ validation on sumbit
+							Через useRef
+
+
+ 
+useRef(null)	--	хук схожий на useState зберігає данні 
+	поза рендером тільки для читання, useState() 
+		тільки без set. Для читання html у JS без Render
+
+
+const emailRef = useRef(null)
+
+	ref	--	атрибут наявний у всіх компонентах
+
+	<FormControl>
+		<FormLabel htmlFor="email
+			<TextField
+			//ref={emailRef}	-- у emailRef запишеться весь Textfield на батькіскьий div
+				те саме що emailRef = document.getElementById("email");
+				
+			inputref={emailRef}	-- у emailRef запишеться input (тільки дляMUI)
+				 
+				 
+		</FormLabel>		 
+	</FormControl>			 
+
+
+ React контролює dom -- тому document.getElementById обходячи React доступаємось до dom 
+
+					
+
+const handleSubmit (event) {
+	event.preventDefault();
+	
+	console.log(emailRef);	-- об'єкт у якого є current у якому input (current: input)
+	console.log(emailRef.current);
+		
+		
+	const cred = {					--дані користувача через useRef
+		email: emailRef.current.value,
+		password: passwordRef.current.value
+	}
+};
+
+
+	🟡спосіб через useRef -- щоб не робити постійний rerender при onChange()
+					коли данні вводяться в input render не відбуваться тільки вичитуємо input 
+				і ніяк на них не впливаємо. Валідацю можна тільки через Submit
+					
+
+
+	^Валідація така сама
+	
+ const [errors, setErrors] = useState({});
+ 
+ function validate(formValues) {
+        const validateErrors = {};
+        let result = true;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+						все крім ' ' і '@'
+
+emailRegex.test(formValues.email)	-- перевірка Regex ом
+
+
+
+==прибрати кнопки логіну при реєстрації==
+
+
+ у Login.jsx -- записуються в LocalStorage credentials
+
+  У App.jsx	-- щоб авторизувати на всьому сайті
+
+
+
+	 чи він авторизований
+	const [isAuth, setIsAuth] = useState(false);
+	
+useEffect(() => {	
+	const authData = localstorage.getItem("auth");
+		if(authData) {
+			setIsAuth(true);
+		}
+	},[])	-- помістили в useEffect щоб не було вічного циклу
+
+	==Обновляти кнопки==
+	window.location.reload()	--	можна але не бажано
+
+ так як App малює всі компоненти він може роздати state [isAuth]
+
+App --> DefaultLayout --> Navbar
+
+ тому передаємо статус через props
+
+
+< Route path="/" element={<DefaultLayout isAuth={isAuth} />}
+
+а DefaultLayout передає navbar
+
+
+	const DefaultLayout = ({isAuth}) => {
+	
+		return (
+			<Navbar isAuth={isAuth} />
+			..
+		
+
+	const Navbar = ({ isAuth }) => {	-- Якщо App змінить state то всі компоненти які його мають rerender
+		
+		        {isAuth ? (
+                            <>
+                                <Tooltip title="Open settings">
+                                    <IconButton
+                                        onClick={handleOpenUserMenu}
+                                        sx={{ p: 0 }}
+                                    >
+                                        <Avatar
+                                            alt="Remy Sharp"
+                                            src="/static/images/avatar/2.jpg"
+                                        />
+                                    </IconButton>
+                                </Tooltip>
+                            </>
+                        ) : (
+                            <>
+                                <Link to="/login">
+									..
+		=App.jsx=
+			
+	кнопки у Navbar.jsx прив'язані до state isAuth тому треба setIsAuth --> Login.jsx  для rerender
+							який буде викликатись у Login.jsx onSubmit
+										того передаємо setIsAuth
+										
+										
+                  <Route path="login" element={<LoginPage setAuthCallback={setIsAuth} />}
+                        
+               
+			
+			
+	const LoginPage = ({ setAuthCallback }) => {		
+
+		 const handleSubmit = (event) => {
+		..
+			setAuthCallback(true);	-- змінює State
+			navigate("/", { replace: true });
+		};
+
+	
+ Щоб сховати  loginPage при Login
+ 
+ 1. Можна передати isAuth <LoginPage setAuthCallback={setIsAuth} isAuth={isAuth}
+		=login.jsx=
+			if(isAuth){
+				navigate('/', {replace: true})
+			}
+
+ 2. {!isAuth && (	--ховаэ маршрут
+                        <Route
+                            path="login"
+                            element={<LoginPage setAuthCallback={setIsAuth} />}
+                        />
+                    )}
+
+
+
+		&&	-- щоб не писати	`:null`
+	
+	{!isAuth  (	.. ) : null }
+	{!isAuth && ( .. )  }
+
+
+	
+if(is) {
+}
+	--одне й теж--
+is && <div></div>
+
+
+----------------------------------------------
+10_useContext
+
+	Context -- ніби глобальна змінна доступ до якої є у любого компонента
+
+робимо isAuth робимо глобальним щоб не було передачі між компонентами
+
+	function default Layout (isAuth) {
+		navbar(isAuth);	--	щоб не передаваим з однією в іншу
+	}
+	у багатьох компонентах посилання на 1 state
+
+
+стан у багатьох компонентах краще зробити 
+	context -- глобальне сховище і будь який компонент його достане
+
+		state попадає зразу у те місце де він має бути
+
+
+import { createContext) from "react";
+
+
+	export const AuthContext = createContext(null)	--	створення контексту, ніби глобальна змінна
+
+
+export const AuthProvider = ({children}) => {	--children дочірні компоненти (вкладені компоненти)
+						//для зручності і більш правильного коду
+	
+	const [isAuth,setIsAuth] = useState(false)
+	
+	function login() {
+		setIsAuth(true);
+	}
+	function logout() {
+		setIsAuth(false);
+		localStorage.removeItem("auth");	-- видалить creds
+	}
+	
+	
+	return (
+		//<h1>	--	не має доступу до конектса бо не у компоненті
+		
+		//<AuthContext.Provider>	-- вкладений компонент щоб всередину передати інші компоненти
+							до сховища матимуть доступ лише ті компоненти які лежать у Provider
+		
+								//те що зберігає
+		<AuthContext.Provider value={{ isAuth, login, logout }}> 
+			{children)
+		</AuthContext.Provider>
+		);
+}		
+		provider для зручності і більш правильного коду якщо 1 context у проекті його можна не створювати
+
+
+
+
+	App, Navbar -- мають мати цей контекст тому
+  так як <App /> -- у main.jsx
+
+import { AuthProvider from "./context/AuthContext.jsx";
+
+	<Browser Router>
+		<AuthProvider>	-- всі компоненти матимуть доступ до context бо App вимальовує всі їх
+			<App />
+		</AuthProvider>
+	</Browser Router>
+
+
+
+	 <Route index element={<AuthProvider>
+								<AuthorListPage 	--	тільки компонет AuthorListPage матиме доступ до сховища
+						  </AuthProvider>/>} />
+
+
+				//старий варіант
+const Navbar = ({ isAuth }) => {..
+														//вписуються у context
+import { useContext } 			-- повертатиме value (value={isAuth, login, logout })
+import { AuthContext } from "../../context/AuthContext";
+
+const Navbar = () => {
+								//вказуємо з якого context брати (імпортували AuthContext)
+ const {isAuth} = useContext(AuthContext)
+
+
+
+у інших компонентах
+{!isAuth && (
+	<Route
+	path="login"
+	element={<LoginPage />}	-- не треба callBack
+	/>
+)}
+
+	==loginPage==
+
+import { useRef, useState, useContext) from "react";
+import { AuthContext } from "../../../context/AuthContext";
+
+const LoginPage = () => {
+
+		//деструктуризація з value
+	const { login } = useContext(AuthContext);	-- витягування потрібного value з контексту
+
+	login()	--	ф-ція змінює state у AuthContext (раніше був callBack)
+}
+
+
+	==AuthContext.jsx==
+						  //ф-ція повертає це
+export const useAuth = () => useContext(AuthContext);	
+
+	//щоб скоротит писанину створюємо кастомний хук
+
+import { useAuth } from
+
+ const {isAuth} = useAuth();
+
+
+
+	
+	            <MenuItem	//mui функція для закривання меню
+                onClick={handleCloseUserMenu} >
+				
+                <Typography sx={{ textAlign: "center" }}>
+                    Профіль
+                </Typography>
+            </MenuItem>
+
+
+
+context	--	забирає можливість передачі компонента у компоненті для зручності
+	
+	
+	==Palette==		mui комопнент
+
+У React 2 кольори primary secondary
+
+https://www.materialpalette.com/
+
+
+  import { createTheme ) from "@mui/material";	-- функція від mui
+
+export const redTheme =	createTheme({	--Створення теми
+	
+	palette: {
+		primary:{
+			light: "",
+			main: "",
+			dark: "",
+		
+		},
+		secondary:{
+			main: ""	-- колір кнопок
+		},
+		
+		--глобальні константи для кольорів
+		info:{},
+		error:{},
+		success:{},
+		warning:{}
+	}
+
+})	
+
+	//щоб теми працювали огортаємо App.jsx у ThemeProvider
+		
+				/передаєм тему
+<ThemeProvider theme={isDark ? darkTheme lightTheme}>	
+	<Routes>
+
+palette: {
+		mode: "dark"	-- темна тема
+		primary:{..
+
+
+
+  
+
+export const redTheme = createTheme ({
+	palette: {
+		mode: "dark"	-- робить bg у компонентів чорними (від mui)
+		primary: {..
+});
+	
+	
+пам'ятати мову	--	робити petProject
+
+----------------------------------------------
+11_Axios
+
+ React	--	треба backend
+				api(backend)
+
+ url?pass=qwerty&name=admin		--	? параметри
+ 
+	useEffect	--	❌ не може приймати async
+	
+		useEffect( ❌ async() => {
+				const resp = await fetch(url)
+		}, [])
+ 
+ 
+<StrictMode>		--	кидає по 2 запити 
+							debug режим який 2 раза рендерить компонент
+									даэ виясняти помилки при publish вимикаэться
+    <BrowserRouter>
+      <ThemeContextProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </ThemeContextProvider>
+    </BrowserRouter>
+  </StrictMode>
+
+ 
+	fetch	-- класичний js
+	axios	-- покращена версія для React
+ 
+
+Axios — це популярна JavaScript-бібліотека, яка працює як «кур'єр» між вашим вебдодатком та сервером. Вона дозволяє надсилати HTTP-запити (наприклад, отримувати список товарів або відправляти дані форми) та обробляти відповіді.
+ 
+ npm i axios
+
+
+	axios -- теж асинхроний тому треба await або then
+					дає можливість створи об'єкт
+
+	const http = axios.create((baseUrl="https://backend.com/api/"})
+
+тепер можна просто писати http.get("users")
+
+
+
+const response = await axios.get(url);
+	1 await, більше функціоналу чим у fetch
+
+  const data = await resp.json()		-- fetch
+  const { data,status } = resp			--axios не треба додатковий await
+
+
+ if (status === 200) {
+            const booksData = [];
+            for (const [book] of data.books) {
+				
+				[book] -- те саме що let item = book[0]
+							бо по API масив книг а книга це масив
+			
+			
+                const formated = {
+                    id: book.id,
+                    title: book.title,
+                    author: book.authors[0].name,
+                    cover_url: book.image,
+                    rating: book.rating.average,
+                    isFavorite: false,
+                };
+                booksData.push(formated);
+				  setLoading(false);
+            }
+
+
+
+
+	==BookCard
+
+ <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    {book.genre}, {book.year}
+                    <Rating readOnly max={10} value={Math.round(book.rating * 10)}/>	-- зірочки
+               </Typography>
+
+
+	--Spinner
+
+import {  CircularProgress } from "@mui/material";
+
+	const [loading,setLoading] = useState(true)	-- створ state щоб коли сторінка занрузилась то state = false
+
+
+	useEffect(()=> {..
+				setLoading(false);
+	},[])
+
+ if(loading){ 
+	return( <Box sx={{ display: "flex", justifyContent: "center" }}>
+                <CircularProgress enableTrackSlot size="3rem" sx={{ mt: 4 }} />;
+				</Box>)	}
+
+
+
+
+
+----------------------------------------------
+12_crud
+
+	🔀Алгорити створення Formik
+
+ 1.	пишемо initValues
+ 2.	const formik = useFormik.. initValues onSumbit
+ 3. onSubmit formik.handleSubmit
+ 4. onChange={formik.handleChange} OnBlur value=formik.values
+ 5. handleSubmit
+ 6. ValidationScheme
+
+
+ htmlFor	--	мета тег для seo
+
+import { object, string, ref } from "yup";
+
+
+ confirmPassword: string()
+            .required("Обов'язкове поле")
+            .min(6, "Мінімальна довжина 6 символів")
+            .oneOf([ref("password"), null], "Паролі повинні збігатися"), -- перевірка чи співпадають
+
+
+							//предикат
+const index = users.findIndex(u => u.email === userData.email);	-- пошук користувача з такою самою поштою
+	
+	if(index !== -1) {
+            alert(`Користувач з поштою '${userData.email}' вже існує`);
+            return;
+        }
+
+delete userData.confirmPassword;	--	видалити властивість
+
+
+	Password ніколи не вертається з backend
+
+
+	==AuthContext
+
+const [user, setUser] useState(null);	-- створ змінну яка зберігатиме user
+	function login() {
+		setIsAuth(true);
+		const auth localStorage.getItem("auth");
+		if(auth) {
+		setUser (JSON.parse(auth));
+	}
+}
+
+<AuthContext.Provider value={.. user }>
+
+	
+	==BookListPage
+						//якщо роль не адмін то кнопки додавання немає
+{isAuth && user.role === "admin" && (
+	<Grid size={books.length % 3 === 0 ? 12 4}>
+
+
+	==App.jsx
+
+				//ховаємо маршрути якщо не має прав
+<Route index element={<BookListPage />} />
+	{isAuth && user.role === "admin" &&
+			<Route
+			path="create"
+			element={<BookCreateForm />}
+			/>
+		<Route
+		path="update/:id"
+		element={<BookUpdateForm />}
+		/>
+	}
+</>	
+
+
+
+somee.com	-- 1 безкоштовний хостинг для сервера
+
+swagger	--	дозволяє створити crud для api
+
+ get	--	отримати
+ post	--	додати
+ put	--	оновити
+ delete	--	видалити
+ 
+ put	-- post + id
+
+
+-Підстроюємо під api fetch
+
+	   async function fetchBooks() {
+        const baseUrl = "https://pd411.somme.com/api/books";
+		
+        const pageCount = 15;
+        const page = 1;
+        const url = `${booksUrl}?page_size=${pageCount}&page=${page}`;
+
+        const response = await axios.get(url);
+        const { data, status } = response;
+        if (status === 200) {
+            const booksData = [];
+            for (const book of data.data.items) {
+                const formated = {
+                    id: book.id,
+                    title: book.title,
+                    author: book.author.name,
+                    cover_url: book.image,
+                    rating: book.rating,
+                    isFavorite: false,
+                };
+
+
+ так як у url повторюється 'https://pd411.somme.com/api' тому її краще винести у глобальну змінну
+
+
+
+.env	--	environment глобальні змінні для всього проекту 
+		дає можливість не змінюючи код змінити значення змінних
+
+VITE_	--	обов'язкова частина для environment
+
+
+VITE_BASE_API_URL=https://pd411.somee.com/api/	-- після цього треба зробитти рестарт проекта
+
+	Vite на етапі білду підставляє ці значення в JS-код.
+
+корінь папки/.env
+	VITE_BOOKS_URL=https://pd411.somee.com/api/books
+
+
+		==BookListPage
+		
+const booksUrl = import.meta.env.VITE_BOOKS_URL;	--	✅витягуємо змінну
+
+
+				
+		//робимо queary через `?`		
+const url = `${booksUrl}?page_size=${pageCount}&page=${page}`;
+
+
+	frontend пишеться під backend
+		input щоб співпадали як на api
+
+fetch не маж вбудованого post
+
+
+
+	==BookCreateForm	POST
+	
+function handleSubmit(newBook) {
+
+	const booksUrl = import.meta.env.VITE_BOOKS_URL;
+	
+	const response = await axios.post(booksUrl, newBook);	-- додати книгу
+
+	if (response.status === 200) {
+			navigate("/books");
+		}
+
+}
+	
+ axios.post(booksUrl, newBook)
+ 		//або
+ axios({
+ 	 url:	bookUrl,
+ 	 method: "post",		--	метод
+ 	 data: newBook		-- що передати
+ })
+
+
+data	--	те що вертає backend у відповідь
+
+
+	==BookListPage
+
+
+	for (const book of data.data.items) {
+                const formated = {
+                    id: book.id,
+                    title: book.title,
+                    author: book.author.name,
+                    cover_url: book.image,
+                    rating: book.rating,
+                    isFavorite: false,
+                };
+
+
+	так як інпути співпадають з api параметрами спрощуємо запис
+
+	 for (const book of data.data.items) {
+                const formated = {
+                    ...book,
+                    author: book.author ? book.author.name : "невідомий",
+                    isFavorite: false,
+                };
+
+
+	==BookUpdateForm	GET
+	
+   useEffect(() => {
+        const readBook = async () => {							--створ async функцію бо useEffect не async
+            const booksUrl = import.meta.env.VITE_BOOKS_URL;
+            
+            const response = await axios.get(`${booksUrl}/${id}`);	-- get запит
+			
+			
+            if(response.status === 200) {
+                const {data} = response;
+                const oldBook = data.data;
+                await formik.setValues(oldBook, false);		-- записуємо у інпути значення
+			}
+		}
+		readBook()	-- викликаємо async функцію
+
+
+useState	-- керований інпут
+useRef		-- НЕ керований інпут бо вичитуємо у Submit
+
+ input name -- має співпадати з назвою на backend
+
+
+
+	==BookCard	DELETE
+
+
+ const deleteClickHandle = async () => {
+        await deleteCallback(book.id);
+    };
+	
+	==BookListPage
+const deleteBook = async (id) => {
+        const booksUrl = import.meta.env.VITE_BOOKS_URL;
+        try {
+            await axios.delete(`${booksUrl}/${id}`);
+        } catch(error){
+            console.log(error);
+        }
+        await fetchBooks();
+    };
+
+----------------------------------------------
+13_Redux
+
+Контекстів може бути дуже багато а це приводить до великої писанини
+	<ThemeContextProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </ThemeContextProvider>
+	  
+	  
+ Redux	--	бібліотека контекст у якому може бути декілька контекстів
+		сховище контекстів, до якого матимуть доступ всі компоненти
+		
+		
+ 
+ UI (btn click)--> event handler --> Dispatcher генерує (Action {type,payload})
+	--> Store (state всіх контекстів) --> Reducer (по типу 
+	контекста змію state) логіка яка змінює State(об'єкт дані з всього redux)
+		--> Reducer змінює State
+
+
+	payload -- дані які хочемо ввести
+ type	-- яку дію зробити з payload
+	
+	Store state	--	state усіх context через нього витягуватимемо усі необхідні данні	|	схожий за можливостям на useState()
+	Reducer	-- типу context (тема авторизація книги автори) змінюють state
+
+
+
+const oldState = {
+		balance:0,
+		pinCode:1345,
+	}
+const newState = { ...oldState, balance: 10 ; }	--	store автоматично віддає старі данні щоб старі так і залишились
+
+
+ Головне правильно прописати Reducer Store
+
+
+redux-toolkit.js.org
+
+npm install @reduxjs/toolkit	-- дає RTK queary
+npm install react-redux
+
+
+
+створ папку store	--  налаштування reducer store
+	./store/store.js
+	
+import { configureStore } from "@reduxjs/toolkit";
+
+	export const store = configureStore({	-- об'єкт з налаштуваннями
+		reducer: {}	-- reducer у якому будуть інші reducers
+})
+
+
+
+	./main.jsx	 підключаємо store
+	
+import { store } from "./store/store.js";
+import { Provider } from "react-redux";
+
+	<Provider store={store}>
+		<App />
+	</Provider>
+
+
+	кожен Reducer -- має свій маленький state які об'єднуються у великий 
+Reducer - manager його state - його категорія
+	
+
+
+store/reducers/bookReducer/bookReducer.js
+
+JSX -- писати HTML у JS коді
+
+	компоненти з великої, функції з малої літери 
+
+ кожен Reducer приймає (state,action)
+ 
+ 
+ 
+ 
+ ==bookReducer.js
+	
+ const initState = {	-- початкове значення state
+		books: [],
+		isLoaded: false
+ }	
+						 //початкове значення
+export const bookReducer = (state = initState, action) => {		-- state = initState потрібно для створення оскільки state не буде на початку
+
+}	-- буде змінювати initState
+
+
+
+
+ ==store.js		--додаємо до reducer {} наш новий bookReducer
+
+import { bookReducer } from "./reducers/bookReducer/bookReducer";
+
+
+ export const store = configureStore { -- створюємо сховище і передаємо налаштквання
+		
+		reducer: {
+			book: bookReducer	--	але помилка бо треба 1 reducer тому створ rootReducer
+		}
+		
+		
+		після створення RootRecuder
+			reducer: rootReducer
+}	
+
+
+
+   store/reducers/rootReducer	-- список всіх reducer
+
+створюємо rootReducer	--	reducer який головний у якому інші він об'єднує всіх
+
+
+
+import { combineReducers } from "@reduxjs/toolkit"
+
+  export const rootReducer = combineReducers({
+
+  	 book: bookReducer	--	По цій назві вичитуються Reducers
+	 
+  })
+
+
+
+
+
+redux devTools	--	розширення для тестування Redux
+
+https://chromewebstore.google.com/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=ru&pli=1
+
+	-Якщо все добре то з'явиться @@init та перший state (у нас це book) з значеннями від initState
+
+
+
+	==bookReducer.js
+	
+const action = {	-- об'єкт 
+	type: "loadBooks",	-- назва action
+	payload: null		-- данні які ми зпишемо у state
+}
+	
+export const bookReducer = (state = initState, action) => {
+	switch(action.type) {
+	
+		case "loadBooks":								//данні які приходять ззовні
+			return {...state, isLoaded: true, books: action.payload };
+			
+	default:
+		return state;
+	}	
+}
+
+
+
+	==BookListPage
+
+import (useDispatch, useSelector) from "react-redux";
+
+	useDispatch	-- редагування сховища
+
+const dispatch = useDispatch()	-- функція яка генерує action
+
+fetchBooks {..
+	setBooks(booksData)
+	
+			//як id розуміє до якого reducer
+	dispatch ( { type: "loadBooks", payload: booksData } );	--	запис у store нового state
+}
+
+
+
+context -- доступ всім компонентам до state
+	redux	--	сховище контекстів
+
+useSelector -- для отримання з store
+useDispatch -- для запису у store
+
+
+
+
+										//з якого reducer беремо данні (назва у rootReducer)
+const [ books, isLoaded ] = useSelector(state => state.book);
+
+
+
+case "deleteBook":
+	return {...state, books:
+
+	//попередні данні до зміни					//ВИДАЛЕННЯ		//самі вибираємл що передати у payload
+		state.books.filter(b=> b.id != action.payload) };
+
+
+
+const deleteClickHandle = async () => {
+	const booksUrl = import.meta.env.VITE_BOOKS_URL;
+	try {
+	
+		await axios.delete(${booksUrl}/${id}');		--	видаляємо з бекенда
+
+
+		dispatch { type: "deleteBook", payload: book.id};	-- видаляємо з state
+		
+	dispatch { type: "updateBook", payload: newBook });	
+		
+	
+
+case "updateBook":
+	return {
+		...state,	//бере попередні данні до зміни	і вибирає всі крім переданої
+		books: [...state.books.filter( (b) => b.id != action.payload.id), action.payload ]	-- масив без видаленого id + новиа книга (видалилась стара книга додалась оновлена версія)
+	}
+		
+//ЗРУЧНІШЕ валідація у Компоненті
+	books: action.payload
+	
+	
+	
+ локальні useState() немає сенсу переносити у Redux		
+				
+Redux	--	глобальний useState на всі компоненти щоб завжди була сама остання інформація	
+		
+----------------------------------------------
+14_	Redux2
+
+
+const lambda = () => 1
+const lambda = () => { 1 }
+
+
+	==reducers/bookReducer/actions	-- тут пропичуємо логіку dipatch ів
+							виносимо логіку з handleSubmit
+	
+export const loadBooks = () => (dispatch) => {..
+}
+ вся логіка load,updateBook,createBook
+
+
+	створюмо файл якій збере всі reducer 
+
+reducerds/actionsCreator	
+	
+	import * as bookActions from "./bookReducer/actions"	-- об'єднує всі функції в 1 об'єкт
+	
+	
+		//	const bookActions = {loadBooks,	-- фкнкції створені у bookReducer/actions
+		//  createBook,
+		//  updateBook,
+		//  deleteBook }
+	
+	
+	
+	🟡export const actions = {	-- об'єкт який вміщає всі Actions
+		...bookActions,
+		...authActions
+	}
+
+
+
+	-створюємо власгий хук
+
+==store/hooks/useAction
+
+import { useDispatch from "react-redux"
+import { bindActionCreators from "@reduxjs/toolkit"
+import { actions } from "../reducers/actions Creator"
+
+
+🟡bindActionCreators -- бібліотечна функція який прив'язує dispatch до Action
+													передає Action в Dispatch
+
+
+export const useAction = () => {
+	const dispatch= useDispatch();
+	return bindActionCreators (actions, dispatch);	
+}
+
+
+
+
+імпортуємо хук 			//знає про всі action
+	const { loadBooks } = useAction();
+
+useEffect(() => {
+	loadBooks().then(result => );
+}, []);
+
+const BookCreateForm = () =>
+	const { createBook } = useAction();
+	
+	
+МЕТА переносимо логіку з SubmitHandle у Action в Reducer
+	
+
+reducer: return { ...state, isLoaded: true, books: action.payload);
+
+Reducer - обробляє action
+Action	--	що має бути з state
+
+
+
+-=-Для авторів
+
+папка authorReducer
+			actions.js
+			authorReducer.js
+			
+			
+		--actions.js
+	
+ export const loadAuthors = () => (dispatch) => {
+	const authorsUrl = import.meta.env.VITE_AUTHORS_URL;
+	const pageCount = 150;
+	const page = 1;
+	const url = ${authorsUrl}?page_size=${pageCount}&page=${page}`;
+		try {
+			const response = await axios.get(url);
+			if (response.status === 200) {
+				const { data } = response;
+				dispatch({ type: "loadAuthors", payload: data.data.items });
+			} else
+			return false;
+		} catch (error) {
+		throw error;
+	}
+
+
+rootReducer.js
+	export const rootReducer combineReducers({
+	
+	book: bookReducer,
+	author: authorReducer
+	})
+
+	
+	export const actions {
+		...bookActions,
+		...authActions,
+		...authorActions }
+		
+		
+		
+		
+ -- select
+
+ inivitValues {.. authorId = 0}
+ 
+<Select name="authorId" value={authors[0] ? authors[0].id: 0}>
+	<MenuItem value = {0} >Невідомий</MenuItem>
+		{authors.map((author) => (
+			<MenuItem key={author.id) value={author.id}>
+		{author.name}
+	</MenuItem>
+	))}
+</Select>
+		
+		
+		
+----------------------------------------------
+15_	GoogleAuth Totstify
+
+		//breakpoint які задають ширину сітку для певного розміру екрану
+<Grid size={{sm: 12, md: 6, 1g: 4, x1: 4}} key={index}>
+	<BookCard book={b} />
+</Grid>
+
+
+Totistify створюємо Provider
+
+	Налаштовуємо на сайті ToastContainer
+			fkhadra.github.io/react-toastify/introduction/
+
+
+const TostifyProvider = () => {
+return (
+	<ToastContainer>...	-- загальний для всіх налаштування
+	 );
+}
+export default ToastifyProvider;
+
+	
+	//імпорт коомпонента
+
+import { toast } from "react-toastify";
+	toats.success("message")
+
+
+GOOGLE API authorise
+
+ 1. йдемо до google cloud console
+ 2. OAuth consent
+ 3. Credentials
+ 4. Create crendentials OAuth client ID
+
+огортаємо login form у  
+	<Google0AuthProvider clientId = {googleClientId}>
+ 
+ <GoogleLogin
+	onSuccess={succesAuth}
+	onError= errorAuth
+/>
+							jwt token
+	const succesAuth = ({crendential}) => {..}
+
+jwt decode	-- ставимо бібліотеку для декодування 
+
+ const userData = jwtDecode(credential)	-- перетворює на json
+
+краще записувати creds у jwt для бекенда
+				який буде записуватись у cookies
+
+
+contst LoginPageByGoogle = () => ()	-- зразу return html
+							{}	-- требв писати return
+							
+							
+							
+							
+  /$$$$$$   /$$$$$$  /$$$$$$$        /$$   /$$ /$$$$$$$$ /$$$$$$$$
+ /$$__  $$ /$$__  $$| $$__  $$      | $$$ | $$| $$_____/|__  $$__/
+| $$  \ $$| $$  \__/| $$  \ $$      | $$$$| $$| $$         | $$   
+| $$$$$$$$|  $$$$$$ | $$$$$$$/      | $$ $$ $$| $$$$$      | $$   
+| $$__  $$ \____  $$| $$____/       | $$  $$$$| $$__/      | $$   
+| $$  | $$ /$$  \ $$| $$            | $$\  $$$| $$         | $$   
+| $$  | $$|  $$$$$$/| $$            | $$ \  $$| $$$$$$$$   | $$   
+|__/  |__/ \______/ |__/            |__/  \__/|________/   |__/   
+                                                                  
+                                                                  
+----------------------------------------------
+01_IntroToASP.NET  
+
+
+
+MVC	-- архітектурний патерн 
+	Entity(Model)	- клас який описує таблицю у БД
+	Controller	- обробляє данні від користувача 
+					робить запит на Entity і відпарвляє на VIEW (HTML сторінка)
+					
+					
+
+
+.NET — це ціла платформа (фундамент), а ASP.NET — це її частина (інструмент) для створення вебсайтів
+
+.NET — це безкоштовна платформа з відкритим вихідним кодом для розробки будь-яких типів програм
+		від мобільних та десктопних застосунків до ігор та хмарних сервісів.
+
+ASP.NET — це вебфреймворк, побудований поверх .NET. Він додає специфічні бібліотеки та інструменти 
+	(наприклад, для роботи з HTTP-запитами, HTML-шаблонами або API), щоб створювати динамічні вебсторінки.
+
+
+Visual Studio Installer --> ASP.NET
+	.NET 9 Runtime
+	.NET 10 Runtime
+
+
+
+MVC	--	патерн програмного забезпечення, 
+який розділяє застосунок на три компоненти: модель (дані та логіка)
+					вигляд (інтерфейс) та контролер (взаємодія)
+
+
+
+.NET framework	-- тільки для Windows
+.NET core	-- будь які платформи
+
+Do not use top-level statements	--	генерує class Program
+
+	При запуску студія створює SSl сертифікат для HTTPS
+
+		  
+																						
+??=	--	якщо значення зліва null то запиши знашення		--	для запису у змінну
+		  string value;
+		  value ??= "Hello World"
+	
+!=null	
+??	--	дивиться чи value null якщо null запише значення	-- для читання
+		 string value = null;
+		 string message = value ?? "Hello world";
+
+
+різниця між class і struct	
+
+struct	-- value type	(не може бути null)																			
+class	-- reference type	
+
+
+default -- null
+
+
+string message = value!
+
+value!	--	впевнені що value не буде null
+
+
+const		-- 	вимагає value (спільна на всі об'єкти як static)
+readonly	--	дозволяє оголосити змінну без значення і задати його в конструкторі
+					для кожного об'єкта
+
+	--жоден метод не може їх змінити--
+
+
+типи делегатів:
+	Predicate	-- return bool
+	Action		-- return void
+	Func  		-- return будь-що
+
+
+IEnumerable	--	для forEach
+IQueryable	--	відтерміновує запит
+
+	IQueryable s = database.Products;
+ s.where();
+ s.orderBy();
+
+foreach (var item in s) {}	-- тількт тут виконається запит якщо є IQueryable
+
+IEnumerable s = database.Products;	-- тут виконається запит
+
+List		--	динамічний масив
+LinkedList	--	колекція на node	
+
+
+ int[] arr = new int[0]
+ int[] arr = []
+
+
+Багатопоточність на кожен потік виділяється пам'ять
+Async	--	все викон в одном потоку поки він працює виконується інший
+
+
+Properties --> launchSettings.json --> commandName": "Project",
+				"dotnetRunMessages":	true,
+				"launchBrowser": false	--	не запускає браузер
+				
+				
+appSettings	--	глобальні налаштування	які можна змінювати схоже на .env		
+				
+				
+	//program cs	--	не змінюємо
+	
+	
+app.UseHttpsRedirection();	--	відкриває браузер
+app.UseRouting;			-- вбудована маршрутизація
+app.MapStaticAssets();	--	завантажть на сайт asetи з wwwroot
+
+після build wwwroot залишиться так як є коренем для сайту
+		при publish знинкають усі папки крмі цієї (інші перейшли у dll)
+		
+		
+ Models	--	ті самі Entitties
+ Views 	--	HTML
+
+public IActionResult Index()	--	маршрути | сторінка
+{
+	return View();		
+}
+
+
+	@RenderBody	--	Outlet
+	HomeController	--	Шукає у Views по назві папку Home
+
+
+🔷СТРУКТУРА ControllerName/ViewName
+
+Приклад:
+	Controllers -> productConroller
+	
+	створюємо папку Product у Views
+		Product -> Index.cshtml
+	
+	
+	
+<a	asp-controller="Home" ascp-action="AboutUs"	
+
+
+✅NuGet package manager	--> Microsoft.Entity.Framework.Core
+							Microsoft.EntityFrameworkCore.SqlServer
+							Microsoft.EntityFramework Core.Tools
+							
+					
+					
+	 створ папку 🟧Data --> AppDbContext.cs	
+	
+public class AppDbContext: DbContext
+{
+
+	AppDbContext(DbContextOptions options)
+        : base(options)						-- передати у батьківський класс у DbContext
+    { 
+    }
+
+}
+
+
+==Program.cs як main прописуємо усі налаштування
+
+		//метод від EF
+builder.Services.AddDbContext<AppDbContext> (options => {
+
+												//ТутВизначиться назва БД
+	string connectionString = "Server=localHost;Database=myDataBase;Trusted_Connection=True;";
+	options.UseSqlServer(connectionString);
+ })
+	
+	
+
+🟧Data --> Models --> CategoryModel.cs (проперті id,name)
+
+
+--AppDbContext.cs ovveride OnModelCreating
+
+	protected override void OnModelCreating (ModelBuilder builder)
+{
+		builder.Entity<CategoryModel>(entity =>
+		{
+			entity.HasKey(e => e.Id);
+			entity.Property(e => e. Name)
+			.IsRequired()
+			HasMaxLength(100);
+	});
+	base.OnModelCreating (builder);						
+}
+
+
+text	-- необмежена str
+char(10)	--	дасть чітко 10
+varChar(10)	-- максимум 10	
+	
+	
+Terminal	--> add-migration	TestMigration
+				update-database
+	
+	
+	
+	entity. Property(e => e. Description)
+	HasColumnType("ntext");	--	вказати тип данних
+
+
+public DateTime CreatedDate {get;set; } = DateTime.UtcNow;	
+	
+	
+У Product model	
+	public CategoryModel Category { get; set;
+	public int CategoryId { get; set;
+	
+У Category	
+	public List<ProductModel> Products { get; set;
+	
+builder.Entity<Product Model>()
+	HasOne(p => p. Category)
+	WithMany(c => c.Products)
+	.HasForeignkey(p => p. CategoryId)
+	.OnDelete (DeleteBehavior.Cascade);	-- що робити якщо зникне категорія
+	
+	
+Lazy loading	--	автоматичне від EF
+Жадібне loading	-- все зразу (товари і за ними категорії)
+Явне loading	-- те саме що й lazy тільки ми робимо
+	
+
+----------------------------------------------
+02_IntroToASP.NET	
+	
+	
+Dependecy injection -- 	автоматично виконує update-database
+		+Краще за HasData можна написати логіку яка сама update-database
+						і якщо данних немає то вичитувати з json
+	
+	//Автоматично створюється об'єкт класу
+	 var dbContext = null;
+	 var home = HomeController(dbContext)
+	
+	using -- можна передавати змінні з IDisposable
+				у кінці закриває потік
+	
+	
+//Controllers -> HomeController	(Плануємо виводи товаруи у вкладці Home)
+
+❌ I спосіб це створювати DbContext у контроллері
+
+	private readonly AppDbContext _context;	
+														//передаємо у консрукторі | десь у HomeController має створюватись об'єкт DbContext і передаватись сюди
+ public HomeController(ILogger<HomeController> logger, AppDbContext context)
+ {
+	_logger = logger;	--	змінна інтерфейсу для логування
+	_context = context;	--	ініціалізуємо змінну
+ }	
+ 
+ 
+ Dependecy injection	--	залежність класів тобто для HomeController треба створити AppDbContext
+						а воно автоматично створ об'єкти класів
+							!записується у Program.cs
+ 
+		Приклад: builder.Services.AddDbContext<AppDbContext> (options => {	-- від нього тепер у любих класах можна створити об'єкт від AppDbContext
+						string connectionString = "";
+						options.UseSqlServer(connectionString);
+					})
+ 
+ 
+ 
+ 
+ 
+	//Метод який викликає Інтерфейс описує HTTP
+public IActionResult Index()
+{
+	var products = context.Products.ToList();	--	щоб вивести продукти
+	return View();
+} 
+ 
+ 
+ 
+builder.Services.AddDbContext<AppDbContext>(options =>
+{		//	створення AddDbContext 
+ 
+ 
+ 
+✅ Repositories	--	класи які працюють з DbContext 
+ 
+ builder.Services.AddControllersWith Views();	--	метод щоб прописати контроллери
+ 
+ 
+//Не правильно давати контроллеру DbContext тому 
+	Repositories методи для роботи з ДБ і Controller буде використ Repositories
+ 
+ 
+ public class ProductRepostitory {
+	private readonly AppDbContext _context;
+	
+	public ProductRepostitory (AppDbContext context)
+	{
+		_context = context;
+	}
+	
+	public async Task<IQueryable> GetProductsAsync()
+	{
+					//наша таблиця		//слідкує чи змінені дані
+		return _context.Products.AsNoTracking();
+	}
+
+ 
+==HomeController
+ 
+private readonly ProductRepostitory _productRepostitory;
+
+ public HomeController(ILogger<HomeController> logger, productRepostitory productRepostitory)
+{
+	_logger = logger;
+	_productRepostitory productRepostitory;
+}
+ 
+public IActionResult Index()
+ {
+	var products = productRepostitory.GetProductsAsync().Result;
+ }
+ 
+
+==Program.cs --налаштування проекту будуть прописані класи які 
+	будумо використовувати, а вони будуть прописані у builder.Services
+
+
+--Клас у Dependecy Injection щоб міг автоматично створюватись
+
+builder.Services.AddSingleton()	--	екземпляр класу в 1, тільки 1 об'єкт класу
+builder.Services.AddTransient(); // об'єкт класу буде створюватися при кожному використанні
+builder.Services.AddScoped(); // об'єкт класу при запиті get і видалятись
+
+
+🟧builder. Services.AddScoped
+<ProductRepostitory>();	--	вказуємо щоб вони могли створювати класи при виклику без передачі у props
+	-- у HomeController передати як пропс (ProductRepostitory productRepostitory)
+		без нього вони неможуть створити productRepostitory бо незнають що це
+
+Var context = new AppDbContext(null); 
+(context);	-- типу так працює | передає AppDbContext
+
+
+HomeController	--	маршрут, переправляє користувача на HTML 
+						сторінку відповідно до маршруту
+		ВХІДНА точка для користувача
+
+//робота контроллерів ПРИБЛИЗНО коли User заходить на сайт
+
+		--
+	var context = new AppDbContext(null);
+	var product = new ProductRepostitory(context);
+	var logger = new Logger<HomeController>();
+		--	все створиться автоматично якщо є AddScoped
+			 🟢Dependecy Injection Роблять цю всю роботу
+
+   var home = new HomeController(logger, product);
+   home.AboutUs();
+//
+
+Action -- сторінки (HTML)
+
+==Отримання класу з DI
+
+
+✅Цей варіант кращем ти що можна контролювати логіку
+
+	public static class Seeder 	static	-- об'єкт в 1 екземплярі
+	{
+								
+		public static void Seed(IApplicationBuilder app){
+																	витягує
+			using var scope = app.ApplicationServices.CreateScope(); -- сервіс який має доступ до класів з DI  Program.cs | 
+			using var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();	-- дай 1 з класів і вказуємо і витягне його з DB context
+			
+			context.Database.Migrate()	--	update-database кодом
+		
+	if (!context.Categories.Any())	-- перевіряє чи є категорія
+	
+			var category = new Category Model
+			{
+				Name = "Процесори"
+			};
+			var products = new ProductModel[]
+			{
+				new Product Model { Name = "Процесор 1", Category category }
+				..
+			};
+			context.Categories.Add(category);
+			context.Products.AddRange(products); -- додасть масив
+			context.SaveChanges();
+		
+		
+	//Або відразу передати у category Products, EF сам їх додасть	
+			var category = new Category Model
+			{
+				Name = "Процесори",
+				Products = products
+			};
+			context.Categories.Add(category)	-- створ 2 таблиці 1 запитом
+		
+		}
+		
+		string root = Directory.GetCurrentDirectory();
+		string path = Path.Combine(root, "wwwroot", "seed_data", "components.json");
+		string json = File.ReadAllText(path);
+		..
+	}
+
+
+public IActionResult Index()
+{									//перетворюємо у IEnumerable щоб кинути запит | те саме можна через ToList
+	IEnumerable<ProductModel> products = _context.Products.AsEnumerable()
+				//List<ProductModel> products = _context.Products.ToList()	-- те саме перетворення але можна редагувати
+	
+
+	return View(product);	-- запихаємо у Index наші product
+}
+ --щоб вивести йде у View з такою самою назвою Index
+ 
+ @model IEnumerable<ProductModel>	 --	створ змінну НАЗВА НЕ ЗМІННА model
+									налаштування а змінна Model
+
+
+@ - те саме що вставити код у Rect { }
+
+<table class="table">
+	<tbody>
+		@foreach (var product in Model)
+		{
+			<tr>
+				<td>@product.Id</td>
+				<td>@product.Name</td>
+			</tr>
+		}
+	</tbody>
+</table>
+
+
+ℹ️Алгоритм у консрукторі створ dbContext -->
+	--> у ctor його ініціалізуємо --> ередаємо у View(product)
+
+
+//DI у всьому проекті иожна створити dbContext
+	builder. Services.AddDbContext<AppDbContext>(options =>
+	{
+		string connectionString = ""
+		options.UseSqlServer(connectionString);
+	});
+
+
+----------------------------------------------
+03_MVC_Post
+
+
+Виносми connction string у appSttings.json | у майбутьному через keyStorage
+
+ "ConnectionStrings": {
+ 	 "LocalDb": "Server=localhost; Database=PD411_MVC_SHOP; Trusted_Connection=True; TrustServerCertificate=True;'
+ }
+
+
+ змінюємо у Programs.cs connection string
+																//назва з appSettings
+	var conectionString = builder.Configuration.GetConnectionString("name=LocalDb");
+	
+	
+створення нової сторінки
+
+		public IActionResult Create(){
+			
+			return View()
+		}
+
+
+Щоб імпортувати іконки заходимо у Shared->Layout.cshtml і вставляємо link
+
+
+перенаправлення з одного HTML у інший
+	<a	asp-controller="Home" asp-action="AboutUs"	
+
+і створ Create.cshtml
+	
+			
+	<form method="post" asp-action="Create" >
+		
+		<input type="submit">	--	стає кнопкою по правилам має бутии form
+	</form>
+	
+				 //витягує данні по id				
+<input type="text"  id="name" name="name">	
+	
+	
+	☑️треба вимкнути Інтелектуальне керування програмами
+	
+	
+[HttpPost]	-- вказ на post		| сторюємо такий самий метод але з цією анотацією
+
+ у html  @model ProductModel	--	тип у який конвертнуться дані
+
+						//всі values копіюються у цей об'єкт 
+public async Task<IActionResult> Create(ProductModel model)
+{
+	return View();
+}	
+	
+	
+	
+ ViewModel	--	моделі для Views (від користувача)
+			 все від форми
+	
+	
+public IFormFile? Image --	тип данних для файлу
+
+
+< input accept="image/*"	--  який формат приймає
+	
+< form 	
+	enctype="multipart/form-data">	-- передає файл у вишляді об'єкту
+	
+								//анотація для того щоб приймати файл
+public async Task<IActionResult> Create([FromForm]CreateProductVM vm)	
+	
+	
+
+
+string ext = Path.GetExtension(vm.Image.Filename)	--	Достає розширення
+
+string name = Guid.NewGuild().ToString()	--	генерує назву	
+	
+using var imageStream =  vm.Image.OpenReadStream()
+using var fs = new FileStream(filePath, FileMode.ReadOrCreate, FileAccess.Write)	
+	
+ imageStream.CopyTo(fileStream);	--	копіює всі байти з одного потоку в інший	
+	
+
+scr="~/images/@product.Image"	--	~ шлях до wwwroot	
+	
+	
+	у form лише get і post
+	
+get == get delete
+post == put post patch	
+
+
+	asp-route-	--	передавати параметр по URL
+
+<a asp-action="delete" asp-route-id	>  // -id це назва яку ми будем витягувати у View
+
+
+//delete
+
+	public async Task<1ActionRes Delete(int id)
+{
+	var product = await_context.Products.FirstOrDefaultAsync(p => p. Id == id);
+	if(product != null)
+	{
+	
+	if(product. Image != null) {
+		string root = Directory.GetCurrentDirectory();
+		string imagesPath = Path. Combine(root, "wwwroot", "images");
+		string filePath = Path.Combine(imagesPath, product.Image);
+		
+ //щоб не було конфліктів	
+		System.IO.File.Delete(filePath);
+	}
+	
+	
+----------------------------------------------
+04_Validation
+
+
+ Валідація у userVM через Data Annotations
+ 
+ [Required(ErrorMessage="ErrorMsg")]
+ 
+ 
+public class CreateProductVM
+ {
+	[Required(ErrorMessage = "0бов'язкове поле")]
+	[MaxLength (200, ErrorMessage = "Максимальна довжина 200 символів")]
+	public string? Name { get; set; }
+	
+	public string? Description { get; set; } 
+ }
+ 
+
+//логіка перевірки
+
+public async Task<IActionResult> Create([FromForm]CreateProductVM vm)
+{
+	 ModelState	--	Словник із всіма помилками і проперті
+	
+	if(!ModelState.IsValid)
+	{
+		return View(vm);	-- vm передається щоб вивести у формі данні після submit
+	}
+
+
+		//щоб форма заповнилась тими данними які прийшли
+< input asp-for="Name" >	зчитує з @model CreateProductVM
+
+
+	[Range (1, 99999999)]
+public double Price { get; set; } Od;	--	d вказує що double
+
+
+asp-validation	--	автоматична валідація тобто містить помилки з властивості яка її отримала
+
+	//тескт при валідації
+<span asp-validation-for="Name"></span>
+
+
+[ValidateAntiForgeryToken]	--	від crsf атак (створ унікальний токен при відправці)
+ 
+ 
+//Select
+
+ ProductModelVM
+
+	public int CategoryId { get; set; }
+	public IEnumerable<SelectListItem> SelectCategories { get; set; }
+
+ SelectListItem містить Value і Text(виводиться для користувача) 
+
+Модифікуємо View
+	
+	public async Task<IActionResult> Create()
+{
+	List<CategoryModel> categories = await context.Categories. ToListAsync();
+	
+	IEnumerable<SelectListItem> selectItems = categorise
+	
+								//створ ім'я   перетвор id
+		.Select(c => new SelectListItem(c.Name, c.Id.ToString()))
+}
+
+
+							//колекція SelectListItem яка автоматично виводить select
+<select asp-for="CategoryId" asp-items="@Model!.SelectCategories"><
+/select>
+
+
+.AsNoTracking()	--	не слідкує за данними і можна обновити об'єкт  без помилки
+						при новій категорії
+
+Tracking дії над БД у коді до Save
+
+context.Update()	--	створ 2 версії одного об'єкта
+
+
+
+ якщо витягнути Categories перед Products окремим запитом
+	то КАТЕГОРІЇ у Product не будуть null
+
+
+--Краще один великий запит чим пару малих
+
+
+ProductModel product products. First();
+context.Entry(products).State = EntityState. -- Втрутитись у Tracking повністю його контролювати
+
+_contex.Update() 
+	//те саме
+_context.Entry(products).State = EntityState.Modified
+
+
+
+----------------------------------------------
+05_Query Params
+
+
+ aside <main>	--	те саме що й <div>
+
+style="object-fit: contain"	--	зберігає пропорції картинки
+
+
+@foreach (var product in Model)
+{
+	<partial name="_ProductCard" model="@product"/>
+}
+
+  _ProductCard	-- View з самою карточкою | як частина списку тому з _
+
+
+ViewModels -> створ класс який матиме дві колекції
+
+  public class HomeVM {
+ 	 public IEnumerable<ProductModel> Products { get; set; } = [];
+ 	 public IEnumerable<CategoryModel> Categories { get; set; } = [];
+  }
+
+@model HomeVM
+
+	і доступатись по Model.Categories Model.Products
+
+.cshtml				має співпадати у controller
+	<asp-action="Index" asp-route-CATEGORY="@category.id" ../>
+
+.cs
+public IActionResult (int? CATEGORY)	{ ... } 
+
+
+
+//Pagination
+
+створ PaginationVM
+		public class PaginationVM
+    {
+        public int Page { get; set; } = 1;
+        public int PageCount { get; set; } = 1;
+        public int PageSize { get; set; } = 4;
+    }
+
+
+	і добавляємо його у HomeVM через який витягшужмо всі об'єкти у HTML
+	
+public IActionResult Index( int? category, 
+			[FromQuery]PaginationVM pagination ) {..}
+	
+[FromQuery] -- вичитує данні з URL у об'єкт по назві проперті
+						Page PageCount PageSize
+						
+
+[1,2,3,4,5,6,7,8].Take(5) -- візбме всі 5					
+[1,2,3,4,5,6,7,8].Skip(5) -- пропустить 5					
+	
+	
+ формула для пагінації
+products = products
+	.Skip(pagination.PageSize * (pagination.Page - 1))
+	.Take(pagination.PageSize); 
+	
+int arr = [1,2,3,4,5,6,8]	
+	PageSize = 4
+	Page = 1
+		arr.Skip(4* 1-1).Take(4)
+
+
+----------------------------------------------
+06_Identity
+
+
+авторизація -- надаггя прав користувачу
+аутентифікація -- перевірка користувача
+
+
+nuGet package Identity:
+		Microsoft.AspNetCore.Identity.EntityFramework Core
+		Microsoft.AspNetCore.Identity.Ul
+
+
+у AppDbContext.cs
+		public class AppDbContext : IdentityDbContext -- добавляє 7 таблиці
+		
+		
+у Program.cs робимо DI
+	
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()	-- уже підключений Identity
+	.AddEntityFrameworkStores<AppDbContext>()	-- вказ який context відповідає за базу
+	.AddDefaultTokenProviders()					-- для генерації токенів
+	.AddDefaultUI();					-- буде побудована сторінка
+
+ можна додати options у яких додаткові параметри для user
+
+ (options => {
+	options. User. RequireUniqueEmail = true;
+	
+	options.Password. RequiredLength = 6;
+	options.Password. RequireDigit = false;
+			.. і тд для розробки все робимо false
+ })
+
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+
+
+IdentityDbContext -- добавляє 7 таблиці
+	AspNetUserClaims	--	true/false
+	AspNetUserLogins	--	звідки залогінився
+	
+	AspNetUserUsers		--	вся інфа про користувача	
+	AspNetUserRoles		--	ролі
+	AspNetRoles			--	ролі
+	AspNetUserTokens	--	зберігає токени (JWT)
+
+
+Models -> UserModel
+	public class UserModel : IdentityUser { -- готова бібліотка
+						успадковує всі властивості з таблиці User
+			пропис властивості які хочемо додати
+			
+		public string? Image {get; set}	
+	}
+
+ Змінюємо на наш клас який хочемо поміяти таблицю
+										//тут
+public class AppDbContext: IdentityDbContext<UserModel>
+						
+						//тут
+builder.Services.AddIdentity<UserModel, IdentityRole>(options..
+
+
+ для роботи з ролями і користувачами витягуємо через у Seeder scope
+ 
+using var scope app.ApplicationServices.CreateScope();
+
+ var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserRmodel>>();
+ var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>(); I 
+
+ для User треба інший Seeder через IApplicationBuilder
+працюжмо з таблицями через roleManager
+
+
+var admin = new UserModel {...}
+
+userManager.CreateAsync(admin , "pass").Wait()	-- автоматично SaveChanges() і захешує пароль
+userManager. AddToRoleAsync(admin, "admin").Wait();
+
+
+.cshtml
+	<partial	--	дозволяє вивести іншу View
+
+
+ app. MapRazorPages();	--	Razor page	- View + Controller
+	
+add Identity --> add new scaffolded item --> Identity
+	створить папку з View повним налаштуванням login/register
+
+<div class="flex-grow-0">	-- добавить login register кнопки
+	<partial name="_LoginPartial">
+</div>
+	
+	
+Login.cshtml
+	Login.cshtml.cs
+	
+	
+#Mail send
+ Services --> EmailService.cs
+ 
+ _smtpClient = new SmtpCleinet(_host _port)
+ 
+						//цей інтерфейс реалізує цей клас | DI всюди де буде IEmailSender з'являтиметься клас EmailService
+builder.Services.AddScoped<IEmailSender, EmailService>(); 
+
+	усе готове тільки треба прописати клас і SMTP логіку яка імплементує інтерфейс IEmailSender
+
+ 
+ IConfiguration configuration	--	стандартний інтерфейс передастся автоматично
+ 
+_host = configuration.GetSection("SmtpSettings).GetValue<string>("host") -- достає значення з проперті host у appsettings 
+
+
+ створ класс який описує SmptSettings
+			буде вичитувати app.json і перетворювати пропси на шарповські
+	
+				//парсить данні з appSettings: SmtpSettings у Однойменний клас з проперті які мають таку саму назву
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));	
+	
+
+public EmailService(IOptions<SmtpSettings> smtpOptions)
+        {
+            var settings = smtpOptions.Value;
+            _host = settings.Host;	
+		..}	
+	
+----------------------------------------------
+07_Session
+
+
+[Authorize]	--	закриває сторінку тим хто не заавторизований
+
+[Authorize (Roles = "admin")]	--	контроллер лише для тих у кого роль admin
+public class ProductController: Controller
+{
+	private readonly AppDbContext context;
+
+
+//кошик
+
+builder. Services.AddHttpContextAccessor();
+builder. Services.AddSession(options
+ {
+	options. IdleTimeout = TimeSpan.FromHours(1); -- сесія закриється після 1 год
+	options.Cookie.HttpOnly = true;				 -- забороняє працювати з кукі через JS (безпека)
+	options.Cookie.IsEssential = true;			-- ігнорує заброну користувача
+	
+ });
+
+app.UseSession();	--	підключаємо сесію
+
+
+//Services додаємо класс сесію
+public static class SessionService
+{
+ public static string Sessionkey { get; } = "qquryewfjsdfsafjwrhgipqeogjwheifsd";
+}
+
+
+ у HomeController простіше можна черз extension
+
+//List<ProductModel> products1 = new List<ProductModel>();
+//HttpContext.Session.SetString()
+
+extension у класі SessionService
+
+	 public static void Set<T>(this ISession session, T value)
+        {
+            session.SetString(Key, JsonSerializer.Serialize(value));
+        }
+
+        public static T? Get<T>(this ISession session)
+        {
+            var value = session.GetString(Key);
+            if (value == null)
+            {
+                return default;
+            }
+
+            T? result = JsonSerializer.Deserialize<T>(value);
+            return result;
+        }
+
+
+#Для Cart створ окремий controller і VM
+
+
+builder.Services. AddHttpContextAccessor();	-- доступ до HttpContext --> доступ до Session
+
+
+//CartService	--	створюємо для зручності методів у View
+
+@inject 	--	view може використовувати змінну як у конструкторі
+
+cart service	--	для методів
+
+@if (User.IsInRole("admin")) {
+	<li class="nav-item">
+		<a class="nav-link text-dark"
+	</li>
+	}
+	
+----------------------------------------------
+08_Refactoring
+
+Controller	--	приймає запит вимальовує View | віддає готовий результат
+			що зробити як тільки приходять дані | обробка валідація
+
+По структурі з context БД працює repository, виконує всю логіку
+
+		//Повертає void
+public async Task CreateAsync(ProductModel model)
+
+
+підключаємо у Controller _productRepository
+ переносимо функції у Repository
+
+	обов'язково підлючаємо у main.cs 
+					builder.Services.AddScoped<ProductRepository>();
+
+
+public IActionResult Index()
+{
+	var products = _productRepository.
+	GetAllAsync(new PaginationVM { PageSize= 200 });
+	return View(products);
+}
+
+	ООП: Методи Поля Властивості
+поле класу -- дозволяє кожному методу використовувати це поле
+
+
+
+Для зображень ImageService
+
+private readonly IWebHostEnvironment env;	--	вже підключений інтерфейс для навігації
+
+public async Task<string?> SaveImageAsync(IFormFile file, string folder)
+{
+	var types = file.ContentType.Split("/");	--	по HTTP типи складуються з 2 частини image/img
+		if(types.Length != 2 || types[0] != "image")
+						{return null;}
+		
+	string dirPath = Path.Combine( _eny.WebRootPath, "images", folder):
+}
+
+
++Зручно змінювати методи, вони зінються для всіх
+
+
+public class IBaseModel { --	все спільне для models
+}
+
+public class GenericRepository<TEntity>
+	where TEntity : class, IBaseModel	--	можна передати тільки class типу данних який має властивості IBaseModel 
+{.. }
+
+
+public class ProductRepository : GenericRepository<ProductModel>
+
+
+	//для іконок створ окрему property
+public class CategoryModel: BaseModel
+{
+	public string Icon { get; set; } = "bi-robot";
+
+	
+----------------------------------------------
+09_
+
+context.Update	--	змінює state на Modified
+	щоб виконати дії на SaveChanges()
+
+
+public async Task UpdateAsync(TModel model)
+{
+	if(_context.Entry(model).State != EntityState.Modified)	--	перевірить чи змінений state інакше update спрацює не правильно
+	{
+		_context.Set<TModel>().Update(model);
+	}
+	await_context. SaveChangesAsync();
+}
+
+
+//automapper	--	автоматично конвертуватиме об'єкти з 1 типу у інший
+https://automapper.io/
+
+	NuGet: AutoMapper
+ 
+ 
+builder. Services.AddAutoMapper(cfg =>
+{
+	cfg.LicenseKey = ""
+}
+.AppDomain.CurrentDomain.GetAssemblies()); -- автоматично знайде класи
+
+
+	//логіка перетворень об'єктів
+public class ProductMapperProfile : Profile
+{ 
+	public ProductMapperProfile()
+		{
+			//CreateProductVM --> ProductModel
+			
+		  CreateMap<CreateProductVM,ProductModel>()	--	Для кожного перетворення свій CreateMap
+			.ForMember(dest => dest.Image, opt => opt.Ignore());
+						налаштування для власт  що зробити з
+		}
+}
+
+У класі де буде перетворення підключаємо
+	private readonly IMapper _mapper;
+
+
+ProductModel model = _mapper.Map<ProductModel>(vm);
+
+
+backend -- дозволяє об'єднати все в 1 екосистему
+
+Dbeaver PostgreSQL
+
+
+
+ /$$      /$$ /$$$$$$$$ /$$$$$$$         /$$$$$$  /$$$$$$$  /$$$$$$
+| $$  /$ | $$| $$_____/| $$__  $$       /$$__  $$| $$__  $$|_  $$_/
+| $$ /$$$| $$| $$      | $$  \ $$      | $$  \ $$| $$  \ $$  | $$  
+| $$/$$ $$ $$| $$$$$   | $$$$$$$       | $$$$$$$$| $$$$$$$/  | $$  
+| $$$$_  $$$$| $$__/   | $$__  $$      | $$__  $$| $$____/   | $$  
+| $$$/ \  $$$| $$      | $$  \ $$      | $$  | $$| $$        | $$  
+| $$/   \  $$| $$$$$$$$| $$$$$$$/      | $$  | $$| $$       /$$$$$$
+|__/     \__/|________/|_______/       |__/  |__/|__/      |______/
+                                                                   
+                                                                   
+----------------------------------------------
+01_ASP_WEB_API - intro
+
+
+
+backend -- частина яка займаэться логікою
+			запити йду у форматі JSON
+
+по API дані будуть йти у  форматі json
+
+	#проект: ASP.NET Core Web API
+#PD411 Books.API	
+	
+немає вбудованих сторінок	
+ вхідна точка в проект контролерри
+
+OpenAPI -- дає дані у вигляді JSON
+Swagger -- вимальовує документацію у вигляді сторінки
+
+	
+	☑️NuGet: Swashbuckle.AspNetCore		--	добавляє Swagger
+
+
+builder.Services.AddOpenAPI() --> ️☑️builder. Services.AddSwaggerGen();
+
+if (app. Environment. IsDevelopment())
+{
+	app.UseSwagger();
+	app.UseSwaggerUI();
+}
+
+у URL --> /swagger
+
+swagger	--	сам вичитує controlller і їх методи
+		створює методи під код
+
+postman	--	прога для тесту і роботи з API | навіть після host
+
+Браузер тільки GET -- POST PUT DELETE Swagger/Postman
+
+                                        
+3 Tire architecture
+
+	Presentation | validation API формування відповідей
+	
+	Buisness (Logic) | pagination  mapping	services
+	
+	Data (DB) | SQL seeder
+										
+										
+Clean architecture -- 
+	
+		 дає класи і методи
+#створ Class Library -- solution name.bll	
+										
+	PD411_Books.BLL	-- buisness logic layer								
+										
+і Class Library  PD411.Books.DAL	-- data access layer									
+
+всі задачі розділені по проектам 
+	backend -- для складних проектів
+
+--пов'язумо проекти
+
+	.BLL add project refernces ставимо галку на .DAL	| ЗАЛЕЖИТЬ тільки від .DAL
+	
+	.API add project refernces на .DAL .BLL
+
+
+.DAL
+	☑️NuGet: Microsoft.EntityFrameworkCore
+			Microsoft.EntityFrameworkCore.Design
+			Npgsql.EntityFrameworkCore.PostgreSQL
+
+
+ internal	--	класс доступний тільки в цьому проекті
+
+
+.API
+	NuGet: Microsoft.EntityFrameworkCore.Tools
+
+.DAL -- створ DbContext
+		public AppDbContext(DbContextOptions options) :base(options)
+								
+
+.API
+	AppSettings -> ConnectionStrings
+
+program.cs
+	builder.Service.AddDbContext..
+
+builder. Entity<BookEntity>()
+	.HasOne(b => b. Author)
+	.WithMany(a => a. Books)
+	.HasForeignkey(b => b. AuthorId)
+	.OnDelete(DeleteBehavior.SetNull);  --  при видаленні поставить null                   
+
+!Міграції стовр у проекті з dbContext .DAL
+
+.API
+	створ контроллер
+	
+	[ApiController]		-- познач що це не MVC controller
+	[Route("api/author")]	--	маршрут до контролерра
+public class AuthorController: ControllerBase
+{
+
+
+Біля кожного з методів ставимо 1 з anntation:
+							[HttpGet]
+							[HttpPost]
+							[HttpPut]
+							[HttpDelete]
+
+[HttpPost]
+public async Task<IActionResult> GetAsync()
+{
+	return 1 з варіантів
+					BadRequest();
+					NotFound();
+					Created();
+
+
+
+var authors= await _context.Authors.ToListAsync();
+	return Ok(authors);	-- автоматично перетворить н JSON
+
+			//отримати з запиту
+CreateAsync([FromBody] AuthorEntity entity)
+
+
+//CORS -- Щоб react міг кидати запити на backend
+
+string corsPolicy = "allowall";
+builder. Services.AddCors(opt =>
+{
+	opt.AddPolicy(corsPolicy, cfg =>
+	{
+		cfg.AllowAnyOrigin()	-- з будь-якої адреси (різних сайтів)
+			.AllowAnyHeader()	-- В запиті доступні всі header
+			.AllowAnyMethod();	-- POST GET DELETE
+	});
+});
+app.UseCors(corsPolicy)	--	підключаємо
+
+
+  [FromBody] - text (json, xml, text)
+--як форма
+  [FromForm] - formData
+  
+--після ?  
+  [FromQuery] localhost?q=news&page=1&pageSize=12
+  ?q=news&page=1&pageSize=12 - query параметри
+ 
+--Шлях  
+  [FromRoute] localhost/author/id (localhost/author/25)
+  id - route param
+  
+  [FromHeader] author: 3q6qq	--	header запиту
+
+
+----------------------------------------------
+02_
+
+
+
+
