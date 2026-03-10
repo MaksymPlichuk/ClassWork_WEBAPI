@@ -15,14 +15,17 @@ namespace ClassWork_WEBAPI.DLL.Repositories
         {
             _context = context;
         }
+
         public List<BookEntity> GetByYear(int year)
         {
             return _context.Books.Where(b => b.PublishYear == year).ToList();
         }
+
         public List<BookEntity> GetByRating(float rating)
         {
             return _context.Books.Where(b => b.Rating == rating).ToList();
         }
+
         public List<BookEntity> GetByGenre(string genreName)
         {
             var genre = _context.Genres.AsNoTracking().FirstOrDefault(g => g.Name == genreName);
@@ -32,6 +35,7 @@ namespace ClassWork_WEBAPI.DLL.Repositories
             }
             return null;
         }
+
         public List<BookEntity> GetByGenre(GenreEntity genre)
         {
             if (genre != null)
@@ -40,6 +44,7 @@ namespace ClassWork_WEBAPI.DLL.Repositories
             }
             return null;
         }
+
         public List<BookEntity> GetByAuthor(string authorName)
         {
             var author = _context.Authors.AsNoTracking().FirstOrDefault(a => a.Name == authorName);

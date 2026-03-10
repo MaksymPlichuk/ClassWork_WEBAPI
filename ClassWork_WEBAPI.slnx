@@ -1,5 +1,5 @@
 <Solution>
   <Project Path="ClassWork_WEBAPI.API/ClassWork_WEBAPI.API.csproj" />
   <Project Path="ClassWork_WEBAPI.BLL/ClassWork_WEBAPI.BLL.csproj" />
-  <Project Path="ClassWork_WEBAPI.DLL/ClassWork_WEBAPI.DLL.csproj" />
+  <Project Path="ClassWork_WEBAPI.DLL/ClassWork_WEBAPI.DAL.csproj" />
 </Solution>
