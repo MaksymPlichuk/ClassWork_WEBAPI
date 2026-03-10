@@ -7246,6 +7246,9 @@ cart service	--	для методів
 Controller	--	приймає запит вимальовує View | віддає готовий результат
 			що зробити як тільки приходять дані | обробка валідація
 
+Service -- BLL Репозиторій праює з БД
+	Всюди де _context у Controller виносимо код у Repository
+
 По структурі з context БД працює repository, виконує всю логіку
 
 		//Повертає void
@@ -7288,12 +7291,28 @@ public async Task<string?> SaveImageAsync(IFormFile file, string folder)
 +Зручно змінювати методи, вони зінються для всіх
 
 
-public class IBaseModel { --	все спільне для models
-}
+public class IBaseModel { --	все спільне для models | важливо для Generic щоб імплементувати у шаблоні
+	public int Id { get; set; }
+ }
+
+    public class BaseModel : IBaseModel
+    {
+        public int Id { get; set; }
+    }
+
+
+ public class CategoryModel : BaseModel			-- видаляємо Id
+    {	
+        public required string Name { get; set; }
+	}
+
 
 public class GenericRepository<TEntity>
 	where TEntity : class, IBaseModel	--	можна передати тільки class типу данних який має властивості IBaseModel 
-{.. }
+					обмежує які типу можуть прйити (class,struct) | Тип обов'язково імплементує інтерфейс --> у нього будуть його методи 
+{
+	_context.Set<TModel>()	-- DbSet який витягне потрібну табличку
+}
 
 
 public class ProductRepository : GenericRepository<ProductModel>
@@ -7342,9 +7361,9 @@ public class ProductMapperProfile : Profile
 		{
 			//CreateProductVM --> ProductModel
 			
-		  CreateMap<CreateProductVM,ProductModel>()	--	Для кожного перетворення свій CreateMap
+		  CreateMap<CreateProductVM,ProductModel>()				--	Для кожного перетворення свій CreateMap
 			.ForMember(dest => dest.Image, opt => opt.Ignore());
-						налаштування для власт  що зробити з
+						налаштування для власт  що зробити з | ігнорувати цю властивість
 		}
 }
 
@@ -7356,7 +7375,11 @@ ProductModel model = _mapper.Map<ProductModel>(vm);
 
 
 backend -- дозволяє об'єднати все в 1 екосистему
+		web apk desktop всі працюватимуть з 1 сервером 
 
+api -- інтерфейс який з'єднує програми через json
+
+aiven -- free host
 Dbeaver PostgreSQL
 
 
@@ -7415,9 +7438,7 @@ postman	--	прога для тесту і роботи з API | навіть п
 3 Tire architecture
 
 	Presentation | validation API формування відповідей
-	
 	Buisness (Logic) | pagination  mapping	services
-	
 	Data (DB) | SQL seeder
 										
 										
@@ -7488,7 +7509,7 @@ public class AuthorController: ControllerBase
 [HttpPost]
 public async Task<IActionResult> GetAsync()
 {
-	return 1 з варіантів
+	return 1 з варіантів			-- готові status code
 					BadRequest();
 					NotFound();
 					Created();
@@ -7589,7 +7610,7 @@ new AuthorEntity {
 repository -- класи як дають методи для роботи з бд
 
 
-public interface IBaseEntity  -- стор для generic
+public interface IBaseEntity  -- створ для generic
 {
 	int Id { get; set; }
 	DateTime CreateDate { get; set; }
@@ -7637,8 +7658,224 @@ public async Task<List<BookEntity>> GetBooksAsync(AuthorEntity entity)
 }
 
 ----------------------------------------------
-03_
+03_DTO Service
+
+.BLL	--	найбільше логіки
+
+У Web API
+	ViewModels --> DTO (Data Transfer Object)
+	Models	--> Entities
+
+Dtos
+	|
+	Author
+			|
+			CreateAuthorDto
+	public class CreateAuthorDto
+	{
+
+	public string Name { get; set; } = string.Empty;
+	public DateTime BirthDate { get; set; } = DateTime.UtcNow;
+	public string? Image { get; set; }
+	}
+	
+--	
+.API
+
+[HttpPost]								//Змін тип данних для надсилання
+public async Task<IActionResult> CreateAsync([FromBody] CreateAuthorDto dto)
+--	
+	
+Services	-- перетворення Entity Controller Запис у БД
+		|
+		AuthorService
+
+#Схема Взаємодії проектів
+
+.API			.BLL			.DAL
+			DTOs		Entity
+Controller <---> Service <---> Repository
+(HTTP)							(DB)			
+	
+Entity 	--	всередині метода 
+DTO 	--	у контроллері | ПРИБРАТИ те що не потрібно повертатися
+
+
+Створ ще 1 клас з ID
+	public class AuthorDto
+				public int Id { get; set; }
+
+
+Repository --> Service --> Controller
+
+	
+У Service сторметод CreateAuthor	
+	
+	AuthorDto	-- контролює які всласт буде повертатися
+				для Frontend (запис у Redux) | Presentation ajhvfn
+	
+	
+public async Task<AuthorDto?> CreateAsync(CreateAuthorDto dto)
+{
+	var entity = new AuthorEntity
+	{
+		Name dto. Name,
+		BirthDate = dto. BirthDate,
+		Image dto. Image,
+	};
+	
+	Запис 
+bool res await _authorRepository.CreateAsync(entity);
+...	}
+	
+  AuthorRepository:
+	public async Task<bool> CreateAsync(TEntity entity) {
+		await_context.Set<TEntity>().AddAsync(entity);
+	return (await_context.SaveChangesAsync()) != 0; 
+	}
+	
+	
+	
+public IQueryable<AuthorEntity> Authors => GetAll();	
+	те саме:
+			var dtos await_authorRepository.Authors	
+			var dtos await_authorRepository.GetAll()	
+
+	
+	
+#Клас для відповідей після Операції (return Ok(наш об'єкт + msg))
+		зручніше для Frontend
+
+public class ServiceResponse
+{
+	public string Message { get; set; } = string.Empty;
+	public bool Success { get; set; } = true;
+	public object? Payload { get; set; } = null;
+}
+
+--Всі сервіси повертають ServiceResponse
+
+return new ServiceResponse
+{
+	Message = $"Автор '{entity. Name} успішно доданий",
+	Payload = new AuthorDto
+	{
+		Identity. Id,
+		BirthDate = entity. BirthDate,
+		Image entity. Image,
+		Name = entity. Name
+	}
+}
+
+
+.API
+	Extensions
+		
+//Для того щоб винести response в 1 об'єкт щоб не було дублювання		
+public static class ControllerBaseExtension
+{
+public static IActionResult GetAction(this ControllerBase controller, ServiceResponse response)
+{..			
+
+AivenDb -- БД на хостингу
+
+---------------
+NuGet: Telegram Bot
 
 
 
 
+Somme.com -- order free setificate
+Token -- Bot Father
+Ftp publish
+---------------
+
+----------------------------------------------
+04_StaticFiles	
+	
+картинка на Backend 
+Шлях на БД
+
+
+Hosting	-- хостить технологію (PHP aspnet)	
+Віртуальна машина	--	хостить все завгодно
+
+.API
+	Storage	
+		Books
+		Authors
+
+/Program.cs
+	
+string root = app.Environment.ContentRootPath; -- Знайде папку проекту
+string storagePath = Path.Combine(root, "Storage");
+	
+app.UseStaticFiles(new StaticFIlesOptions {
+	FilerProvider = new PhysicalFIleProvider(storagePath)
+	RequestPath = "/images"	--	адреса при якій користувача перекине на Storage
+			тобто https://localhost:/110/images/zhadan.jpg покаже фото
+	
+})	
+	
+	
+	
+ string authorsPath = Path.Combine(storagePath, "Authors");
+app. UseStaticFiles(new StaticFileOptions
+{
+	FileProvider = new PhysicalFileProvider(authorsPath),
+	RequestPath = "/author"
+});
+
+
+
+//щоб не хардкодити шлях і замінити "Authors" --> AuthorsPath
+public static class StaticFilesSettings {
+	
+	public static string BooksPath => "Books";	-- readonly щоб не змінити змінну
+	public static string AuthorsPath => "Authors";
+}	
+	
+	
+	
+public class CreateAuthorDto
+{
+	[Required]
+	public string Name { get; set; } = string.Empty;
+	public DateTime BirthDate { get; set; } DateTime. UtcNow;
+	
+		//змінюємо щоб записувати файл
+	public IFormFile Image { get; set; }
+}	
+	
+	
+//Для картинок створ окрмеий Service бо буде однакова логіка для Authors/Books	
+	
+	
+public class ImageService
+{
+
+	public async Task<string?> SaveAsync(IFormFile file, string dirPath)
+	{..
+	public async Task Remove(){
+		..
+	}
+}
+
+$""	--	автоматично робить ToString()
+	
+	
+ //достати шлях до проекту
+private readonly string _storagePath;
+public AuthorController (AuthorService authorService, IWebHostEnvironment environment)
+{
+_authorService authorService;
+_storagePath = Path.Combine(environment.ContentRootPath, StaticFilesSettings.StorageDir);
+}	
+	
+	
+RTK queary	
+	
+----------------------------------------------
+05_	
+	
+	

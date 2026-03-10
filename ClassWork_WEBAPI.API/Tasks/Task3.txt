@@ -1,0 +1,9 @@
+﻿Створити та реалізувати сервіс для книг (BookService)
+Створити BookController та реалізувати методи з використанням BookService
+	Методи:
+		Get
+		Get(Id)
+		Create
+		Update
+		Delete
+Також створити та використати dtos для книг

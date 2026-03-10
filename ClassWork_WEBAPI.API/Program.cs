@@ -1,4 +1,6 @@
 using ClassWork_WEBAPI.DLL;
+using ClassWork_WEBAPI.DLL.Initializer;
+using ClassWork_WEBAPI.DLL.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +11,19 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     string? connectionString = builder.Configuration.GetConnectionString("LocalDB");
     options.UseNpgsql(connectionString);
+});
+
+builder.Services.AddScoped<AuthorRepository>();
+builder.Services.AddScoped<GenreRepository>();
+builder.Services.AddScoped<BookRepository>();
+
+string corsPolicy = "allowAllCFG";
+builder.Services.AddCors(opt =>
+{
+    opt.AddPolicy(corsPolicy, cfg =>
+    {
+        cfg.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    });
 });
 
 builder.Services.AddControllers();
@@ -24,10 +39,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors(corsPolicy);
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.Seed().Wait();
 
 app.Run();

@@ -17,7 +17,7 @@ namespace ClassWork_WEBAPI.DLL.Entities
         public int PublishYear { get; set; } = DateTime.UtcNow.Year;
 
         public int? AuthorId { get; set; }
-        public AuthorEntity Author { get; set; }
+        public AuthorEntity? Author { get; set; }
         public List<GenreEntity> Genres { get; set; } = [];
 
     }
