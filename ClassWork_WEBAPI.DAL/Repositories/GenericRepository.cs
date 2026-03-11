@@ -1,4 +1,4 @@
-﻿using ClassWork_WEBAPI.DLL.Entities;
+﻿using ClassWork_WEBAPI.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClassWork_WEBAPI.DLL.Repositories
+namespace ClassWork_WEBAPI.DAL.Repositories
 {
     public class GenericRepository<TEntity> where TEntity : class, IBaseEntiy
     {

@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ClassWork_WEBAPI.BLL\ClassWork_WEBAPI.BLL.csproj" />
-    <ProjectReference Include="..\ClassWork_WEBAPI.DLL\ClassWork_WEBAPI.DAL.csproj" />
+    <ProjectReference Include="..\ClassWork_WEBAPI.DAL\ClassWork_WEBAPI.DAL.csproj" />
   </ItemGroup>
 
 </Project>

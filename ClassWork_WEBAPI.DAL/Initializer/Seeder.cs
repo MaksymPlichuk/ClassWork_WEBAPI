@@ -1,4 +1,4 @@
-﻿using ClassWork_WEBAPI.DLL.Entities;
+﻿using ClassWork_WEBAPI.DAL.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClassWork_WEBAPI.DLL.Initializer
+namespace ClassWork_WEBAPI.DAL.Initializer
 {
     public static class Seeder
     {
@@ -17,7 +17,7 @@ namespace ClassWork_WEBAPI.DLL.Initializer
             var scope = app.ApplicationServices.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            await context.Database.MigrateAsync();
+            //await context.Database.MigrateAsync();
 
             var genres = new List<GenreEntity>();
 

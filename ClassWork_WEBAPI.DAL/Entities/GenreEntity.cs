@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClassWork_WEBAPI.DLL.Entities
+namespace ClassWork_WEBAPI.DAL.Entities
 {
     public class GenreEntity : BaseEntity
     {

@@ -1,6 +1,6 @@
-using ClassWork_WEBAPI.DLL;
-using ClassWork_WEBAPI.DLL.Initializer;
-using ClassWork_WEBAPI.DLL.Repositories;
+using ClassWork_WEBAPI.DAL;
+using ClassWork_WEBAPI.DAL.Initializer;
+using ClassWork_WEBAPI.DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

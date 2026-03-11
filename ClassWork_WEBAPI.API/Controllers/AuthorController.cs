@@ -1,14 +1,21 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ClassWork_WEBAPI.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthorController : Controller
+    public class AuthorController : ControllerBase
     {
-        public IActionResult Index()
+        [HttpGet]
+        public async Task<IActionResult> GetAsync()
         {
-            return View();
+            return Ok();
+        }
+        [HttpGet("id")]
+        public async Task<IActionResult> GetAsync(int id)
+        {
+            return Ok();
         }
     }
 }

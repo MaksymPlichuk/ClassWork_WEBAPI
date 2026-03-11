@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ClassWork_WEBAPI.DLL\ClassWork_WEBAPI.DLL.csproj" />
+    <ProjectReference Include="..\ClassWork_WEBAPI.DAL\ClassWork_WEBAPI.DAL.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿using ClassWork_WEBAPI.DLL.Entities;
+﻿using ClassWork_WEBAPI.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClassWork_WEBAPI.DLL
+namespace ClassWork_WEBAPI.DAL
 {
     public class AppDbContext : DbContext
     {
@@ -35,6 +35,7 @@ namespace ClassWork_WEBAPI.DLL
                 e.HasKey(a => a.Id);
                 e.Property(a => a.Name).IsRequired().HasMaxLength(200);
                 e.Property(a => a.Image).HasMaxLength(250);
+                e.Property(a => a.Country).HasMaxLength(50);
             });
             modelBuilder.Entity<GenreEntity>(e =>
             {
