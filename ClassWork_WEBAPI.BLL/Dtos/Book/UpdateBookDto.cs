@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace ClassWork_WEBAPI.BLL.Dtos.Book
         [Required]
         public required string Title { get; set; }
         public string? Description { get; set; }
-        public string? Image { get; set; }
+        public IFormFile? Image { get; set; }
         [Required]
         public float Rating { get; set; } = 0f;
         [Required]

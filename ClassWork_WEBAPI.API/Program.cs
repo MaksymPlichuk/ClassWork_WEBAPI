@@ -1,8 +1,10 @@
+using ClassWork_WEBAPI.API.Settings;
 using ClassWork_WEBAPI.BLL.Services;
 using ClassWork_WEBAPI.DAL;
 using ClassWork_WEBAPI.DAL.Initializer;
 using ClassWork_WEBAPI.DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,7 @@ builder.Services.AddScoped<BookRepository>();
 
 builder.Services.AddScoped<AuthorService>();
 builder.Services.AddScoped<BookService>();
+builder.Services.AddScoped<ImageService>();
 
 string corsPolicy = "allowAllCFG";
 builder.Services.AddCors(opt =>
@@ -43,6 +46,26 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+string root = app.Environment.ContentRootPath;
+string storagePath = Path.Combine(root, StaticFilesSettings.StorageDir);
+string booksPath = Path.Combine(storagePath, StaticFilesSettings.BooksDir);
+string authorsPath = Path.Combine(storagePath, StaticFilesSettings.AuthorsDir);
+
+if (!Directory.Exists(booksPath)) { Directory.CreateDirectory(booksPath); }
+if (!Directory.Exists(authorsPath)) { Directory.CreateDirectory(authorsPath); }
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(booksPath),
+    RequestPath = StaticFilesSettings.BookUrl
+});
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(authorsPath),
+    RequestPath = StaticFilesSettings.AuthorUrl
+});
+
 
 app.UseCors(corsPolicy);
 app.UseHttpsRedirection();

@@ -20,4 +20,9 @@
     <ProjectReference Include="..\ClassWork_WEBAPI.DAL\ClassWork_WEBAPI.DAL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Storage\Books\" />
+    <Folder Include="Storage\Authors\" />
+  </ItemGroup>
+
 </Project>

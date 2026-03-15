@@ -13,20 +13,29 @@ namespace ClassWork_WEBAPI.BLL.Services
     public class AuthorService
     {
         private readonly AuthorRepository _repository;
-        public AuthorService(AuthorRepository repository)
+        private readonly ImageService _imageService;
+        public AuthorService(AuthorRepository repository, ImageService imageService)
         {
             _repository = repository;
+            _imageService = imageService;
         }
 
-        public async Task<ServiceResponse> CreateAuthorAsync(CreateAuthorDto dto)
+        public async Task<ServiceResponse> CreateAuthorAsync(CreateAuthorDto dto, string storageDir)
         {
             var entity = new AuthorEntity
             {
                 Name = dto.Name,
                 BirthDate = dto.BirthDate,
-                Image = dto.Image,
                 Country = dto.Country,
             };
+
+            if (dto.Image != null)
+            {
+                var imageResponse = await _imageService.SaveImageAsync(dto.Image, storageDir);
+                if (!imageResponse.Success) { return imageResponse; }
+
+                entity.Image = imageResponse.Payload!.ToString();
+            }
 
             var res = await _repository.CreateAsync(entity);
             if (!res)
@@ -94,7 +103,7 @@ namespace ClassWork_WEBAPI.BLL.Services
             };
         }
 
-        public async Task<ServiceResponse> UpdateAuthorAsync(UpdateAuthorDto dto)
+        public async Task<ServiceResponse> UpdateAuthorAsync(UpdateAuthorDto dto, string storageDir)
         {
             var entity = await _repository.GetByIdAsync(dto.Id);
 
@@ -110,8 +119,22 @@ namespace ClassWork_WEBAPI.BLL.Services
             string oldName = entity.Name;
             entity.Name = dto.Name;
             entity.Country = dto.Country;
-            entity.Image = dto.Image;
             entity.BirthDate = dto.BirthDate;
+
+            if (dto.Image != null)
+            {
+                if (!string.IsNullOrEmpty(entity.Image))
+                {
+                    var fullFilePath = Path.Combine(storageDir, entity.Image);
+                    var deleteResp = _imageService.DeleteImage(fullFilePath);
+                    if (!deleteResp.Success) { return deleteResp; }
+                }
+
+                var imageResponse = await _imageService.SaveImageAsync(dto.Image, storageDir);
+                if (!imageResponse.Success) { return imageResponse; }
+
+                entity.Image = imageResponse.Payload!.ToString();
+            }
 
             bool res = await _repository.UpdateAsync(entity);
             if (!res)
@@ -130,7 +153,7 @@ namespace ClassWork_WEBAPI.BLL.Services
             };
         }
 
-        public async Task<ServiceResponse> DeleteAsync(int id)
+        public async Task<ServiceResponse> DeleteAsync(int id, string storageDir)
         {
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null)
@@ -140,6 +163,14 @@ namespace ClassWork_WEBAPI.BLL.Services
                     Message = $"Автора з Id {id} не існує",
                     Success = false
                 };
+            }
+
+            if (!string.IsNullOrEmpty(entity.Image))
+            {
+                var fullFilePath = Path.Combine(storageDir, entity.Image);
+                var imageResponse = _imageService.DeleteImage(fullFilePath);
+
+                if (!imageResponse.Success) { return imageResponse; }
             }
 
             bool res = await _repository.DeleteAsync(id);

@@ -1,4 +1,5 @@
 ﻿using ClassWork_WEBAPI.API.Extensions;
+using ClassWork_WEBAPI.API.Settings;
 using ClassWork_WEBAPI.BLL.Dtos.Author;
 using ClassWork_WEBAPI.BLL.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -11,10 +12,14 @@ namespace ClassWork_WEBAPI.API.Controllers
     public class AuthorController : ControllerBase
     {
         private readonly AuthorService _authorService;
+        private readonly string _storagePath;
 
-        public AuthorController(AuthorService authorService)
+        public AuthorController(AuthorService authorService, IWebHostEnvironment environment)
         {
             _authorService = authorService;
+
+            string rootPath = environment.ContentRootPath;
+            _storagePath = Path.Combine(rootPath, StaticFilesSettings.StorageDir, StaticFilesSettings.AuthorsDir);
         }
 
         [HttpGet]
@@ -31,23 +36,23 @@ namespace ClassWork_WEBAPI.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody]CreateAuthorDto dto)
+        public async Task<IActionResult> CreateAsync([FromForm] CreateAuthorDto dto)
         {
-            var res = await _authorService.CreateAuthorAsync(dto);
+            var res = await _authorService.CreateAuthorAsync(dto, _storagePath);
             return this.GetAction(res);
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateAsync([FromForm] UpdateAuthorDto dto)
         {
-            var resp = await _authorService.UpdateAuthorAsync(dto);
+            var resp = await _authorService.UpdateAuthorAsync(dto, _storagePath);
             return this.GetAction(resp);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            var resp = await _authorService.DeleteAsync(id);
+            var resp = await _authorService.DeleteAsync(id, _storagePath);
             return this.GetAction(resp);
         }
     }

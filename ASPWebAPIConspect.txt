@@ -7776,7 +7776,16 @@ return new ServiceResponse
 public static class ControllerBaseExtension
 {
 public static IActionResult GetAction(this ControllerBase controller, ServiceResponse response)
-{..			
+{
+            if (response.Success)	--Success це проперті у класі ServiceResponse
+            {
+                return controller.Ok(response);
+            }
+            else
+            {
+                return controller.BadRequest(response);
+            }
+        }	
 
 AivenDb -- БД на хостингу
 
@@ -7813,7 +7822,7 @@ string storagePath = Path.Combine(root, "Storage");
 	
 app.UseStaticFiles(new StaticFIlesOptions {
 	FilerProvider = new PhysicalFIleProvider(storagePath)
-	RequestPath = "/images"	--	адреса при якій користувача перекине на Storage
+	RequestPath = "/images"				--	адреса при якій користувача перекине на Storage | може бути будь-яка
 			тобто https://localhost:/110/images/zhadan.jpg покаже фото
 	
 })	
@@ -7856,9 +7865,36 @@ public class ImageService
 {
 
 	public async Task<string?> SaveAsync(IFormFile file, string dirPath)
-	{..
+	{  var types = file.ContentType.Split("/");
+
+                if(types.Length != 2 || types[0] != "image")
+                {
+                    return new ServiceResponse
+                    {
+                        Success = false,
+                        Message = $"Файл '{file.FileName}' не є зображенням"
+                    };
+                }
+
+                string imageName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+                string imagePath = Path.Combine(dirPath, imageName);
+
+                using var fileStream = File.OpenWrite(imagePath);
+                await file.CopyToAsync(fileStream);
+
+                return new ServiceResponse
+                {
+                    Message = $"Зображення '{file.FileName}' успішно збережено",
+                    Payload = imageName
+                };
+	}
+	
 	public async Task Remove(){
-		..
+		File.Delete(imagePath);
+                return new ServiceResponse
+                {
+                    Message = "Зображення успішно видалено"
+                };
 	}
 }
 
@@ -7867,11 +7903,20 @@ $""	--	автоматично робить ToString()
 	
  //достати шлях до проекту
 private readonly string _storagePath;
-public AuthorController (AuthorService authorService, IWebHostEnvironment environment)
+public AuthorController (AuthorService authorService)
 {
-_authorService authorService;
-_storagePath = Path.Combine(environment.ContentRootPath, StaticFilesSettings.StorageDir);
+	_authorService authorService;
+	_storagePath = Path.Combine(environment.ContentRootPath, StaticFilesSettings.StorageDir);
 }	
+	
+//🔄Алгоритм додавання FileService
+
+1 налаштовуємо useStaticFiles у Program.cs
+2 ImageService з SaveFile DeleteFile
+3 змін проперті на IFormFile у Controller [FromForm]
+4 додаємо аргумент storagePath у інших Service
+5 у Controller додаємо _storagePath і ініціалізуємо у ctor + IWebHostEnvironment environment
+												_storagePath = Path.Combine(environment.ContentRootPath, StaticFilesSettings.StorageDir, StaticFilesSettings.AuthorsDir);
 	
 	
 RTK queary	

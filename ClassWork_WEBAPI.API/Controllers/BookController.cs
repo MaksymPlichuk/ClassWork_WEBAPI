@@ -1,4 +1,5 @@
 ﻿using ClassWork_WEBAPI.API.Extensions;
+using ClassWork_WEBAPI.API.Settings;
 using ClassWork_WEBAPI.BLL.Dtos.Book;
 using ClassWork_WEBAPI.BLL.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -10,9 +11,12 @@ namespace ClassWork_WEBAPI.API.Controllers
     public class BookController : ControllerBase
     {
         private readonly BookService _bookService;
-        public BookController(BookService bookService)
+        private readonly string _storagePath;
+        public BookController(BookService bookService, IWebHostEnvironment environment)
         {
             _bookService = bookService;
+            string rootPath = environment.ContentRootPath;
+            _storagePath = Path.Combine(rootPath, StaticFilesSettings.StorageDir, StaticFilesSettings.BooksDir);
         }
 
         [HttpGet]
@@ -30,23 +34,23 @@ namespace ClassWork_WEBAPI.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] CreateBookDto dto)
+        public async Task<IActionResult> CreateAsync([FromForm] CreateBookDto dto)
         {
-            var resp = await _bookService.CreateBookAsync(dto);
+            var resp = await _bookService.CreateBookAsync(dto, _storagePath);
             return this.GetAction(resp);
         }
 
         [HttpPut]
-        public async Task<IActionResult> CreateAsync([FromBody] UpdateBookDto dto)
+        public async Task<IActionResult> UpdateAsync([FromForm] UpdateBookDto dto)
         {
-            var resp = await _bookService.UpdateBookAsync(dto);
+            var resp = await _bookService.UpdateBookAsync(dto, _storagePath);
             return this.GetAction(resp);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            var resp = await _bookService.DeleteAsync(id);
+            var resp = await _bookService.DeleteAsync(id, _storagePath);
             return this.GetAction(resp);
         }
     }

@@ -1,4 +1,5 @@
 ﻿using ClassWork_WEBAPI.DAL.Entities;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -13,7 +14,7 @@ namespace ClassWork_WEBAPI.BLL.Dtos.Author
         [Required]
         public required string Name { get; set; }
         public DateTime BirthDate { get; set; } = DateTime.UtcNow;
-        public string? Image { get; set; }
+        public IFormFile? Image { get; set; }
         public string? Country { get; set; }
     }
 }
