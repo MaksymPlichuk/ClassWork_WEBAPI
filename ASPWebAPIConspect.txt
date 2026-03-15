@@ -7924,37 +7924,44 @@ RTK queary
 ----------------------------------------------
 05_	AutoMapper
 	
+.BLL
+	NuGet: AutoMapper
+https://automapper.io/
+
+	
 	Mapping -- перетворення одного типу данних в інший
 	
-builder. Services.AddAutoMapper(cfg
+builder. Services.AddAutoMapper(cfg =>
 {
 	cfg.Licensekey = automapperkey;
 },
-AppDomain.CurrentDomain.GetAssemblies());	--	
+AppDomain.CurrentDomain.GetAssemblies());	--	об'єкт проекту
 
 
 .BLL
 	MapperProfiles
 			AuthorMapeprProfile
 			
-	public class AuthorMapperProfile : Profile
-{
-	public AuthorMapperProfile()
+	public class AuthorMapperProfile : Profile	-- клас з AutoMapper який зробить його читабельним для нього
 	{
-		// AuthorEntity -> AuthorDto
-		CreateMap<AuthorEntity, AuthorDto>(); -- пропси співпадають тому нічого не змінюємо
-		
-		
-		CreateMap<CreateAuthorDto, AuthorEntity>()
-		
-						вибираємо яку проп налаштувати
-			.ForMember(dest => dest.Image, opt => opt.Ignore())
-											що з нею зробити
-		
+		public AuthorMapperProfile()
+		{
+				// AuthorEntity --> AuthorDto
+			CreateMap<AuthorEntity, AuthorDto>(); -- пропси співпадають тому нічого не змінюємо
+			
+			
+			CreateMap<CreateAuthorDto, AuthorEntity>()
+			
+							вибираємо яку проп налаштувати у класу який перетворимо (AuthorEntity)
+				.ForMember(dest => dest.Image, opt => opt.Ignore())
+												що з нею зробити
+		}
+	}
+	
 Підключаємо:
 		private readonly IMapper _mapper
 	
-//По Дефолту Створ новий об'єкт
+//По Дефолту Створ новий об'єкт (new AuthorEntity {..} )
 	
 	 сюди приходять дані					з якого класу
 	var entity = _mapper.Map<AuthorEntity>(dto);
@@ -7969,7 +7976,7 @@ AppDomain.CurrentDomain.GetAssemblies());	--
 		};
 
 
-При Update -- перезаписує данні як стара логіка e.Name = dto.Name
+🟧При Update -- перезаписує данні як стара логіка e.Name = dto.Name, НЕ створює новий об'єкт
 
 	entity = _mapper.Map(dto, entity);
 
@@ -7982,7 +7989,7 @@ AppDomain.CurrentDomain.GetAssemblies());	--
 
 
 Createmap<AuthorEntity, AuthorDto>()
-.ForMember(dest => dest.Country, opt => opt.MapFrom  -- при перетворенні виводитиме AAA якщо null
+.ForMember(dest => dest.Country, opt => opt.MapFrom  	-- при перетворенні виводитиме AAA якщо null
 	(src => src.Country == null ? "AAA" : src.Country)
 	
 	

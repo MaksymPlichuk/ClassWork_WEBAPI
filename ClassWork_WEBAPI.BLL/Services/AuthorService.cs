@@ -1,4 +1,5 @@
-﻿using ClassWork_WEBAPI.BLL.Dtos.Author;
+﻿using AutoMapper;
+using ClassWork_WEBAPI.BLL.Dtos.Author;
 using ClassWork_WEBAPI.DAL.Entities;
 using ClassWork_WEBAPI.DAL.Repositories;
 using System;
@@ -14,20 +15,17 @@ namespace ClassWork_WEBAPI.BLL.Services
     {
         private readonly AuthorRepository _repository;
         private readonly ImageService _imageService;
-        public AuthorService(AuthorRepository repository, ImageService imageService)
+        private readonly IMapper _mapper;
+        public AuthorService(AuthorRepository repository, ImageService imageService, IMapper mapper)
         {
             _repository = repository;
             _imageService = imageService;
+            _mapper = mapper;
         }
 
         public async Task<ServiceResponse> CreateAuthorAsync(CreateAuthorDto dto, string storageDir)
         {
-            var entity = new AuthorEntity
-            {
-                Name = dto.Name,
-                BirthDate = dto.BirthDate,
-                Country = dto.Country,
-            };
+            var entity = _mapper.Map<AuthorEntity>(dto);
 
             if (dto.Image != null)
             {
@@ -50,25 +48,13 @@ namespace ClassWork_WEBAPI.BLL.Services
             return new ServiceResponse
             {
                 Message = $"Автор {dto.Name} Успішно додано",
-                Payload = new AuthorDto
-                {
-                    Id = entity.Id,
-                    Name = entity.Name,
-                    BirthDate = entity.BirthDate,
-                    Image = entity.Image,
-                }
+                Payload = _mapper.Map<AuthorDto>(entity)
             };
         }
         public async Task<ServiceResponse> GetAllAsync()
         {
             var authors = _repository.GetAll();
-            List<AuthorDto> dtos = new List<AuthorDto>();
-
-            foreach (var a in authors)
-            {
-                var dto = new AuthorDto { Name = a.Name, Country = a.Country, BirthDate = a.BirthDate, Image = a.Image, Id = a.Id };
-                dtos.Add(dto);
-            }
+            List<AuthorDto> dtos = _mapper.Map<List<AuthorDto>>(authors);
 
             return new ServiceResponse
             {
@@ -86,19 +72,12 @@ namespace ClassWork_WEBAPI.BLL.Services
                 return new ServiceResponse
                 {
                     Message = $"Автор з Id {author.Id} знайдено",
-                    Payload = new AuthorDto
-                    {
-                        Id = author.Id,
-                        Name = author.Name,
-                        BirthDate = author.BirthDate,
-                        Image = author.Image,
-                        Country = author.Country,
-                    }
+                    Payload = _mapper.Map<AuthorDto>(author)
                 };
             }
             return new ServiceResponse
             {
-                Message = $"Автор з Id {author.Id} не знайдено",
+                Message = $"Автор з Id {id} не знайдено",
                 Success = false
             };
         }
@@ -117,9 +96,7 @@ namespace ClassWork_WEBAPI.BLL.Services
             }
 
             string oldName = entity.Name;
-            entity.Name = dto.Name;
-            entity.Country = dto.Country;
-            entity.BirthDate = dto.BirthDate;
+            entity = _mapper.Map(dto, entity); //не створює новий об'єкт
 
             if (dto.Image != null)
             {
@@ -149,7 +126,7 @@ namespace ClassWork_WEBAPI.BLL.Services
             return new ServiceResponse
             {
                 Message = $"Автор з {oldName} Успішно оновлений",
-                Payload = new AuthorDto { Id = entity.Id, Name = entity.Name, BirthDate = entity.BirthDate, Country = entity.Country, Image = entity.Image }
+                Payload = _mapper.Map<AuthorDto>(entity)
             };
         }
 
@@ -186,7 +163,7 @@ namespace ClassWork_WEBAPI.BLL.Services
             return new ServiceResponse
             {
                 Message = $"Автор з Id {id} успішно видалено",
-                Payload = new AuthorDto { Id = entity.Id, Name = entity.Name, BirthDate = entity.BirthDate, Country = entity.Country, Image = entity.Image }
+                Payload = _mapper.Map<AuthorDto>(entity)
             };
         }
     }

@@ -1,4 +1,5 @@
-﻿using ClassWork_WEBAPI.BLL.Dtos.Book;
+﻿using AutoMapper;
+using ClassWork_WEBAPI.BLL.Dtos.Book;
 using ClassWork_WEBAPI.DAL.Entities;
 using ClassWork_WEBAPI.DAL.Repositories;
 using System;
@@ -13,22 +14,19 @@ namespace ClassWork_WEBAPI.BLL.Services
     {
         private readonly BookRepository _repository;
         private readonly ImageService _imageService;
-        public BookService(BookRepository repository, ImageService imageService)
+        private readonly IMapper _mapper;
+        public BookService(BookRepository repository, ImageService imageService, IMapper mapper)
         {
             _repository = repository;
             _imageService = imageService;
+            _mapper = mapper;
         }
 
         public async Task<ServiceResponse> GetAllAsync()
         {
             var entities = _repository.GetAll();
-            List<BookDto> books = new List<BookDto>();
+            List<BookDto> books = _mapper.Map<List<BookDto>>(entities);
 
-            foreach (var e in entities)
-            {
-                var dto = new BookDto { Id = e.Id, Title = e.Title, Description = e.Description, Image = e.Image, Pages = e.Pages, PublishYear = e.PublishYear, Rating = e.Rating };
-                books.Add(dto);
-            }
             return new ServiceResponse
             {
                 Message = $"{books.Count()} Книг Знайдено",
@@ -49,19 +47,12 @@ namespace ClassWork_WEBAPI.BLL.Services
             return new ServiceResponse
             {
                 Message = $"Книга з Id {id} знайдена!",
-                Payload = new BookDto { Id = e.Id, Title = e.Title, Description = e.Description, Image = e.Image, Pages = e.Pages, PublishYear = e.PublishYear, Rating = e.Rating }
+                Payload = _mapper.Map<BookDto>(e)
             };
         }
         public async Task<ServiceResponse> CreateBookAsync(CreateBookDto dto, string storageDir)
         {
-            var e = new BookEntity
-            {
-                Title = dto.Title,
-                Description = dto.Description,
-                Pages = dto.Pages,
-                PublishYear = dto.PublishYear,
-                Rating = dto.Rating
-            };
+            var e = _mapper.Map<BookEntity>(dto);
 
             if (dto.Image != null)
             {
@@ -83,16 +74,7 @@ namespace ClassWork_WEBAPI.BLL.Services
             return new ServiceResponse
             {
                 Message = "Книга успішно додана",
-                Payload = new BookDto
-                {
-                    Id = e.Id,
-                    Title = e.Title,
-                    Description = e.Description,
-                    Image = e.Image,
-                    Pages = e.Pages,
-                    PublishYear = e.PublishYear,
-                    Rating = e.Rating
-                }
+                Payload = _mapper.Map<BookDto>(e)
             };
         }
         public async Task<ServiceResponse> UpdateBookAsync(UpdateBookDto dto, string storageDir)
@@ -108,11 +90,7 @@ namespace ClassWork_WEBAPI.BLL.Services
             }
 
             string oldTitle = e.Title;
-            e.Title = dto.Title;
-            e.Description = dto.Description;
-            e.Pages = dto.Pages;
-            e.PublishYear = dto.PublishYear;
-            e.Rating = dto.Rating;
+            e = _mapper.Map(dto, e);
 
             if (dto.Image != null)
             {
@@ -143,7 +121,7 @@ namespace ClassWork_WEBAPI.BLL.Services
             return new ServiceResponse
             {
                 Message = $"Книга '{oldTitle}' успішно змінена!",
-                Payload = new BookDto { Id = e.Id, Title = e.Title, Description = e.Description, Image = e.Image, Pages = e.Pages, PublishYear = e.PublishYear, Rating = e.Rating }
+                Payload = _mapper.Map<BookDto>(e)
             };
         }
         public async Task<ServiceResponse> DeleteAsync(int id, string storageDir)
@@ -178,7 +156,7 @@ namespace ClassWork_WEBAPI.BLL.Services
             return new ServiceResponse
             {
                 Message = $"Книга '{e.Title}' успішно видалена!",
-                Payload = new BookDto { Id = e.Id, Title = e.Title, Description = e.Description, Image = e.Image, Pages = e.Pages, PublishYear = e.PublishYear, Rating = e.Rating }
+                Payload = _mapper.Map<BookDto>(e)
             };
         }
     }
