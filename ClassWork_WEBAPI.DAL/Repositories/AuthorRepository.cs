@@ -19,9 +19,21 @@ namespace ClassWork_WEBAPI.DAL.Repositories
         {
             return await _context.Authors.FirstOrDefaultAsync(a => a.Name.ToLower() == name.ToLower());
         }
-        //todo
-        public async Task<List<BookEntity>> GetBooksAsync() { return null; }
-        public async Task<bool> AddBookAsync() { return false; }
+        public async Task<List<BookEntity>> GetBooksAsync(AuthorEntity entity)
+        {
+            return await _context.Books.AsNoTracking().Where(b => b.AuthorId == entity.Id).ToListAsync();
+        }
+        public async Task<bool> AddBookAsync(AuthorEntity author, BookEntity book)
+        {
+            var authorBooks = await GetBooksAsync(author);
+
+            if (!authorBooks.Contains(book))
+            {
+                author.Books.Add(book);
+                return (await _context.SaveChangesAsync()) != 0;
+            }
+            return false;
+        }
 
     }
 }

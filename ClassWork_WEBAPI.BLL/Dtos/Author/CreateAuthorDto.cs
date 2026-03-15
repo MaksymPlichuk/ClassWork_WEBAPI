@@ -1,14 +1,16 @@
-﻿using System;
+﻿using ClassWork_WEBAPI.DAL.Entities;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ClassWork_WEBAPI.BLL.Dtos.Author
 {
-    public class AuthorDto
+    public class CreateAuthorDto
     {
-        public int Id { get; set; }
+        [Required]
         public required string Name { get; set; }
         public DateTime BirthDate { get; set; } = DateTime.UtcNow;
         public string? Image { get; set; }

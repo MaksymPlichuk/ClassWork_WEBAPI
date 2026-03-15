@@ -17,7 +17,7 @@ namespace ClassWork_WEBAPI.DAL.Initializer
             var scope = app.ApplicationServices.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            //await context.Database.MigrateAsync();
+            await context.Database.MigrateAsync();
 
             var genres = new List<GenreEntity>();
 

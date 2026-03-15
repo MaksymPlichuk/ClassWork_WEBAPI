@@ -7456,8 +7456,7 @@ Clean architecture --
 
 --пов'язумо проекти
 
-	.BLL add project refernces ставимо галку на .DAL	| ЗАЛЕЖИТЬ тільки від .DAL
-	
+	.BLL add project refernces ставимо галку на .DAL	| ЗАЛЕЖИТЬ тільки від .DAL	
 	.API add project refernces на .DAL .BLL
 
 
@@ -7712,7 +7711,7 @@ Repository --> Service --> Controller
 У Service сторметод CreateAuthor	
 	
 	AuthorDto	-- контролює які всласт буде повертатися
-				для Frontend (запис у Redux) | Presentation ajhvfn
+				для Frontend (запис у Redux) | Presentation формат
 	
 	
 public async Task<AuthorDto?> CreateAsync(CreateAuthorDto dto)
@@ -7746,12 +7745,14 @@ public IQueryable<AuthorEntity> Authors => GetAll();
 #Клас для відповідей після Операції (return Ok(наш об'єкт + msg))
 		зручніше для Frontend
 
+
 public class ServiceResponse
 {
 	public string Message { get; set; } = string.Empty;
 	public bool Success { get; set; } = true;
 	public object? Payload { get; set; } = null;
 }
+
 
 --Всі сервіси повертають ServiceResponse
 
@@ -7951,7 +7952,85 @@ Services -- Перевірка маппінг пагінація логіка д
 Repositories -- читання запис у базу	
 	
 ----------------------------------------------
-06_	
+06_Identity
+
+.DAL
+Microsoft.AspNetCore.Identity.EntityFrameworkCore
+
+https://learn.microsoft.com/en-us/aspnet/core/security/authentication/customize-identity-model?view=aspnetcore-10.0#customize-the-model
+
+navigation property -- посилання на об'єкт іншої таблиці через FK
+							існують тільки в C# і не попадають у БД
+			
+створ окрему папку у Entities --> Identity
+ у них класи з Identity для налаштування nav prop
+ 
+ 
+public class AppRoleClaimEntity: IdentityRoleClaim<string>
+{
+	public virtual AppRoleEntity? Role { get; set; }
+}
+
+#і за документацією вставляємо Props у інші Entity
+
+public class AppUserEntity: IdentityUser
+{
+	public virtual ICollection<AppUserClaimEntity> Claims { get; set; } = []
+	public virtual ICollection<AppUserLoginEntity> Logins { get; set; } = []
+	public virtual ICollection<AppUserTokenEntity> Tokens { get; set; } = []
+	public virtual ICollection<AppUserRoleEntity> UserRoles { get; set; } = []
+
+	//Можна додати свою проперті
+}
+
+public AppDbContext : IdentityDbContext<
+			AppUserEntity, AppRoleEntity, string,
+AppUserClaimEntity, AppUserRoleEntity, AppUserLoginEntity, AppRoleClaimEntity, AppUserTokenEntity>>	
+	
+І копіюємо OnModelCreating
+
+
+у Program.cs потім робимо міграцію
+
+ builder. Services. AddIdentity<AppUserEntity, AppRoleEntity>(options =>
+{
+	options.Password. RequiredUniqueChars = 1;
+	options.Password. RequiredLength = 6;
+})
+.AddEntityFrameworkStores<AppDbContext>()
+.AddDefaultTokenProviders();
+
+
+ створ у DTOS папку Auth в якій будуть
+RegisterDto LoginDto з валідаціями
+
+створ AuthService:
+ 
+private readonly UserManager<AppUserEntity>
+	_userManager	-- як репозиторій зі всіма методами
+	
+
+створ AuthController
+
+
+GET - немають body але є Header але дані не зашифровані 
+Post - має зашифроване Body
+	
+gitignore generator	
+
+---	
+Parsing -- html agility package
+	
+static void Main(string[] args)
+{
+	string url = "https://tsn.ua/glamur";
+	var web = new HtmlWeb();
+	var doc web. Load(url);
+	var il = doc. DocumentNode. SelectSingleNode(HTML x path);
+}	
+
+----------------------------------------------
+07_
 
 
 	

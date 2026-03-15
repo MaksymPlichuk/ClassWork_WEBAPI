@@ -1,3 +1,4 @@
+using ClassWork_WEBAPI.BLL.Services;
 using ClassWork_WEBAPI.DAL;
 using ClassWork_WEBAPI.DAL.Initializer;
 using ClassWork_WEBAPI.DAL.Repositories;
@@ -16,6 +17,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<AuthorRepository>();
 builder.Services.AddScoped<GenreRepository>();
 builder.Services.AddScoped<BookRepository>();
+
+
+builder.Services.AddScoped<AuthorService>();
+builder.Services.AddScoped<BookService>();
 
 string corsPolicy = "allowAllCFG";
 builder.Services.AddCors(opt =>
