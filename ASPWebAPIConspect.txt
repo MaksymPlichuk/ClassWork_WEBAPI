@@ -8082,9 +8082,230 @@ static void Main(string[] args)
 }	
 
 ----------------------------------------------
-07_
+07_JWT token
 
+Login логіка
 
+створ Dto для логіну
+	public class LoginDto
+{
+	[Required]
+	public string Email { get; set; } = string.Empty;	
+	[MinLength(6)]
+	public string Password { get; set; } = string.Empty;
+}
+
+AuthService
+	створ метод LoginAsync
+
+public async Task<ServiceResponse> LoginAsync(LoginDto dto)
+{
+	var entity = await_userManager. FindByEmailAsync(dto.Email);
+	
+Так як у БД пароль захешований порівнюємо через метод
+	
+	await _userManager.CheckPasswordAsync(entity, dto.Password);
+	..
+	
+	return new ServiceMessage{ 
+		Message: "Авторизовано!",
+		payload: jwttoken
+	}
+	
+}
+
+AuthController
+	[HttpPost("login")]
+public async Task<IActionResult> LoginAsync([FromBody] LoginDto dto)
+{
+	var resp = await _authService.LoginAsync(dto);
+	return this.GetAction(response)
+}
+
+jwt token -- токен який зберігає інфу про користувача
+
+appsettings.json
+	"JwtSettings": {
+		"Issuer" "pd411_react",	-- отримувач (Пишемо будь-що для валідації)
+		"Audience": "pd411_aspnet",		-- відправник
+		"Secretkey": "fdsDSFgdsg967gsd97SD",
+		"ExpHours": 1
+	}
 	
 	
+BLL папка Settings -- описує appsettings у BLL
+
+JwtSettings { -- для зручнішого доставання об'єкту JwtSettings в appsettings.json
+
+	public string Issuer { get; set; } = string.Empty;
+	public string Audience { get; set; } =	string.Empty;
+	public string Secretkey { get; set;	} = string.Empty;
+	public int ExpHours { get; set; } = 1
+}
+
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));	
+	для заповнення проп класу налаштовує перетворення чеез IOptions
+	
+		
+	
+	
+створ JwtService
+
+public class JwtService
+{
+
+/// старий метод
+	public JwtService (IConfiguration configuration)
+	{
+		_configuration configuration;
+	}
+		
+	public string GenerateAccessToken (AppUserEntity user)
+	{
+		string issuer = 	_configuration["JwtSettings: Issuer"];
+		string audience = 	_configuration["JwtSettings: Audience"];
+		string secretKey =	_configuration["JwtSettings: Secretkey"];
+		int hours = 		_configuration["JwtSettings: ExpHours"];
+	
+		return string.Empty;
+///	} */
+	
+						який клас витягнути | у Program.cs дивиться з якої секції вхяьт
+	public JwtService (IOptions<JwtSettings> jwtOptions)
+	{
+		_jwtSettings = jwtOptions.Value; -- об'єкт класу заповнений данними
+	}
+		
+  public string GenerateAccessToken (AppUserEntity user)
+	{
+		if(string.IsNullOrEmpty(_jwtSettings.Secretkey))
+		{
+			throw new ArgumentNullException("Jwt secret key is null");
+		}
+		
+ claim -- ключ і значення ("sub": "12345")
+		
+		var claims = new Claim[]  -- дані які віддаватимемо токеном про user 
+		{
+			new Claim("userName", user.UserName ?? string.Empty),
+			new Claim("email", user.Email ?? string.Empty),
+		}
+		
+		var secretKeyBytes = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
+	
+	
+//ключ на основі якого створюється токен у вигляді об'єкта
+		var signInkey = new SymmetricSecurityKey(secretKeyBytes);
+		
+												що шифрувати	алгоритм шефрумання
+		var credentials = new SigningCredentials(signInkey, SecurityAlgorithms.HmacSha256);
+
+для створення токену NuGet : System.IdentityModel.Tokens.Jwt
+	
+		var token = new JwtSecurityToken(
+			issuer: 	_jwtSettings.Issuer,
+			audience: 	_jwtSettings.Audience,
+			claims: claims,
+			expires: DateTime.Now.AddHours(_jwtSettings.ExpHours)
+		);
+		
+	//з об'єкту у string	
+		string jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
+	return jwtToken;
+
+	}		
+}
+
+надсилаємо щоб token перевірити email, закрити controller	
+
+//Налаштування щоб використовувати токен на беку
+
+builder. Services.AddAuthentication (options =>
+{
+...
+});
+
+
+контроллер не доступний без jwt token
+ [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
+і для використання всіх методів у контроллері треба
+	передати у Header token
+	
+[AllowAnonymous] -- не треба токен
+[Authorize] 	-- для метода треба токен
+	
+localStorage, Cookies -- будуть у JwtToken
+
+Можна використовувати на фронті щоб ховати вкладки методи
+	
+	
+----------------------------------------------
+08_logs middleware
+	
+logs - звіт про роботу проекту
+
+у launchSettings змінити порт програми
+
+
+ ILogger -- вбудований інтерфейс для логування
+
+					клас у якому будемо логувати
+private readonly ILogger <GenreController> _logger;
+
+
+
+public async Task<IActionResult> GetAsync()
+{
+	_logger.LogInformation("Get all genres request"); -- виведе у консолі текст
+
+_logger.warn(2000,$"{DateTime.Now} request"); -- код 2000
+
+Виведе warn: PD411_Books.API.Controllers.GenreController [2000] 3/18/2026 3:36:15 PM All genres BAD REQUEST
+
+
+
+middleware -- шари обробки запитів і відповідей | гарантують в контроллер прийдуть правильні данні
+		кожен з яких виконує свою задачу (HTTPS redirection static files)
+
+перевірка для всіх запитів що не писати окремо у контролеррі
+
+
+DeveloperExceptionPageMiddleware -- один великий Exception який дозволяє сайту працювати при помилці
+
+.API створ Middlewares
+
+public class ExceptionMiddleware	-- перезапис дефолтний
+{
+	private readonly RequestDelegate _next;
+	
+	public ExceptionMiddleware(RequestDelegate next)
+		{
+			next = next;
+		}							Описує request response пакет весь процес
+	public async Task InvokeAsync(HttpContext contex)
+	{
+		try {	-- для абсолютно всіх методів
+		
+		
+		
+до нього request		
+			await _next(context)	-- передасть Http пакет
+			
+після response			
+			}
+		catch {
+		
+		}
+	}
+}
+
+	//підключаємо middleware у Program.cs
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<LogMiddleware>();
+
+	
+----------------------------------------------
+09_
+
 	

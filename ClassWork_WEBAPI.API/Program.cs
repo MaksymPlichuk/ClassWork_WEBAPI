@@ -1,3 +1,4 @@
+using ClassWork_WEBAPI.API.Middlewares;
 using ClassWork_WEBAPI.API.Settings;
 using ClassWork_WEBAPI.BLL.Services;
 using ClassWork_WEBAPI.DAL;
@@ -53,6 +54,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 string root = app.Environment.ContentRootPath;
 string storagePath = Path.Combine(root, StaticFilesSettings.StorageDir);
