@@ -8033,6 +8033,7 @@ public class AppUserEntity: IdentityUser
 	public virtual ICollection<AppUserRoleEntity> UserRoles { get; set; } = []
 
 	//Можна додати свою проперті
+	virtual -- для lazy loading
 }
 
 public AppDbContext : IdentityDbContext<
@@ -8049,8 +8050,12 @@ AppUserClaimEntity, AppUserRoleEntity, AppUserLoginEntity, AppRoleClaimEntity, A
 	options.Password. RequiredUniqueChars = 1;
 	options.Password. RequiredLength = 6;
 })
-.AddEntityFrameworkStores<AppDbContext>()
+.AddEntityFrameworkStores<AppDbContext>()	-- який db context використовуэться
 .AddDefaultTokenProviders();
+
+
+//через Identity не треба писати окремі repositories
+	
 
 
  створ у DTOS папку Auth в якій будуть
@@ -8066,7 +8071,7 @@ private readonly UserManager<AppUserEntity>
 
 
 GET - немають body але є Header але дані не зашифровані 
-Post - має зашифроване Body
+Post - має зашифроване Body через HTTPS
 	
 gitignore generator	
 
@@ -8126,9 +8131,9 @@ jwt token -- токен який зберігає інфу про користу
 
 appsettings.json
 	"JwtSettings": {
-		"Issuer" "pd411_react",	-- отримувач (Пишемо будь-що для валідації)
-		"Audience": "pd411_aspnet",		-- відправник
-		"Secretkey": "fdsDSFgdsg967gsd97SD",
+		"Issuer" "pd411_react",				-- отримувач (Пишемо будь-що для валідації) необов'язково | щоб важче підробити
+		"Audience": "pd411_aspnet",			-- відправник
+		"Secretkey": "fdsDSFgdsg967gsd97SD",	-- на його основі будується signature
 		"ExpHours": 1
 	}
 	
@@ -8209,7 +8214,7 @@ public class JwtService
 			expires: DateTime.Now.AddHours(_jwtSettings.ExpHours)
 		);
 		
-	//з об'єкту у string	
+//з об'єкту у string	
 		string jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
 	return jwtToken;
 

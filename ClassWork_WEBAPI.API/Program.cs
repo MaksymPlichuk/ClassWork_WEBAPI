@@ -1,9 +1,12 @@
 using ClassWork_WEBAPI.API.Middlewares;
 using ClassWork_WEBAPI.API.Settings;
 using ClassWork_WEBAPI.BLL.Services;
+using ClassWork_WEBAPI.BLL.Settings;
 using ClassWork_WEBAPI.DAL;
+using ClassWork_WEBAPI.DAL.Entities.Identity;
 using ClassWork_WEBAPI.DAL.Initializer;
 using ClassWork_WEBAPI.DAL.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
@@ -25,6 +28,10 @@ builder.Services.AddScoped<BookRepository>();
 builder.Services.AddScoped<AuthorService>();
 builder.Services.AddScoped<BookService>();
 builder.Services.AddScoped<ImageService>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<JwtService>();
+
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
 string corsPolicy = "allowAllCFG";
 builder.Services.AddCors(opt =>
@@ -42,6 +49,18 @@ builder.Services.AddAutoMapper(cfg =>
 }, AppDomain.CurrentDomain.GetAssemblies());
 
 
+builder.Services.AddIdentity<AppUserEntity, AppRoleEntity>(opt =>
+{
+    opt.User.RequireUniqueEmail = false;
+    opt.Password.RequiredUniqueChars = 1;
+    opt.Password.RequireNonAlphanumeric = false;
+    opt.Password.RequireDigit = false;
+    opt.Password.RequireLowercase = false;
+    opt.Password.RequireUppercase = false;
+    opt.Password.RequiredLength = 6;
+
+}).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddSwaggerGen();
@@ -55,7 +74,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseMiddleware<ExceptionMiddleware>();
+//app.UseMiddleware<ExceptionMiddleware>();
 
 string root = app.Environment.ContentRootPath;
 string storagePath = Path.Combine(root, StaticFilesSettings.StorageDir);

@@ -1,4 +1,6 @@
 ﻿using ClassWork_WEBAPI.DAL.Entities;
+using ClassWork_WEBAPI.DAL.Entities.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,7 +10,9 @@ using System.Threading.Tasks;
 
 namespace ClassWork_WEBAPI.DAL
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<AppUserEntity, AppRoleEntity,
+        string, AppUserClaimEntity, AppUserRoleEntity, AppUserLoginEntity,
+        AppRoleClaimEntity, AppUserTokenEntity>
     {
         public AppDbContext(DbContextOptions options) : base(options)
         {
@@ -20,6 +24,8 @@ namespace ClassWork_WEBAPI.DAL
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<BookEntity>(e =>
             {
                 e.HasKey(b => b.Id);
@@ -52,9 +58,57 @@ namespace ClassWork_WEBAPI.DAL
 
                 e.HasMany(b => b.Genres).WithMany(g => g.Books).UsingEntity("BookGenres");
             });
-            
 
-            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<AppUserEntity>(e =>
+            {
+                e.Property(u=>u.FirstName).HasMaxLength(100);
+                e.Property(u=>u.LastName).HasMaxLength(100);
+                e.Property(u => u.Image).HasMaxLength(150);
+            });
+
+            modelBuilder.Entity<AppUserEntity>(b =>
+            {
+                // Each User can have many UserClaims
+                b.HasMany(e => e.Claims)
+                    .WithOne(e => e.User)
+                    .HasForeignKey(uc => uc.UserId)
+                    .IsRequired();
+
+                // Each User can have many UserLogins
+                b.HasMany(e => e.Logins)
+                    .WithOne(e => e.User)
+                    .HasForeignKey(ul => ul.UserId)
+                    .IsRequired();
+
+                // Each User can have many UserTokens
+                b.HasMany(e => e.Tokens)
+                    .WithOne(e => e.User)
+                    .HasForeignKey(ut => ut.UserId)
+                    .IsRequired();
+
+                // Each User can have many entries in the UserRole join table
+                b.HasMany(e => e.UserRoles)
+                    .WithOne(e => e.User)
+                    .HasForeignKey(ur => ur.UserId)
+                    .IsRequired();
+            });
+
+            modelBuilder.Entity<AppRoleEntity>(b =>
+            {
+                // Each Role can have many entries in the UserRole join table
+                b.HasMany(e => e.UserRoles)
+                    .WithOne(e => e.Role)
+                    .HasForeignKey(ur => ur.RoleId)
+                    .IsRequired();
+
+                // Each Role can have many associated RoleClaims
+                b.HasMany(e => e.RoleClaims)
+                    .WithOne(e => e.Role)
+                    .HasForeignKey(rc => rc.RoleId)
+                    .IsRequired();
+            });
+
         }
     }
 }

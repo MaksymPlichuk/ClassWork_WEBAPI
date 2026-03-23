@@ -1,5 +1,7 @@
 ﻿using ClassWork_WEBAPI.DAL.Entities;
+using ClassWork_WEBAPI.DAL.Entities.Identity;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -16,8 +18,24 @@ namespace ClassWork_WEBAPI.DAL.Initializer
         {
             var scope = app.ApplicationServices.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUserEntity>>();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<AppRoleEntity>>();
 
             await context.Database.MigrateAsync();
+
+            if (!roleManager.Roles.Any())
+            {
+                var adminRole = new AppRoleEntity
+                {
+                    Name = "admin"
+                };
+                var userRole = new AppRoleEntity
+                {
+                    Name = "user"
+                };
+                await roleManager.CreateAsync(adminRole);
+                await roleManager.CreateAsync(userRole);
+            }
 
             var genres = new List<GenreEntity>();
 
