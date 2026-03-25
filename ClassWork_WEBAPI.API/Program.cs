@@ -6,9 +6,12 @@ using ClassWork_WEBAPI.DAL;
 using ClassWork_WEBAPI.DAL.Entities.Identity;
 using ClassWork_WEBAPI.DAL.Initializer;
 using ClassWork_WEBAPI.DAL.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,8 +33,10 @@ builder.Services.AddScoped<BookService>();
 builder.Services.AddScoped<ImageService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<EmailService>();
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 
 string corsPolicy = "allowAllCFG";
 builder.Services.AddCors(opt =>
@@ -61,8 +66,33 @@ builder.Services.AddIdentity<AppUserEntity, AppRoleEntity>(opt =>
 
 }).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
 
+string secretKey = builder.Configuration["JwtSettings:SecretKey"];
+if (string.IsNullOrEmpty(secretKey))
+{
+    throw new Exception("Немає SecretKey");
+}
+builder.Services.AddAuthentication(opt =>
+{
+    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(opt =>
+{
+    opt.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateIssuerSigningKey = true,
+        RequireExpirationTime = true,
+        ClockSkew = TimeSpan.Zero,
+        ValidateLifetime = true,
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey ?? ""))
+    };
+});
+
+
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
@@ -99,6 +129,7 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseCors(corsPolicy);
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

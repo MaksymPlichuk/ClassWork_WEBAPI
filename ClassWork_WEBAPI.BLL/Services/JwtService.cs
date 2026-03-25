@@ -17,11 +17,11 @@ namespace ClassWork_WEBAPI.BLL.Services
     public class JwtService
     {
         private readonly JwtSettings _jwtSettings;
-        private readonly RoleManager<AppRoleEntity> _roleManager;
-        public JwtService(IOptions<JwtSettings> jwtOptions, RoleManager<AppRoleEntity> roleManager)
+        private readonly UserManager<AppUserEntity> _userManager;
+        public JwtService(IOptions<JwtSettings> jwtOptions, UserManager<AppUserEntity> userManager)
         {
             _jwtSettings = jwtOptions.Value;
-            _roleManager = roleManager;
+            _userManager = userManager;
         }
 
         public async Task<string> GenerateTokenKey(AppUserEntity user)
@@ -31,15 +31,7 @@ namespace ClassWork_WEBAPI.BLL.Services
                 throw new Exception("Немає SecretKey");
             }
 
-            string roleName;
-            //if (user.UserRoles.Any())
-            //{
-            //    roleName = "No roles";
-            //}
-            //else
-            //{
-            //    roleName = await _roleManager.GetRoleNameAsync(user.UserRoles.FirstOrDefault().Role);
-            //}
+            var roles = await _userManager.GetRolesAsync(user);
 
             var claims = new List<Claim> {
                 new Claim("userName", user.UserName ?? string.Empty),
@@ -47,9 +39,10 @@ namespace ClassWork_WEBAPI.BLL.Services
                 new Claim("lastName", user.LastName ?? string.Empty),
                 new Claim("email", user.Email ?? string.Empty),
                 new Claim("image", user.Image ?? string.Empty),
-                new Claim("role", roleName ?? string.Empty)
             };
-
+            foreach (var role in roles) {
+                claims.Add(new Claim("role", role));
+            }
 
             var bytesSecretKey = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
             var signinKey = new SymmetricSecurityKey(bytesSecretKey);

@@ -8225,10 +8225,28 @@ public class JwtService
 
 //Налаштування щоб використовувати токен на беку
 
-builder. Services.AddAuthentication (options =>
+	NuGet: Microsoft.AspNetCore.AddAuthentication.JwtBearer
+
+builder.Services.AddAuthentication(options =>
 {
-...
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;		-- що передавати у Header
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters	-- що саме валідувати токену
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateIssuerSigningKey = true,
+        RequireExpirationTime = true,
+        ClockSkew = TimeSpan.Zero,
+        ValidateLifetime = true,
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey ?? ""))
+    };
 });
+
 
 
 контроллер не доступний без jwt token
@@ -8236,6 +8254,11 @@ builder. Services.AddAuthentication (options =>
 
 і для використання всіх методів у контроллері треба
 	передати у Header token
+	
+	
+Postman Headers
+		Key : Authorization
+		Value : Bearer token
 	
 [AllowAnonymous] -- не треба токен
 [Authorize] 	-- для метода треба токен

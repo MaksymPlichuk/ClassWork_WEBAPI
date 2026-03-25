@@ -13,10 +13,39 @@ namespace ClassWork_WEBAPI.BLL.Services
     {
         private readonly UserManager<AppUserEntity> _userManager;
         private readonly JwtService _jwtService;
-        public AuthService(UserManager<AppUserEntity> userManager, JwtService jwtService)
+        private readonly EmailService _emailService;
+        public AuthService(UserManager<AppUserEntity> userManager, JwtService jwtService, EmailService emailService)
         {
             _userManager = userManager;
             _jwtService = jwtService;
+            _emailService = emailService;
+        }
+
+        public async Task<ServiceResponse> EmailConfirmationAsync(string uid, string base64Token)
+        {
+            var user = await _userManager.FindByIdAsync(uid);
+            if (user == null) {
+                return new ServiceResponse
+                {
+                    Success = false,
+                    Message = $"Користувача з uid '{uid}' не знайдено"
+                };
+            }
+
+            byte[] bytes = Convert.FromBase64String(base64Token);
+            string token = Encoding.UTF8.GetString(bytes);
+
+            var resp = await _userManager.ConfirmEmailAsync(user, token);
+
+            if (!resp.Succeeded)
+            {
+                return new ServiceResponse
+                {
+                    Success = false,
+                    Message = resp.Errors.First().Description
+                };
+            }
+            return new ServiceResponse { Message = "Пошта успішно підтверджена!" };
         }
         public async Task<ServiceResponse> RegisterAsync(RegisterDto dto)
         {
@@ -57,9 +86,26 @@ namespace ClassWork_WEBAPI.BLL.Services
             }
             await _userManager.AddToRoleAsync(user, "user");
 
+            //Confirmation Email
+            
+            string token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            byte[] bytes = Encoding.UTF8.GetBytes(token);
+            string base64Token = Convert.ToBase64String(bytes);
+
+            string root = Directory.GetCurrentDirectory();
+            string filePath = Path.Combine(root, "Storage", "Templates", "ConfirmationEmail.html");
+            if (File.Exists(filePath))
+            {
+                string html = await File.ReadAllTextAsync(filePath);
+                html = html.Replace("{id}", user.Id);
+                html = html.Replace("{token}", base64Token);
+                await _emailService.SendEmailAsync(user.Email, "Підтвердження Пошти", html, true);
+            }
+
             return new ServiceResponse
             {
                 Message = "Успішно зареєстровано",
+                Payload = $"https://localhost:7211/confirmEmail?uid={user.Id}&t={base64Token}"
             };
 
         }

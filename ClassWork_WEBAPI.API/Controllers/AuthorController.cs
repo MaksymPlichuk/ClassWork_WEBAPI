@@ -2,12 +2,15 @@
 using ClassWork_WEBAPI.API.Settings;
 using ClassWork_WEBAPI.BLL.Dtos.Author;
 using ClassWork_WEBAPI.BLL.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClassWork_WEBAPI.API.Controllers
 {
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     public class AuthorController : ControllerBase
     {

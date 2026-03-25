@@ -27,5 +27,11 @@ namespace ClassWork_WEBAPI.API.Controllers
             var resp = await _authService.LoginAsync(dto);
             return this.GetAction(resp);
         }
+        [HttpGet("/confirmEmail")]
+        public async Task<IActionResult> ConfirmEmailAsync([FromQuery] string uid, [FromQuery] string t)
+        {
+            var resp = await _authService.EmailConfirmationAsync(uid, t);
+            return this.GetAction(resp);
+        }
     }
 }
