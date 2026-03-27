@@ -5,8 +5,8 @@ namespace ClassWork_WEBAPI.API.Middlewares
     public class ExceptionMiddleware
     {
         private RequestDelegate _next;
-        private ILogger _logger;
-        public ExceptionMiddleware(RequestDelegate next, ILogger logger)
+        private ILogger<ExceptionMiddleware> _logger;
+        public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
         {
             _next = next;
             _logger = logger;
@@ -25,7 +25,7 @@ namespace ClassWork_WEBAPI.API.Middlewares
                     Message = ex.Message,
                     Success = false
                 };
-                context.Response.StatusCode = 500;
+                //context.Response.StatusCode = 500;
                 await context.Response.WriteAsJsonAsync(response);
             }
         }
