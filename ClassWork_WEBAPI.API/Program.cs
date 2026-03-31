@@ -1,3 +1,4 @@
+using ClassWork_WEBAPI.API.Infrastracture;
 using ClassWork_WEBAPI.API.Middlewares;
 using ClassWork_WEBAPI.API.Settings;
 using ClassWork_WEBAPI.BLL.Services;
@@ -24,17 +25,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString);
 });
 
-builder.Services.AddScoped<AuthorRepository>();
-builder.Services.AddScoped<GenreRepository>();
-builder.Services.AddScoped<BookRepository>();
-
-
-builder.Services.AddScoped<AuthorService>();
-builder.Services.AddScoped<BookService>();
-builder.Services.AddScoped<ImageService>();
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<JwtService>();
-builder.Services.AddScoped<EmailService>();
+builder.Services.AddRepositories();
+builder.Services.AddServices();
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));

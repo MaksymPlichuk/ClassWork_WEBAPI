@@ -8075,7 +8075,16 @@ Post - має зашифроване Body через HTTPS
 	
 gitignore generator	
 
+
+
 ---	
+ на React для логін у формі з форміком перепис поля і логіку на HandleSubmit в 
+	reducers/authReducer/authReducer.js		--	обробляємо action.type
+А action в 
+	reducers/authReducer/actions.js	--	провалідовані данні вже кидає на бек
+									передаємо в Reducer через Dispatch вже зміненні дані
+https://github.com/potapchukdmytro/PD411_ASP_React_Book/blob/d7be1989d2a0fa1e0b56742acb18eb41650be652/front/src/store/reducers/authReducer/actions.js
+
 Parsing -- html agility package
 	
 static void Main(string[] args)
@@ -8263,7 +8272,34 @@ Postman Headers
 [AllowAnonymous] -- не треба токен
 [Authorize] 	-- для метода треба токен
 	
+	
+--	
 localStorage, Cookies -- будуть у JwtToken
+
+Створ окремий компонент Genres
+	також action Login
+https://github.com/potapchukdmytro/PD411_ASP_React_Book/commit/e5ab372ed188e236e80ae4a73283f62a646611ff
+
+export const login = (cred) => async (dispatch) => {
+    try {
+        const url = import.meta.env.VITE_API_URL + "auth/login";
+        const response = await axios.post(url, cred);			-- кидаємо Auth Login запит з данними
+        const { data } = response;
+		
+        const userData = jwtDecode(token);			-- окрема бібліотека достаємо Claims і записуємо у Redux
+		dispatch({ type: "LOGIN", payload: userData });
+	
+        return data;
+    } catch (error) {
+        const { response } = error;
+        const { data } = response;
+        return data;
+    }
+
+const response = await axios.get(url, {		-- кидання запита у Genres (токен вичитується з Cookies)
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
 
 Можна використовувати на фронті щоб ховати вкладки методи
 	
@@ -8559,7 +8595,224 @@ public static ServiceResponse Success(string message, object? payload = null)
 
 
 ----------------------------------------------
-11_
+11_quartz
+
+https://www.quartz-scheduler.net/documentation/quartz-3.x/packages/aspnet-core-integration.html
+
+quartz -- бібліотека для виконувати певні дії за розкладом
+
+ NuGet: Install-Package Quartz.AspNetCore 
+
+.API Далі папку Jobs --> ConsoleWriterJob.cs
+
+
+public class ConsoleWriterJob: IJob
+{
+	public async Task Execute (IJobExecutionContext context)
+	{
+		await Console.Out.WriteLineAsync("Quart working");
+		Console.ResetColor()	--	прибирає колір
+	}
+}
+
+builder.Services.AddQuartz(q =>
+{
+							назва класу у якому прописана робота
+    var jobKey = new JobKey("SendEmailJob");
+    q.AddJob<SendEmailJob>(opts => opts.WithIdentity(jobKey));
+    
+    q.AddTrigger(opts => opts	-- прив'язуємо розклад
+        .ForJob(jobKey)
+        .WithIdentity("SendEmailJob-trigger")	-- як id назва job-trigger
+  
+  		
+https://www.quartz-scheduler.net/documentation/quartz-3.x/tutorial/crontriggers.html#cron-triggers	
+//простіший розклад		
+        .WithSimpleSchedule(a => a.WithInterval(TimeSpan.FromSeconds(10)))
+    
+//складніший
+		.WithCronSchedule("* * * ? * *")	--	sec min h Day of the Mongth Month
+		.WithCronSchedule("0 * * ? * *")	--	розклад діє коли секунда буде 0 тобто кожну хвилину
+		.WithCronSchedule("* 39 * ? * *")	--	протягом всієї 39 хвилини (60 раз кожну секунду)
+		.WithCronSchedule("0-30 * * ? * *")	--	коли секунди у діапазоні 0-30
+		.WithCronSchedule("* * * * FRIL * *")	--	остання п'ятниця (або 5L)
+	
+	
+	);
+});
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+
+є конструктор є Depndecy Injection
+
+var file = new FileInfo(filePath); -- об'єкт описує файл	
+if(DateTime.Now - file.CreationTime > TimeSpan.FromMinutes(7))
+{
+	File.Delete(filePath);	--	видаляє всі файли старіші за 7 хв
+}
+
+
+//виносимо в окремий метод
+																				передаємо як 1 об'єкт
+ public static IServiceCollection AddJobs(this IServiceCollection services, params (Type type, string cronSchedule)[] jobs)
+        {
+            services.AddQuartz(q =>
+            {
+                foreach (var job in jobs)
+                {
+                    var jobKey = new JobKey(job.type.Name);
+                    q.AddJob(job.type, configure: opts => opts.WithIdentity(jobKey));
+
+                    q.AddTrigger(opts => opts
+                        .ForJob(jobKey)
+                        .WithIdentity($"{job.type.Name}-trigger")
+                        .WithCronSchedule(job.cronSchedule)
+                    );
+                }
+            });
+
+            return services;
+
+
+
+builder.Services.AddJobs(
+	(typeof(ConsoleWriterJob),"*****?"),
+	(typeof(LogsCleaningJob), "0 0 0 * * ?"),
+	(typeof(LogsCleaningJob), "000**?")
+	(typeof(LogsCleaningJob),
+);
+
+
+---
+tg bot publish на Somme.Com
+	щоб він завжди був активний незважаючи на консоль
+
+fetch те саме що HttpClient()
+--
+
+----------------------------------------------
+12_Query params
+
+
+пагінація потрібна якщо багато данних
+створ PaginationDto
+
+public class PaginationDto	-- саме Використ у коді
+{
+	public int Page { get; set; } = 1;
+	public int PageSize { get; set; } = 15;
+}
+
+	//Додаткова інфа для Pagination
+	
+public class PaginationResponseDto 	-- виведеться у Response
+{
+	public int Page { get; set; } = 1;
+	public int PageSize { get; set; } = 15;
+	public int PageCount { get; set; } = 1;
+	public int TotalCount { get; set; } = 0;
+	public IEnumerable<T> Data { get; set; } = [];
+}
+
+/Controller
+
+[HttpGet]								не обов'язково
+public async Task<IActionResult> GetAsync([FromQuery]PaginationDto pagination)
+
+ якщо не передати то вкажеться дефолтні значення
+#пропис логіку пагінації
+
+int totalCount = await_bookRepository. Books. CountAsync();
+int PageSize = pagination.PageSize < 1 ? 15 : pagination.PageSize;
+int pageCount = (int) Math.Ceiling((double)totalCount / pageSize);
+
+
+var entities await_bookRepository.Books
+	.Include(b=> b.Genres)
+	.Include(b=> b. Author)
+	.OrderBy(b=> b.Id)
+	.Skip((page - 1) * pageSize)
+	.Take(pageSize)
+	.ToListAsync();
+
+var dtos = mapper.Map<List<BookDto>>(entities);
+
+var paginationResponse = new PaginationResponseDto<BookDto>
+{
+	Page = page,
+	PageSize= pageSize,
+	TotalCount = totalCount,
+	PageCount pageCount,
+	Data = dtos
+} 
+
+//код повторюється для багатьох сервісів тому
+	створ abstract class BaseService	--	не можна створ об'єкт опис те що буде спільне в усіх методах
+	
+різниця інтерфейса абстракта
+інтерфейс обов'язково успадковується описує що буде 	
+у абстракта реалізовані методи
+	
+public class GenreService {} : BaseService	
+	
+
+var paginationResponse await SetPaginationAsync<GenreEntity, GenreDto>(entities, pagination);
+
+public abstract class BaseService 
+{
+	private readonly IMapper _mapper;
+
+	protected BaseService (IMapper mapper)
+	{
+		_mapper mapper;
+	}
+
+						//Через те що є IEnumerable<T> Data
+	public async Task<PaginationResponseDto<TDto>> GetPaginationAsync<TEntity, TDto>(IQueryable<TEntity> collection, PaginationDto pagination)
+	{
+		int totalCount await collection.CountAsync();
+		int pageSize pagination. PageSize 1? 15 pagination.PageSize;
+		int pageCount = (int) Math.Ceiling((double) totalCount / pageSize);
+		int page pagination. Page < 1 || pagination. Page pageCount? 1 pagination. Page;
+		
+		var entities = await collection
+			.Skip((page 1) pageSize)
+			.Take(pageSize)
+			.ToListAsync();
+			
+		var dtos = _mapper.Map<List<TDto>>(entities);
+			return new PaginationResponseDto<TDto>
+			{
+				Page = page,
+				PageSize= pageSize,
+				TotalCount = totalCount,
+				PageCount pageCount,
+				Data dtos
+			};
+	}		
+}
+
+--
+Reflection -- отримати значення властивості 
+	
+	object value = GetPropValue(person, "firstname");
+	
+	static object? GetPropValue<T>(T obj, string propName)
+	{
+		var type = obj!.GetType();				ігнорує регістр				публічна			
+		var property = type.GetProperty(propName,BindingFlags.IgnoreCase BindingFlags.Public | BindingFlags.Instance |BindingFlags.SetProperty);;
+	
+		if(property != null)
+		{
+			return property.GetValue(obj);
+		}
+	
+		return null;
+	}
+--
+
+
+----------------------------------------------
+13_
 
 
 	
