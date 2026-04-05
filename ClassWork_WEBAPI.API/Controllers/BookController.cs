@@ -1,6 +1,7 @@
 ﻿using ClassWork_WEBAPI.API.Extensions;
 using ClassWork_WEBAPI.API.Settings;
 using ClassWork_WEBAPI.BLL.Dtos.Book;
+using ClassWork_WEBAPI.BLL.Dtos.Pagination;
 using ClassWork_WEBAPI.BLL.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,9 +21,9 @@ namespace ClassWork_WEBAPI.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAsync()
+        public async Task<IActionResult> GetAsync([FromQuery]PaginationDto pagination)
         {
-            var resp = await _bookService.GetAllAsync();
+            var resp = await _bookService.GetAllAsync(pagination);
             return this.GetAction(resp);
         }
 

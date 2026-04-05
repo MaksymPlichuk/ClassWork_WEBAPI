@@ -1,4 +1,5 @@
-﻿using ClassWork_WEBAPI.DAL.Entities;
+﻿using ClassWork_WEBAPI.BLL.Dtos.Author;
+using ClassWork_WEBAPI.DAL.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,7 @@ namespace ClassWork_WEBAPI.BLL.Dtos.Book
         public float Rating { get; set; } = 0f;
         public int Pages { get; set; } = 0;
         public int PublishYear { get; set; } = DateTime.UtcNow.Year;
+        public AuthorForBooksDto? Author { get; set; }
 
     }
 }

@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using ClassWork_WEBAPI.BLL.Dtos.Author;
+using ClassWork_WEBAPI.BLL.Dtos.Pagination;
 using ClassWork_WEBAPI.DAL.Entities;
 using ClassWork_WEBAPI.DAL.Repositories;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,12 +13,13 @@ using System.Threading.Tasks;
 
 namespace ClassWork_WEBAPI.BLL.Services
 {
-    public class AuthorService
+    public class AuthorService : PaginationService
     {
         private readonly AuthorRepository _repository;
         private readonly ImageService _imageService;
         private readonly IMapper _mapper;
-        public AuthorService(AuthorRepository repository, ImageService imageService, IMapper mapper)
+        public AuthorService(AuthorRepository repository, ImageService imageService, IMapper mapper) 
+            : base(mapper)
         {
             _repository = repository;
             _imageService = imageService;
@@ -51,15 +54,15 @@ namespace ClassWork_WEBAPI.BLL.Services
                 Payload = _mapper.Map<AuthorDto>(entity)
             };
         }
-        public async Task<ServiceResponse> GetAllAsync()
+        public async Task<ServiceResponse> GetAllAsync(PaginationDto pagination)
         {
-            var authors = _repository.GetAll();
-            List<AuthorDto> dtos = _mapper.Map<List<AuthorDto>>(authors);
+            var authors = _repository.GetAll().Include(a=>a.Books);
+            var resp = await GetPaginationAsync<AuthorEntity, AuthorDto>(authors, pagination);
 
             return new ServiceResponse
             {
                 Message = $"{authors.Count()} Авторів знайдено",
-                Payload = dtos
+                Payload = resp
             };
         }
         public async Task<ServiceResponse> GetByIdAsync(int id)

@@ -8380,7 +8380,167 @@ app.UseMiddleware<LogMiddleware>();
 
 	
 ----------------------------------------------
-09_Infrastructure
+09_React authorization RTK Query
+
+//налаштування листа з підтвердженням
+//у appsettings створ SmtpSettings і однойменний клас
+
+"SmtpSettings": {
+	"Host": "smtp.gmail.com",
+	"Port":	587,
+	"Email": "gmail.com",
+	"Password": ""
+}
+
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
+
+public EmailService (IOptions<SmtpSettings> options)
+{
+	_settings = options.Value;
+	_smtpClient = new SmtpClient(_settings. Host, _settings.Port);
+	_smtpClient. EnableSsl = true;
+	_smtpClient.Credentials = new NetworkCredential(_settings. Email, _settings.Password);
+}
+
+//створ EmailService де EmailConfirmation з confirmMail.html
+<a href="https://localhost:7110/api/auth/confirmEmail?uid={id}&t={token}">
+<a>	--	тільки GET запит
+
+
+/authService
+
+string token = await _userManager.GenerateEmailConfirmationlokenAsync(user);
+
+string templatePath = Path.Combine(root, "Storage", "Templates", "ConfrimEmail.html");
+if(File.Exists(templatePath))
+{
+	string html = await File.ReadAllTextAsync(templatePath);
+	html = html.Replace("{id}", user.Id);	-- заміняєто HTML нашими значеннями
+	html = html.Replace("{token}", token);
+	_emailService. Send EmailAsync(user.Email, "",);
+}
+
+//і створ controller який приймає ссилку
+
+string token = await_userManager. Generate EmailConfirmationTokenAsync(user);
+byte[] bytes Encoding.UTF8.GetBytes(token);
+string base64Token = Convert.ToBase64String(bytes); -- щоб при jwt невтрачались символи
+
+
+--
+
+interceptor	--	як middleware у JS бере кожен запис і дописує щось
+	у нас щоб винести логіку додавання у header 
+
+//створ компонент api який буде як = axios + header
+
+import axios from "axios";
+
+	export const api = axios.create({
+		baseURL: import.meta.env.VITE_API_URL
+		headers: {
+			"Authorization": "Bearer ${getCookie("jwt")}	-- Без interceptor працює з старим токеном | Instance створ 1 раз у програмі
+		}
+	).interceptors.request.use(cfg => {
+		const jwtToken = getCookie("jwt");
+		if (jwtToken) {
+			cfg.headers.Authorization = `Bearer ${jwtToken}`;
+		}
+		return cfg;	--	без цього не додаватиме interceptor
+	}
+	
+використання: const response = await api.get("genre");	
+	
+RTK queary	--	запити хешування reducer action в 1 об'єкті	
+	коли бек з контроллерами axios коли простий запит
+	
+/AuthorAPI
+	
+	export const authorApi = createApi({
+		reducerPath: 'author',			-- як у root reducer (назва author:)
+		baseQuery: fetchBaseQuery({baseUrl: import.meta.env.VITE_API_URL]),	--адреса беку
+		tagTypes: ['authors'],					--теги для хешування під цим іменем | дані витягти з хешу ні то кидає запит
+		
+		endpoints: (build) => ({ 			-- методи контроллера на беку
+				getAuthors: build.query({	
+					query: () => ({			
+					url: "author"			-- куди кидати запит 
+					method: 'GET'
+			}),
+			providesTags: ['authors'] 		-- куди запишеться	
+		}),
+		
+			createAuthor: build.mutation({	--	змінити
+            query: (author) => ({			--передастся author
+                url: 'author',
+                method: 'POST',
+                body: author				--повертаємо данні у вигляді FormData
+            }),
+            invalidatesTags: ['authors']	--	тег стане невалідним і треба буде знову кидати запит
+        
+		})
+		
+				хук по назві endpoint
+	export const { useGetAuthorsQuery} = authorApi	-- use + Endpoint(GetAuthors) + endpointType(query/mutation)
+
+
+/rootReducer
+  import {authorApi} from "../services/AuthorApi.js";
+
+	export const rootReducer = combineReducers({
+		book: bookReducer,
+		auth: authReducer,
+	//заміняємо  author: authorReducer на
+		
+    [authorApi.reducerPath]: authorApi.reducer
+})
+	
+	
+/store
+		import {authorApi} from "./services/AuthorApi.js";
+
+export const store = configureStore({
+    reducer: rootReducer,
+    middleware: (getDefaultMiddleware) =>		--	сам будується через RTK queary
+        getDefaultMiddleware().concat(authorApi.middleware),
+})
+	
+	
+   const {data, isSuccess, isLoading} = useGetAuthorsQuery();	
+	
+https://redux-toolkit.js.org/rtk-query/overview
+	
+	
+//завантаження картинки
+	на mui знаходимо компонент і створ окремий state для них
+	
+const [image, setImage] = useState(null);	
+	
+	 const changeImageHandle = (event) => {				-- викликається у UploadFile input
+        if(event.target.files && event.target.files.length > 0) {
+            setImage(event.target.files[0]);
+        }
+    }
+	
+const initValues = {
+    name: "",
+    birthDate: new Date().toISOString().slice(0, 16),	--	фіксить час для беку
+    country: ""
+};	
+	
+	 const handleSubmit = async (values) => {
+        const formData = new FormData();
+        formData.append("name", values.name);
+        formData.append("birthDate", values.birthDate);
+        formData.append("country", values.country);
+        if(image) {
+            formData.append("image", image);
+        }
+
+        await createAuthor(formData);	-- POST на бек
+	
+----------------------------------------------
+10_Infrastructure
 
 DTO -- дані які не попадуть в таблицю можна змінювати
 
@@ -8395,7 +8555,7 @@ var entities = await _bookRepository.GetAll()
 	.Include(b=> b. Authoг)
 	.ToListAsync();
 	
-var dtos_mapper.Map<List<BookDto>>(entities);
+var dtos = _mapper.Map<List<BookDto>>(entities);
 
 
 //при перетворенні у Genres буде записуватися назва жанру замість назви классу
@@ -8420,11 +8580,11 @@ image = {
 	:import.meta.env.VITE_SHARE_IMAGE_URL + "no_image.jpg"
 }
 
-#щоб не писати довгу назву створ env.js у якому будуть змінні з Environment
-	export const env = {
-		apiBaseUrl: import.meta.env.VITE_API_URL,
-		shareImages: import.meta.env.VITE_SHARE_IMAGE URL,
-	}
+	#щоб не писати довгу назву створ env.js у якому будуть змінні з Environment
+		export const env = {
+			apiBaseUrl: import.meta.env.VITE_API_URL,
+			shareImages: import.meta.env.VITE_SHARE_IMAGE URL,
+		}
 
 image = {
 	book.image
@@ -8432,15 +8592,26 @@ image = {
 	: env.noimage
 }
 
+//видалення
+	const deleteImageHandle = () => {
+		 setImageHover(false);
+        if(imageInput.current) {
+            imageInput.current.value = null;
+        }
+        setImage(null);
+    }
+	
 {image &&
 	<Box sx={{textAlign: 'center'}}>
 		<Box component="img"
+		 onClick={deleteImageHandle}
 			sx={{objectFit: "contain"}}
-				src={URL.createObjectURL(image)) -- стор посилання з об'єкту у formik
+				src={ URL.createObjectURL(image) } -- стор посилання з об'єкту у formik
+				
 			height="300px"
 			width = "100%">
 		</Box>
-	</Box> 1
+	</Box>
 }
 
 
@@ -8449,9 +8620,9 @@ image = {
 const [image, setImage] = useState(null);
 
 	<VisuallyHiddenInput
-	type="file"
-	accept="image/*"
-	onChange={changeImageHandle} />
+		type="file"
+		accept="image/*"
+		onChange={changeImageHandle} />
 
 const change ImageHandle (event) => {
 	if (event.target.files && event.target.files.length > 0) {
@@ -8500,7 +8671,7 @@ Log.Logger = new LoggerConfiguration()
 	logs/		--	у яку папку		
 
 ----------------------------------------------
-10_JwtRefresh
+11_JwtRefresh
 
 //налаштування для Swagger додає Authorize щоб 
 	кидати авторизовані запити
@@ -8595,7 +8766,7 @@ public static ServiceResponse Success(string message, object? payload = null)
 
 
 ----------------------------------------------
-11_quartz
+12_quartz
 
 https://www.quartz-scheduler.net/documentation/quartz-3.x/packages/aspnet-core-integration.html
 
@@ -8690,7 +8861,7 @@ fetch те саме що HttpClient()
 --
 
 ----------------------------------------------
-12_Query params
+13_Query params
 
 
 пагінація потрібна якщо багато данних
@@ -8812,7 +8983,72 @@ Reflection -- отримати значення властивості
 
 
 ----------------------------------------------
-13_
+14_
+
+<CssBaseline />	--	Дозволяє змінювати кольори для ThemeContext
+
+switch(callback. Data)
+{
+case "random":
+await_botClient.SendMessage(callback.From. Id, new Random().Next(-1000, 1000)
+ щоб бот дав відповідб
+await_botClient.AnswerInlineQuery(callback. Id, new List<InlineQueryResult>()
+}
+
+----------------------------------------------
+15_RTKReact
+
+export const bookApi = createApi(( 
+	reducerPath:
+	book,
+	baseQuery: fetchBaseQuery((baseUrl: import.meta.env.VITE_API_URL}),
+	tagTypes:
+	['books 1,
+	endpoints:
+		(build) => ({
+			getBooks: build.query({
+				query: ((page = 1, pageSize= 15) => ({
+				url: book,
+				method: 'GET',
+				params: {page, pagesize)
+			}),
+	providesTags: ['books']
+)
+													точна назва як на беку
+const (data, issuccess, isLoading) useGetBooksQuery({page: 1, pageSize: 20});
 
 
+const [page, setPage] = useState(0);
+
+				передається з компонента пагінації
+const changePage (event, value) => {
+	setPage(value);
+	window.scrollTo
+	top: 0,
+behavior: "smooth"
+}
+
+//виносимо ImageUpload 	
+
+const UploadImage ((image, setImage, label, buttonText)) => {
+	const [imagellover, setImageHover] = useState(false);
+	const imageInputy useRef(null);
+	.. }
+
+<UploadImage image = {image} setImage = (setImage) label="Обкладинка" buttonText="Обрати файл зображення" />	
+<UploadImage onChange={(i) => setImage(i)) label="Обкладинка" buttonText="Обрати файл зображення" />	
+
+	
+--
+	
+BIOS -- контролюэ пристроями пк
+
+Docker -- тільки на Linux
+Віртуалізація процесора для того щоб встановити Linux 
+Rufus	--	boot usb-drive
+	
+wsl --update
+wsl --install Ubuntu
+
+---------------------------------------------- 	
 	

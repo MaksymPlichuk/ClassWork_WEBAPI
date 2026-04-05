@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using ClassWork_WEBAPI.BLL.Dtos.Book;
+using ClassWork_WEBAPI.BLL.Dtos.Pagination;
 using ClassWork_WEBAPI.DAL.Entities;
 using ClassWork_WEBAPI.DAL.Repositories;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,27 +12,28 @@ using System.Threading.Tasks;
 
 namespace ClassWork_WEBAPI.BLL.Services
 {
-    public class BookService
+    public class BookService : PaginationService
     {
         private readonly BookRepository _repository;
         private readonly ImageService _imageService;
         private readonly IMapper _mapper;
         public BookService(BookRepository repository, ImageService imageService, IMapper mapper)
+            : base(mapper)
         {
             _repository = repository;
             _imageService = imageService;
             _mapper = mapper;
         }
 
-        public async Task<ServiceResponse> GetAllAsync()
+        public async Task<ServiceResponse> GetAllAsync(PaginationDto pagination)
         {
-            var entities = _repository.GetAll();
-            List<BookDto> books = _mapper.Map<List<BookDto>>(entities);
+            var entities = _repository.GetAll().Include(b => b.Author);
+            var resp = await GetPaginationAsync<BookEntity, BookDto>(entities, pagination);
 
             return new ServiceResponse
             {
-                Message = $"{books.Count()} Книг Знайдено",
-                Payload = books
+                Message = $"{resp.Data.Count()} Книг Знайдено",
+                Payload = resp
             };
         }
         public async Task<ServiceResponse> GetByIdAsync(int id)
@@ -105,7 +108,7 @@ namespace ClassWork_WEBAPI.BLL.Services
                 if (!imgResponse.Success) { return imgResponse; }
                 e.Image = imgResponse.Payload!.ToString();
             }
-            
+
 
 
             bool res = await _repository.UpdateAsync(e);

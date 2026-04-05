@@ -108,24 +108,7 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseMiddleware<LogMiddleware>();
 
-string root = app.Environment.ContentRootPath;
-string storagePath = Path.Combine(root, StaticFilesSettings.StorageDir);
-string booksPath = Path.Combine(storagePath, StaticFilesSettings.BooksDir);
-string authorsPath = Path.Combine(storagePath, StaticFilesSettings.AuthorsDir);
-
-if (!Directory.Exists(booksPath)) { Directory.CreateDirectory(booksPath); }
-if (!Directory.Exists(authorsPath)) { Directory.CreateDirectory(authorsPath); }
-
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(booksPath),
-    RequestPath = StaticFilesSettings.BookUrl
-});
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(authorsPath),
-    RequestPath = StaticFilesSettings.AuthorUrl
-});
+app.UseStaticFiles(builder.Environment);
 
 
 app.UseCors(corsPolicy);

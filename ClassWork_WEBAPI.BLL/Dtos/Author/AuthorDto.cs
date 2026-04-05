@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ClassWork_WEBAPI.BLL.Dtos.Book;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,5 +14,6 @@ namespace ClassWork_WEBAPI.BLL.Dtos.Author
         public DateTime BirthDate { get; set; } = DateTime.UtcNow;
         public string? Image { get; set; }
         public string? Country { get; set; }
+        public List<BookDto> Books { get; set; }
     }
 }

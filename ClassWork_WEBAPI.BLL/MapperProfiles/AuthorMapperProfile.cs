@@ -24,6 +24,9 @@ namespace ClassWork_WEBAPI.BLL.MapperProfiles
             //UpdateAuthorDto --> AuthorEntity
             CreateMap<UpdateAuthorDto, AuthorEntity>()
                 .ForMember(dest => dest.Image, opt => opt.Ignore());
+
+            CreateMap<AuthorEntity, AuthorForBooksDto>()
+                .ForMember(dest => dest.BooksCount, opt => opt.MapFrom(src => src.Books.Count));
         }
     }
 }

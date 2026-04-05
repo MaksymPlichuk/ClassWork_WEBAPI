@@ -1,6 +1,7 @@
 ﻿using ClassWork_WEBAPI.API.Extensions;
 using ClassWork_WEBAPI.API.Settings;
 using ClassWork_WEBAPI.BLL.Dtos.Author;
+using ClassWork_WEBAPI.BLL.Dtos.Pagination;
 using ClassWork_WEBAPI.BLL.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -10,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ClassWork_WEBAPI.API.Controllers
 {
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     public class AuthorController : ControllerBase
     {
@@ -26,9 +27,9 @@ namespace ClassWork_WEBAPI.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAsync()
+        public async Task<IActionResult> GetAsync([FromQuery]PaginationDto pagination)
         {
-            var resp = await _authorService.GetAllAsync();
+            var resp = await _authorService.GetAllAsync(pagination);
             return this.GetAction(resp);
         }
         [HttpGet("{id}")]
