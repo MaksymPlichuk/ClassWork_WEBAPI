@@ -17,5 +17,6 @@ namespace ClassWork_WEBAPI.DAL.Entities.Identity
         public ICollection<AppUserLoginEntity> Logins { get; set; } = [];
         public ICollection<AppUserTokenEntity> Tokens { get; set; } = [];
         public ICollection<AppUserRoleEntity> UserRoles { get; set; } = [];
+        public ICollection<RefreshTokenEntity> RefreshTokens { get; set; } = [];
     }
 }

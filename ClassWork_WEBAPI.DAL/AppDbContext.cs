@@ -21,6 +21,7 @@ namespace ClassWork_WEBAPI.DAL
         public DbSet<AuthorEntity> Authors { get; set; }
         public DbSet<BookEntity> Books { get; set; }
         public DbSet<GenreEntity> Genres { get; set; }
+        public DbSet<RefreshTokenEntity> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -59,6 +60,12 @@ namespace ClassWork_WEBAPI.DAL
                 e.HasMany(b => b.Genres).WithMany(g => g.Books).UsingEntity("BookGenres");
             });
 
+            modelBuilder.Entity<RefreshTokenEntity>(e =>
+            {
+                e.HasOne(t=>t.User)
+                .WithMany(u=>u.RefreshTokens)
+                .HasForeignKey(t=>t.UserId);
+            });
 
             modelBuilder.Entity<AppUserEntity>(e =>
             {

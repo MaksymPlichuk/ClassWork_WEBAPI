@@ -1,4 +1,5 @@
 using ClassWork_WEBAPI.API.Infrastracture;
+using ClassWork_WEBAPI.API.Jobs;
 using ClassWork_WEBAPI.API.Middlewares;
 using ClassWork_WEBAPI.API.Settings;
 using ClassWork_WEBAPI.BLL.Services;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
+using Quartz;
 using Serilog;
 using System.Text;
 
@@ -95,6 +97,20 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Host.UseSerilog();
+
+builder.Services.AddQuartz(q =>
+{
+    var jobKey = new JobKey("RefreshTokenCleaner");
+    q.AddJob<RefreshTokenCleaner>(opt => opt.WithIdentity(jobKey));
+
+    q.AddTrigger(opt => opt
+    .ForJob(jobKey)
+    .WithIdentity("RefreshTokenCleaner-trigger")
+    .WithCronSchedule("0 * * * * ?")
+    );
+});
+
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 var app = builder.Build();
 

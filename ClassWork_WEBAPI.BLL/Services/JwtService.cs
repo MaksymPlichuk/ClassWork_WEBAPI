@@ -1,6 +1,8 @@
 ﻿using ClassWork_WEBAPI.BLL.Dtos.Auth;
 using ClassWork_WEBAPI.BLL.Settings;
+using ClassWork_WEBAPI.DAL.Entities;
 using ClassWork_WEBAPI.DAL.Entities.Identity;
+using ClassWork_WEBAPI.DAL.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -9,6 +11,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,13 +21,76 @@ namespace ClassWork_WEBAPI.BLL.Services
     {
         private readonly JwtSettings _jwtSettings;
         private readonly UserManager<AppUserEntity> _userManager;
-        public JwtService(IOptions<JwtSettings> jwtOptions, UserManager<AppUserEntity> userManager)
+        private readonly RefreshTokenRepository _refreshTokenRepository;
+        public JwtService(IOptions<JwtSettings> jwtOptions, UserManager<AppUserEntity> userManager, RefreshTokenRepository refreshTokenRepository)
         {
             _jwtSettings = jwtOptions.Value;
             _userManager = userManager;
+            _refreshTokenRepository = refreshTokenRepository;
         }
 
-        public async Task<string> GenerateTokenKey(AppUserEntity user)
+        private async Task<RefreshTokenEntity> GenerateRefreshTokenAsync()
+        {
+            byte[] bytes = new byte[64];
+            var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(bytes);
+
+            string token = Convert.ToBase64String(bytes);
+            return new RefreshTokenEntity
+            {
+                Token = token,
+                ExpiresDate = DateTime.UtcNow.AddDays(7)
+            };
+
+        }
+
+        public async Task<JwtDto> GenerateTokensAsync(AppUserEntity user)
+        {
+            string accessToken = await GenerateTokenKey(user);
+            var refreshToken = await GenerateRefreshTokenAsync();
+            refreshToken.UserId = user.Id;
+            await _refreshTokenRepository.CreateAsync(refreshToken);
+
+            return new JwtDto
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken.Token
+            };
+        }
+        public async Task<ServiceResponse> RefreshAsync(string refreshToken)
+        {
+            var token = await _refreshTokenRepository.GetTokenByNameAsync(refreshToken);
+            if (token == null || token.IsUsed || token.IsExpired)
+            {
+                return new ServiceResponse
+                {
+                    Success = false,
+                    Message = "Неправильний JWT token"
+                };
+            }
+            var user = await _userManager.FindByIdAsync(token.UserId);
+            if (user == null)
+            {
+                return new ServiceResponse
+                {
+                    Success = false,
+                    Message = "Неправильний JWT token"
+                };
+            }
+
+            token.IsExpired = true;
+            await _refreshTokenRepository.UpdateAsync(token);
+
+            var newTokens = await GenerateTokensAsync(user);
+            return new ServiceResponse
+            {
+                Message = "Успішно оновлено токени",
+                Payload = newTokens
+            };
+
+        }
+
+        private async Task<string> GenerateTokenKey(AppUserEntity user)
         {
             if (string.IsNullOrEmpty(_jwtSettings.SecretKey))
             {
@@ -40,7 +106,8 @@ namespace ClassWork_WEBAPI.BLL.Services
                 new Claim("email", user.Email ?? string.Empty),
                 new Claim("image", user.Image ?? string.Empty),
             };
-            foreach (var role in roles) {
+            foreach (var role in roles)
+            {
                 claims.Add(new Claim("role", role));
             }
 

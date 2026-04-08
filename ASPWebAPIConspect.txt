@@ -8678,7 +8678,8 @@ Log.Logger = new LoggerConfiguration()
 
 builder. Services.AddSwaggerGen(optinons  =>
 {
-	optinons.SwaggerDoc("v1", new OpenApiInfo { Title = "PD411", Version = "v1" }); --версія документації
+	optinons.SwaggerDoc("v1", new OpenApiInfo { Title = "PD411", Version = "v1" }); --версія документації (для себе неважливо що написано)
+		
 		options.AddSecurityDefinition("Bearer", new OpenApiSecurity Scheme
 		{
 	
@@ -8698,7 +8699,7 @@ builder. Services.AddSwaggerGen(optinons  =>
 				Reference = new OpenApiReference
 				{
 					Type = ReferenceType.SecurityScheme,
-					Id = "Bearer"
+					Id = "Bearer"						--шукає схему з такою назвою (у нас де AddSecurityDefinition)
 				}
 			},
 			Array.Empty<string>()
@@ -8713,39 +8714,64 @@ builder. Services.AddSwaggerGen(optinons  =>
 
 Roles -- зчитує роль з claim
 
-Refresh token -- щоб не зберігати один токен він буде постійно оновлюватись
-	задля безпеки
-Тому отрим 2 токен Access живе менше Refresh оновлює access
 
-Access	-- годину/3 основний який надає данні легше перехопити
+
+Refresh token -- щоб не зберігати один токен, він буде постійно оновлюватись
+	задля безпеки прив'язується в БД до user | ОДНОРАЗОВИЙ на 1 оновлення
+	
+Коли access закінчується кидається запит на бек який повертає Access і Refresh	
+	
+	Тому отрим 2 токени Access живе менше Refresh оновлює access
+
+
+Access	-- ВСІ ЗАПИТИ і ДІЇ годину/3 основний який надає данні легше перехопити
 Refresh	-- неможна витягнути через JS породжує access HTTPonly
 
 
 Створ окремий Entity для токенів RefreshTokenEntity
 
+	public class RefreshTokenEntity : BaseEntity
+		{
+			public string Token { get; set; } = string.Empty;
+			public DateTime Expires { get; set; }
+			public bool IsExpired => DateTime.UtcNow > Expires;
+			public bool IsUsed { get; set; } = false;
+			public string UserId { get; set; } = string.Empty;
+			public AppUserEntity? User { get; set; }
+		}
+
 Налаштування 1 User має багато token
 
 AppUserEntity
-	public ICollection<RefreshTokenEntity> Refresh Tokens { get; set;} = [];
+	public ICollection<RefreshTokenEntity> RefreshTokens { get; set;} = [];
 
 
 public DbSet<RefreshTokenEntity> RefreshTokens { get; set; }
+ і налаштування
 
 /JwtService
 
 public async Task<RefreshTokenEntity> GenerateRefreshToken()
 {
 	var bytes = new byte[64];
-	var rng = RandomNumberGenerator.Create();
+	var rng = RandomNumberGenerator.Create();	-- randint
 	rng.GetBytes(bytes);
 	
 	string token = Convert.ToBase64String(bytes);	
+	return new RefreshTokenEntity
+            {
+                Token = token,
+                Expires = DateTime.UtcNow.AddDays(7),
+            };
 }
 
-створ JwtDto RefreshToken Repository
+створ JwtDto і RefreshToken Repository
+
+public async Task<JwtDto> GenerateTokensAsync(AppUserEntity user)
+{...}	--	генерується Refresh і Access у БД запис Refresh
 
 public async Task<ServiceResponse> RefreshAsync(string refreshToken)
-{...}
+{...}	-- старий Access робимо використаним і генеруємо нові
 
 
 Refactoring return ServiceMessage

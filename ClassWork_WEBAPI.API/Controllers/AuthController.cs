@@ -10,9 +10,11 @@ namespace ClassWork_WEBAPI.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly AuthService _authService;
-        public AuthController(AuthService authService)
+        private readonly JwtService _jwtService;
+        public AuthController(AuthService authService, JwtService jwtService)
         {
             _authService = authService;
+            _jwtService = jwtService;
         }
 
         [HttpPost("/register")]
@@ -27,6 +29,13 @@ namespace ClassWork_WEBAPI.API.Controllers
             var resp = await _authService.LoginAsync(dto);
             return this.GetAction(resp);
         }
+        [HttpPost("/refresh")]
+        public async Task<IActionResult> RefreshAsync([FromBody] string refreshToken)
+        {
+            var resp = await _jwtService.RefreshAsync(refreshToken);
+            return this.GetAction(resp);
+        }
+
         [HttpGet("/confirmEmail")]
         public async Task<IActionResult> ConfirmEmailAsync([FromQuery] string uid, [FromQuery] string t)
         {

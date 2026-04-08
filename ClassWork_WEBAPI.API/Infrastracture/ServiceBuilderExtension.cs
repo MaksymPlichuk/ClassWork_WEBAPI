@@ -1,5 +1,6 @@
 ﻿using ClassWork_WEBAPI.BLL.Services;
 using ClassWork_WEBAPI.DAL.Repositories;
+using Quartz;
 using System.Runtime.CompilerServices;
 
 namespace ClassWork_WEBAPI.API.Infrastracture
@@ -21,7 +22,9 @@ namespace ClassWork_WEBAPI.API.Infrastracture
             services.AddScoped<AuthorRepository>();
             services.AddScoped<GenreRepository>();
             services.AddScoped<BookRepository>();
+            services.AddScoped<RefreshTokenRepository>();
             return services;
         }
+
     }
 }

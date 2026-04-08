@@ -133,7 +133,7 @@ namespace ClassWork_WEBAPI.BLL.Services
             return new ServiceResponse
             {
                 Message = "Успішний вхід",
-                Payload = await _jwtService.GenerateTokenKey(user)
+                Payload = await _jwtService.GenerateTokensAsync(user)
             };
 
         }
